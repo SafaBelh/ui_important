@@ -1,0 +1,176 @@
+.root { display: contents; }
+
+.card {
+  padding: 18px;
+  border-radius: 18px;
+}
+
+.sectionNum {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: #18191c;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.kpiTile {
+  flex: 1 1 190px;
+  min-width: 180px;
+}
+
+.kpiLabel {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #9ca3af;
+}
+
+.kpiValue {
+  margin-top: 8px;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -.04em;
+}
+
+.kpiSub {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.monthlyBarsChart {
+  display: flex;
+  align-items: end;
+  gap: 6px;
+}
+
+.monthlyBarItem {
+  flex: 1;
+  min-width: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.monthlyBar {
+  width: 100%;
+  min-height: 3px;
+  border-radius: 8px 8px 3px 3px;
+}
+
+.monthLabel {
+  font-size: 9px;
+  color: #9ca3af;
+}
+
+.trendAreaChart {
+  height: 220px;
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+.trendItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.trendBars {
+  width: 100%;
+  height: 170px;
+  display: flex;
+  align-items: end;
+  gap: 2px;
+}
+
+.trendBar {
+  flex: 1;
+  border-radius: 8px 8px 2px 2px;
+}
+
+.trendBarReal {
+  background: #d94f3d;
+}
+
+.trendBarBudget {
+  background: #c4c7cc;
+}
+
+.alertCard {
+  border: 1px solid rgba(217,79,61,.25);
+  background: rgba(217,79,61,.06);
+}
+
+.alertHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #d94f3d;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.alertList {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.alertItem {
+  font-size: 12px;
+  color: #3d4149;
+}
+
+.seasonalCard {
+  border: 1px solid rgba(245,158,11,.25);
+  background: rgba(245,158,11,.08);
+}
+
+.seasonalHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #f59e0b;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.seasonalContent {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #525761;
+}

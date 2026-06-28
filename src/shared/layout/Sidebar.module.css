@@ -1,0 +1,236 @@
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, .72);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, .88);
+  transition: width .2s ease-out;
+  overflow: hidden;
+}
+
+.collapsed {
+  width: 72px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, .88);
+}
+
+.brandIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #d94f3d, #e8736a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(217, 79, 61, .3);
+}
+
+.brandTitle {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: #18191c;
+  white-space: nowrap;
+}
+
+.brandSubtitle {
+  font-size: 9px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-top: 1px;
+}
+
+.tenantChip {
+  margin: 10px 12px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--tenant-bg);
+  border: 1px solid var(--tenant-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tenantAvatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--tenant-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.truncateWrap {
+  min-width: 0;
+}
+
+.tenantName,
+.userName {
+  font-size: 11px;
+  font-weight: 600;
+  color: #18191c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tenantMeta {
+  font-size: 9px;
+  color: #6b7280;
+}
+
+.nav {
+  flex: 1;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.navItemCentered {
+  justify-content: center;
+}
+
+.navLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.unreadBadge {
+  margin-left: auto;
+  background: #d94f3d;
+  color: #fff;
+  border-radius: 99px;
+  font-size: 9px;
+  padding: 1px 6px;
+  font-weight: 700;
+}
+
+.footer {
+  padding: 10px;
+  border-top: 1px solid rgb(138 138 138 / 7%);
+}
+
+.footerUser {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 4px 6px;
+}
+
+.footerAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--tenant-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.userRole {
+  font-size: 9px;
+  color: #6b7280;
+  text-transform: capitalize;
+}
+
+.collapseButton {
+  margin-top: 4px;
+}
+
+.colorRed {
+  --tenant-color: #d94f3d;
+  --tenant-bg: #d94f3d0f;
+  --tenant-border: #d94f3d26;
+}
+
+.colorBlue {
+  --tenant-color: #3b82f6;
+  --tenant-bg: #3b82f60f;
+  --tenant-border: #3b82f626;
+}
+
+.colorSuccess {
+  --tenant-color: #22c55e;
+  --tenant-bg: #22c55e0f;
+  --tenant-border: #22c55e26;
+}
+
+.colorGreen {
+  --tenant-color: #10b981;
+  --tenant-bg: #10b9810f;
+  --tenant-border: #10b98126;
+}
+
+.colorAmber {
+  --tenant-color: #f59e0b;
+  --tenant-bg: #f59e0b0f;
+  --tenant-border: #f59e0b26;
+}
+
+.colorViolet {
+  --tenant-color: #8b5cf6;
+  --tenant-bg: #8b5cf60f;
+  --tenant-border: #8b5cf626;
+}
+
+.colorTeal {
+  --tenant-color: #14b8a6;
+  --tenant-bg: #14b8a60f;
+  --tenant-border: #14b8a626;
+}
+
+.colorOrange {
+  --tenant-color: #f97316;
+  --tenant-bg: #f973160f;
+  --tenant-border: #f9731626;
+}
+
+.colorRose {
+  --tenant-color: #ec4899;
+  --tenant-bg: #ec48990f;
+  --tenant-border: #ec489926;
+}
+
+.colorRedMid {
+  --tenant-color: #e8736a;
+  --tenant-bg: #e8736a0f;
+  --tenant-border: #e8736a26;
+}
+
+.colorCyan {
+  --tenant-color: #06b6d4;
+  --tenant-bg: #06b6d40f;
+  --tenant-border: #06b6d426;
+}
+
+.colorLime {
+  --tenant-color: #84cc16;
+  --tenant-bg: #84cc160f;
+  --tenant-border: #84cc1626;
+}

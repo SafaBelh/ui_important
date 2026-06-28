@@ -1,0 +1,581 @@
+.formCard {
+  border-radius: 16px;
+  border: 1px solid rgba(217, 79, 61, .14);
+  background: rgba(255, 255, 255, .95);
+  backdrop-filter: blur(16px);
+  overflow: hidden;
+  box-shadow: 0 14px 38px rgba(15, 23, 42, .08);
+}
+
+.topBar {
+  padding: 14px 20px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, .96) 0%, rgba(217, 79, 61, .035) 100%);
+  border-bottom: 1px solid rgba(107, 114, 128, .12);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar,
+.previewAvatar {
+  background: linear-gradient(135deg, var(--tenant-color), var(--tenant-soft-cc));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 13px;
+  transition: background .2s;
+}
+
+.titleBlock,
+.spacer {
+  flex: 1;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #18191c;
+}
+
+.stepSubtitle {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-top: 1px;
+}
+
+.stepPills {
+  display: flex;
+  gap: 4px;
+}
+
+.stepPill {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(107, 114, 128, .2);
+  transition: all .3s;
+}
+
+.stepPillActive {
+  width: 20px;
+  background: #d94f3d;
+}
+
+.stepPillComplete {
+  background: #22c55e;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  border-radius: 8px;
+  transition: background .15s;
+}
+
+.body {
+  padding: 20px;
+}
+
+.stepColumn,
+.editActions,
+.credentialsStep {
+  display: flex;
+  flex-direction: column;
+}
+
+.stepColumn {
+  gap: 18px;
+}
+
+.editActions {
+  gap: 14px;
+  padding-top: 4px;
+}
+
+.credentialsStep {
+  gap: 16px;
+}
+
+.label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hash {
+  font-size: 10px;
+  color: #9ca3af;
+  font-weight: 700;
+}
+
+.required {
+  color: #d94f3d;
+}
+
+.input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(107, 114, 128, .18);
+  background: rgba(255, 255, 255, .7);
+  font-size: 12px;
+  color: #18191c;
+  outline: none;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color .15s;
+}
+
+.colorGrid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.colorSwatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--tenant-soft-28), var(--tenant-soft-70));
+  border: 1px solid var(--tenant-soft-40);
+  cursor: pointer;
+  outline: none;
+  transition: all .15s;
+  position: relative;
+}
+
+.colorSwatchActive {
+  border: 1.5px solid var(--tenant-color);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px var(--tenant-soft-26);
+}
+
+.storageGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.storageOption {
+  padding: 14px 16px;
+  border-radius: 12px;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid rgba(107, 114, 128, .14);
+  background: rgba(255, 255, 255, .72);
+  transition: all .15s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.storageOptionActive {
+  border-color: var(--tenant-soft-66);
+  background: var(--tenant-soft-0b);
+  box-shadow: 0 10px 24px var(--tenant-soft-12);
+}
+
+.storageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.storageIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgba(107, 114, 128, .06);
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.storageIconActive {
+  background: var(--tenant-soft-14);
+  color: var(--tenant-color);
+}
+
+.badge {
+  font-size: 8px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 99px;
+  letter-spacing: .06em;
+}
+
+.badgeRecommended {
+  background: rgba(217, 79, 61, .1);
+  color: #d94f3d;
+}
+
+.badgeEnterprise {
+  background: rgba(124, 58, 237, .1);
+  color: #7c3aed;
+}
+
+.storageLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #18191c;
+  margin-bottom: 3px;
+}
+
+.storageLabelActive {
+  color: var(--tenant-color);
+}
+
+.storageDesc {
+  font-size: 10px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.credentialsGrid {
+  display: grid;
+  grid-template-columns: minmax(220px, .85fr) minmax(320px, 1.15fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.passwordRow,
+.actionRowEdit,
+.createActions {
+  display: flex;
+  align-items: center;
+}
+
+.passwordRow {
+  gap: 8px;
+}
+
+.suggestButton {
+  font-size: 11px;
+  padding: 0 12px;
+  white-space: nowrap;
+}
+
+.strengthBlock {
+  margin-top: 8px;
+}
+
+.strengthTrack {
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(107, 114, 128, .12);
+  overflow: hidden;
+}
+
+.strengthFill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width .2s, background .2s;
+}
+
+.score0,
+.score1 {
+  width: 18%;
+}
+
+.score2 {
+  width: 28%;
+}
+
+.score3 {
+  width: 42%;
+}
+
+.score4,
+.score5 {
+  width: 68%;
+}
+
+.score6 {
+  width: 100%;
+}
+
+.strengthFill.weak {
+  background: #d94f3d;
+}
+
+.strengthFill.ok {
+  background: #f59e0b;
+}
+
+.strengthFill.strong {
+  background: #22c55e;
+}
+
+.strengthTextRow {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.strengthHint {
+  font-size: 9px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.strengthLabel {
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.strengthLabel.weak {
+  color: #d94f3d;
+}
+
+.strengthLabel.ok {
+  color: #f59e0b;
+}
+
+.strengthLabel.strong {
+  color: #22c55e;
+}
+
+.actionRowEdit {
+  gap: 10px;
+}
+
+.primaryButton,
+.nextButton,
+.backButton {
+  display: flex;
+  align-items: center;
+}
+
+.primaryButton {
+  font-size: 13px;
+  gap: 6px;
+}
+
+.button13 {
+  font-size: 13px;
+}
+
+.button12 {
+  font-size: 12px;
+}
+
+.nextActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.nextButton {
+  font-size: 12px;
+  gap: 6px;
+}
+
+.disabledButton {
+  opacity: .5;
+}
+
+.preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(107, 114, 128, .04);
+  border: 1px solid rgba(107, 114, 128, .1);
+}
+
+.previewAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  font-size: 11px;
+}
+
+.previewName {
+  font-size: 12px;
+  font-weight: 700;
+  color: #18191c;
+}
+
+.previewMeta {
+  font-size: 9px;
+  color: #6b7280;
+}
+
+.useSuggestedButton {
+  margin-top: 8px;
+  font-size: 11px;
+  padding: 5px 10px;
+}
+
+.passwordNotice {
+  font-size: 9px;
+  color: #9ca3af;
+  margin: -4px 0 0;
+  line-height: 1.5;
+}
+
+.createActions {
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.backButton {
+  font-size: 12px;
+  gap: 5px;
+}
+
+.colorRed {
+  --tenant-color: #d94f3d;
+  --tenant-soft-cc: #d94f3dcc;
+  --tenant-soft-70: #d94f3d70;
+  --tenant-soft-66: #d94f3d66;
+  --tenant-soft-40: #d94f3d40;
+  --tenant-soft-28: #d94f3d28;
+  --tenant-soft-26: #d94f3d26;
+  --tenant-soft-14: #d94f3d14;
+  --tenant-soft-12: #d94f3d12;
+  --tenant-soft-0b: #d94f3d0b;
+}
+
+.colorBlue {
+  --tenant-color: #3b82f6;
+  --tenant-soft-cc: #3b82f6cc;
+  --tenant-soft-70: #3b82f670;
+  --tenant-soft-66: #3b82f666;
+  --tenant-soft-40: #3b82f640;
+  --tenant-soft-28: #3b82f628;
+  --tenant-soft-26: #3b82f626;
+  --tenant-soft-14: #3b82f614;
+  --tenant-soft-12: #3b82f612;
+  --tenant-soft-0b: #3b82f60b;
+}
+
+.colorGreen {
+  --tenant-color: #10b981;
+  --tenant-soft-cc: #10b981cc;
+  --tenant-soft-70: #10b98170;
+  --tenant-soft-66: #10b98166;
+  --tenant-soft-40: #10b98140;
+  --tenant-soft-28: #10b98128;
+  --tenant-soft-26: #10b98126;
+  --tenant-soft-14: #10b98114;
+  --tenant-soft-12: #10b98112;
+  --tenant-soft-0b: #10b9810b;
+}
+
+.colorAmber {
+  --tenant-color: #f59e0b;
+  --tenant-soft-cc: #f59e0bcc;
+  --tenant-soft-70: #f59e0b70;
+  --tenant-soft-66: #f59e0b66;
+  --tenant-soft-40: #f59e0b40;
+  --tenant-soft-28: #f59e0b28;
+  --tenant-soft-26: #f59e0b26;
+  --tenant-soft-14: #f59e0b14;
+  --tenant-soft-12: #f59e0b12;
+  --tenant-soft-0b: #f59e0b0b;
+}
+
+.colorViolet {
+  --tenant-color: #8b5cf6;
+  --tenant-soft-cc: #8b5cf6cc;
+  --tenant-soft-70: #8b5cf670;
+  --tenant-soft-66: #8b5cf666;
+  --tenant-soft-40: #8b5cf640;
+  --tenant-soft-28: #8b5cf628;
+  --tenant-soft-26: #8b5cf626;
+  --tenant-soft-14: #8b5cf614;
+  --tenant-soft-12: #8b5cf612;
+  --tenant-soft-0b: #8b5cf60b;
+}
+
+.colorCyan {
+  --tenant-color: #06b6d4;
+  --tenant-soft-cc: #06b6d4cc;
+  --tenant-soft-70: #06b6d470;
+  --tenant-soft-66: #06b6d466;
+  --tenant-soft-40: #06b6d440;
+  --tenant-soft-28: #06b6d428;
+  --tenant-soft-26: #06b6d426;
+  --tenant-soft-14: #06b6d414;
+  --tenant-soft-12: #06b6d412;
+  --tenant-soft-0b: #06b6d40b;
+}
+
+.colorOrange {
+  --tenant-color: #f97316;
+  --tenant-soft-cc: #f97316cc;
+  --tenant-soft-70: #f9731670;
+  --tenant-soft-66: #f9731666;
+  --tenant-soft-40: #f9731640;
+  --tenant-soft-28: #f9731628;
+  --tenant-soft-26: #f9731626;
+  --tenant-soft-14: #f9731614;
+  --tenant-soft-12: #f9731612;
+  --tenant-soft-0b: #f973160b;
+}
+
+.colorRose {
+  --tenant-color: #ec4899;
+  --tenant-soft-cc: #ec4899cc;
+  --tenant-soft-70: #ec489970;
+  --tenant-soft-66: #ec489966;
+  --tenant-soft-40: #ec489940;
+  --tenant-soft-28: #ec489928;
+  --tenant-soft-26: #ec489926;
+  --tenant-soft-14: #ec489914;
+  --tenant-soft-12: #ec489912;
+  --tenant-soft-0b: #ec48990b;
+}
+
+.colorLime {
+  --tenant-color: #84cc16;
+  --tenant-soft-cc: #84cc16cc;
+  --tenant-soft-70: #84cc1670;
+  --tenant-soft-66: #84cc1666;
+  --tenant-soft-40: #84cc1640;
+  --tenant-soft-28: #84cc1628;
+  --tenant-soft-26: #84cc1626;
+  --tenant-soft-14: #84cc1614;
+  --tenant-soft-12: #84cc1612;
+  --tenant-soft-0b: #84cc160b;
+}
+
+.colorTeal {
+  --tenant-color: #14b8a6;
+  --tenant-soft-cc: #14b8a6cc;
+  --tenant-soft-70: #14b8a670;
+  --tenant-soft-66: #14b8a666;
+  --tenant-soft-40: #14b8a640;
+  --tenant-soft-28: #14b8a628;
+  --tenant-soft-26: #14b8a626;
+  --tenant-soft-14: #14b8a614;
+  --tenant-soft-12: #14b8a612;
+  --tenant-soft-0b: #14b8a60b;
+}

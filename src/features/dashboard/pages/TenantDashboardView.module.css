@@ -1,0 +1,107 @@
+.page {
+  padding: 20px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.page :global(.recharts-legend-wrapper) {
+  font-size: 11px !important;
+}
+
+.criticalPill { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(217,79,61,.09); border: 1px solid rgba(217,79,61,.2); border-radius: 99px; }
+.criticalDot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-red); display: inline-block; }
+.criticalText { font-size: 11px; font-weight: 700; color: var(--color-red); }
+.headerButton { font-size: 12px; }
+
+.kpiGridSix { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px; }
+.kpiGridFour { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.kpiCard { padding: 16px 14px; }
+.kpiIconBox { width: 30px; height: 30px; border-radius: 8px; background: var(--tone-bg); display: flex; align-items: center; justify-content: center; margin-bottom: 9px; }
+.kpiValue { font-family: var(--font-sans); font-size: 24px; color: var(--tone-color); line-height: 1; letter-spacing: -.4px; }
+.kpiLabel { font-size: 10px; color: var(--color-grey-500); margin-top: 5px; font-weight: 600; line-height: 1.3; }
+.kpiSub { font-size: 9px; color: var(--tone-color); margin-top: 2px; opacity: .7; }
+.miniKpiCard { padding: 14px 16px; }
+.miniKpiValue { font-family: var(--font-sans); font-size: 28px; color: var(--tone-color); }
+.miniKpiLabel { font-size: 11px; color: var(--color-grey-500); margin-top: 4px; }
+
+.gridTwoOne { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 14px; }
+.gridTwoEqual { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.chartCard { padding: 20px; }
+.spacedCard { margin-bottom: 14px; }
+.chartHeaderRow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.chartTitle { font-size: 12px; font-weight: 700; color: var(--color-grey-700); text-transform: uppercase; letter-spacing: .06em; }
+.chartTitleSpaced { font-size: 12px; font-weight: 700; color: var(--color-grey-700); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 14px; }
+.emptyState { text-align: center; padding: 32px; font-size: 12px; color: var(--color-grey-400); }
+
+.legendListTight { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.legendList { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.legendColumn { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.legendRowSpace { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+.legendRow { display: flex; align-items: center; gap: 8px; }
+.legendItemLabel { display: flex; align-items: center; gap: 6px; }
+.legendDotSmall { width: 8px; height: 8px; border-radius: 50%; background: var(--tone-color); flex-shrink: 0; }
+.legendDot { width: 9px; height: 9px; border-radius: 50%; background: var(--tone-color); }
+.legendName { font-size: 11px; color: var(--color-grey-700); text-transform: capitalize; }
+.legendNameFlex { font-size: 11px; color: var(--color-grey-700); text-transform: capitalize; flex: 1; }
+.legendValue { font-size: 11px; font-weight: 700; font-family: inherit; color: var(--tone-color); }
+.legendValueLarge { font-size: 12px; font-weight: 700; font-family: inherit; color: var(--tone-color); }
+.legendPct { font-size: 10px; color: var(--color-grey-400); }
+.donutWithLegend { display: flex; align-items: center; gap: 20px; }
+.progressLine { width: 100%; height: 4px; border: 0; border-radius: 2px; background: var(--color-grey-100); overflow: hidden; display: block; }
+.progressLine::-webkit-progress-bar { background: var(--color-grey-100); border-radius: 2px; }
+.progressLine::-webkit-progress-value { background: var(--tone-color); border-radius: 2px; transition: width .8s; }
+.progressLine::-moz-progress-bar { background: var(--tone-color); border-radius: 2px; }
+
+.pipelineGridOne { display: grid; grid-template-columns: repeat(1, 1fr); gap: 12px; margin-bottom: 8px; }
+.pipelineGridTwo { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 8px; }
+.pipelineGridThree { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 8px; }
+.pipelineCard { padding: 16px; text-align: left; border: none; cursor: pointer; }
+.pipelineHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.pipelineTitleRow { display: flex; align-items: center; gap: 8px; }
+.pipelineIconBox { width: 32px; height: 32px; border-radius: 9px; background: var(--tone-bg); display: flex; align-items: center; justify-content: center; }
+.pipelineName { font-size: 12px; font-weight: 700; color: var(--color-grey-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px; }
+.pipelineMetricGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pipelineMetricLabel { font-size: 9px; color: var(--color-grey-400); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1px; }
+.pipelineMetricValue { font-size: 11px; font-weight: 700; color: var(--tone-color); }
+.pipelineLastRun { font-size: 9px; color: var(--color-grey-400); margin-top: 10px; }
+
+.scatterTooltip { background: rgba(255,255,255,.97); border: 1px solid var(--color-grey-200); border-radius: 10px; padding: 10px 14px; font-size: 11px; }
+.scatterTooltipTitle { font-weight: 700; color: var(--color-grey-900); margin-bottom: 4px; }
+.infoText { color: var(--color-info); }
+.dangerText { color: var(--color-red); font-weight: 700; }
+
+.tableScroll { overflow-x: auto; }
+.anomalyTable { width: 100%; border-collapse: collapse; font-size: 12px; }
+.tableHeadRow { border-bottom: 2px solid var(--color-grey-200); }
+.tableHeadCell { text-align: left; padding: 7px 10px; font-weight: 700; font-size: 10px; color: var(--color-grey-500); text-transform: uppercase; letter-spacing: .06em; }
+.tableRow { border-bottom: 1px solid var(--color-grey-100); }
+.tableCell { padding: 8px 10px; }
+.referenceCell { padding: 8px 10px; font-family: inherit; font-size: 10px; color: var(--color-grey-600); }
+.supplierCell { padding: 8px 10px; font-weight: 600; color: var(--color-grey-900); }
+.amountCell { padding: 8px 10px; font-weight: 700; color: var(--color-red); }
+.anomalyTypeBadge { font-size: 9px; text-transform: capitalize; }
+.scoreText { font-size: 11px; font-weight: 700; font-family: inherit; color: var(--tone-color); }
+.dateCell { padding: 8px 10px; font-size: 10px; color: var(--color-grey-500); }
+
+.toneRed { --tone-color: var(--color-red); --tone-bg: rgba(217, 79, 61, .08); }
+.toneRedMid { --tone-color: #E8736A; --tone-bg: rgba(232, 115, 106, .08); }
+.toneWarning { --tone-color: var(--color-warning); --tone-bg: rgba(245, 158, 11, .08); }
+.toneInfo { --tone-color: var(--color-info); --tone-bg: rgba(59, 130, 246, .08); }
+.toneSuccess { --tone-color: var(--color-success); --tone-bg: rgba(34, 197, 94, .08); }
+.tonePurple { --tone-color: var(--color-purple); --tone-bg: rgba(139, 92, 246, .08); }
+.toneTeal { --tone-color: var(--color-teal); --tone-bg: rgba(20, 184, 166, .08); }
+.toneOrange { --tone-color: #F97316; --tone-bg: rgba(249, 115, 22, .08); }
+.tonePink { --tone-color: #EC4899; --tone-bg: rgba(236, 72, 153, .08); }
+.toneGrey400 { --tone-color: var(--color-grey-400); --tone-bg: rgba(156, 163, 175, .08); }
+.toneGrey600 { --tone-color: var(--color-grey-600); --tone-bg: rgba(82, 87, 97, .08); }
+
+@media (max-width: 1100px) {
+  .kpiGridSix { grid-template-columns: repeat(3, 1fr); }
+  .gridTwoOne, .gridTwoEqual { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .kpiGridSix, .kpiGridFour, .pipelineGridTwo, .pipelineGridThree { grid-template-columns: 1fr; }
+  .donutWithLegend { align-items: flex-start; flex-direction: column; }
+}

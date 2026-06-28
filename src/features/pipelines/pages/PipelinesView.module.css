@@ -1,0 +1,293 @@
+.page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tenantName {
+  color: #d94f3d;
+}
+
+.tenantSelect {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.createIcon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.pipelineGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.emptyStateWrap {
+  grid-column: 1 / -1;
+}
+
+.pipelineCard {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cardTitleBlock {
+  flex: 1;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #18191c;
+  margin-bottom: 3px;
+}
+
+.cardMeta {
+  font-size: 11px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.statusDotActive {
+  background: #22c55e;
+}
+
+.statusDotFailed {
+  background: #d94f3d;
+}
+
+.statusDotWarning {
+  background: #f59e0b;
+}
+
+.statusDotPaused {
+  background: #9ca3af;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.statusBadgeActive {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.statusBadgeFailed {
+  background: rgba(217, 79, 61, 0.1);
+  color: #d94f3d;
+  border: 1px solid rgba(217, 79, 61, 0.3);
+}
+
+.statusBadgeWarning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.statusBadgePaused {
+  background: rgba(107, 114, 128, 0.08);
+  color: #9ca3af;
+  border: 1px solid rgba(107, 114, 128, 0.2);
+}
+
+.description {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.4;
+  margin-top: -4px;
+}
+
+.activationError {
+  font-size: 10px;
+  color: #d94f3d;
+  line-height: 1.4;
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: rgba(217, 79, 61, 0.07);
+  border: 1px solid rgba(217, 79, 61, 0.2);
+}
+
+.unmappedNotice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+  color: #525761;
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: rgba(139, 92, 246, 0.06);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.mapBudgetButton {
+  font-size: 10px;
+  font-weight: 700;
+  color: #6d28d9;
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.kpiCard {
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.kpiCardNeutral {
+  background: rgba(107, 114, 128, 0.05);
+}
+
+.kpiCardWarning {
+  background: rgba(245, 158, 11, 0.07);
+}
+
+.kpiCardInfo {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.kpiLabel {
+  font-size: 9px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.kpiRows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 5px;
+}
+
+.kpiValue,
+.kpiRowValue {
+  font-family: var(--font-sans);
+}
+
+.kpiValue {
+  font-size: 22px;
+  margin-top: 2px;
+  letter-spacing: -0.5px;
+}
+
+.kpiRowValue {
+  font-size: 18px;
+  letter-spacing: -0.25px;
+  line-height: 1.08;
+}
+
+.kpiValueNeutral {
+  color: #18191c;
+}
+
+.kpiValueDanger {
+  color: #d94f3d;
+}
+
+.kpiValueWarning {
+  color: #f59e0b;
+}
+
+.kpiValueInfo {
+  color: #3b82f6;
+}
+
+.kpiSub {
+  font-size: 9px;
+  color: #9ca3af;
+  margin-top: 1px;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.lastRun {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.actionGroup {
+  display: flex;
+  gap: 5px;
+}
+
+.dimmedAction {
+  opacity: 0.4;
+}
+
+.modalIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mlModalIcon {
+  background: linear-gradient(135deg, #d94f3d, #8b5cf6);
+  box-shadow: 0 4px 14px rgba(217, 79, 61, 0.3);
+}
+
+.configModalIcon {
+  background: rgba(217, 79, 61, 0.1);
+}
+
+.createModalIcon {
+  background: linear-gradient(135deg, #d94f3d, #e8736a);
+}

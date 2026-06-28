@@ -1,0 +1,198 @@
+.root { display: contents; }
+
+.toneInfo {
+  --tone: #3B82F6;
+  --tone-border: rgba(59, 130, 246, 0.14);
+  --tone-shadow: rgba(59, 130, 246, 0.06);
+}
+
+.toneSuccess {
+  --tone: #22C55E;
+  --tone-border: rgba(34, 197, 94, 0.14);
+  --tone-shadow: rgba(34, 197, 94, 0.06);
+}
+
+.toneWarning {
+  --tone: #F59E0B;
+  --tone-border: rgba(245, 158, 11, 0.14);
+  --tone-shadow: rgba(245, 158, 11, 0.06);
+}
+
+.toneGrey500 {
+  --tone: #6B7280;
+  --tone-border: rgba(107, 114, 128, 0.14);
+  --tone-shadow: rgba(107, 114, 128, 0.06);
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.kpiCard {
+  padding: 14px 16px;
+  border: 1px solid var(--tone-border);
+  box-shadow: 0 10px 24px var(--tone-shadow);
+}
+
+.kpiValue {
+  font-family: var(--font-sans);
+  font-size: 28px;
+  color: var(--tone);
+}
+
+.kpiLabel {
+  font-size: 11px;
+  color: #6B7280;
+  margin-top: 4px;
+}
+
+.twoColumnGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.chartCard {
+  padding: 20px;
+}
+
+.cardTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #3D4149;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+
+.labelGrey500Sm {
+  fill: #6B7280;
+  font-size: 10px;
+}
+
+.labelGrey600Sm {
+  fill: #525761;
+  font-size: 10px;
+}
+
+.labelGrey500Strong {
+  fill: #6B7280;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.chartLegendSmall :global(.recharts-legend-wrapper) {
+  font-size: 11px;
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.tableHeadRow {
+  border-bottom: 2px solid #E5E7EB;
+}
+
+.th {
+  text-align: left;
+  padding: 8px 10px;
+  font-weight: 700;
+  font-size: 10px;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tableRow {
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.td,
+.nameCell,
+.freqCell,
+.invoiceCell,
+.dateCell {
+  padding: 9px 10px;
+}
+
+.nameCell {
+  font-weight: 700;
+  color: #18191C;
+}
+
+.tenantCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tenantAvatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.tenantName {
+  font-size: 11px;
+  color: #3D4149;
+}
+
+.freqCell {
+  font-size: 11px;
+  color: #525761;
+}
+
+.invoiceCell {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.anomalyRate {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.anomalyHigh {
+  color: #D94F3D;
+}
+
+.anomalyOk {
+  color: #22C55E;
+}
+
+.dateCell {
+  font-size: 10px;
+  color: #6B7280;
+  font-family: inherit;
+}
+
+.avatarRed { background: #D94F3D; }
+.avatarInfo { background: #3B82F6; }
+.avatarSuccess { background: #22C55E; }
+.avatarWarning { background: #F59E0B; }
+.avatarPurple { background: #8B5CF6; }
+.avatarTeal { background: #14B8A6; }
+.avatarOrange { background: #F97316; }
+.avatarPink { background: #EC4899; }
+.avatarRedMid { background: #E8736A; }
+.avatarGrey400 { background: #9CA3AF; }
+.avatarEmerald { background: #10B981; }
+.avatarCyan { background: #06B6D4; }
+.avatarLime { background: #84CC16; }

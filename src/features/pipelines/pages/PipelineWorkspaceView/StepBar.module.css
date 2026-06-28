@@ -1,0 +1,314 @@
+.sideBar {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-right: 1px solid rgba(255, 255, 255, 0.88);
+  height: 100%;
+  overflow: hidden;
+}
+
+.identity {
+  padding: 20px 18px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.identityIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--color-red), var(--color-red-mid));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 14px rgba(217, 79, 61, 0.28);
+}
+
+.pipelineName {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--color-grey-900);
+  line-height: 1.3;
+  margin-bottom: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.connectorBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(217, 79, 61, 0.09);
+  border: 1px solid rgba(217, 79, 61, 0.2);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--color-red);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.progressBlock {
+  padding: 12px 18px 10px;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.progressLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-grey-500);
+}
+
+.progressValue {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-red);
+  font-family: inherit;
+}
+
+.progressTrack {
+  height: 4px;
+  width: 100%;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  appearance: none;
+  border: 0;
+  background: var(--color-grey-100);
+}
+
+.progressTrack::-webkit-progress-bar {
+  background: var(--color-grey-100);
+  border-radius: var(--radius-pill);
+}
+
+.progressTrack::-webkit-progress-value {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--color-red), var(--color-red-mid));
+  transition: width 0.5s ease-out;
+  box-shadow: 0 1px 6px rgba(217, 79, 61, 0.4);
+}
+
+.progressTrack::-moz-progress-bar {
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--color-red), var(--color-red-mid));
+  box-shadow: 0 1px 6px rgba(217, 79, 61, 0.4);
+}
+
+.stepCount {
+  font-size: 9px;
+  color: var(--color-grey-400);
+  margin-top: 5px;
+}
+
+.stepList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sideStep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  cursor: default;
+  background: transparent;
+  border: 1.5px solid transparent;
+  transition: all 0.18s;
+  position: relative;
+}
+
+.sideStepClickable {
+  cursor: pointer;
+}
+
+.sideStepDisabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.sideStepActive {
+  background: rgba(217, 79, 61, 0.09);
+  border-color: rgba(217, 79, 61, 0.2);
+}
+
+.sideStepIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1.5px solid var(--color-grey-200);
+  transition: all 0.2s;
+}
+
+.sideStepIconDone {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.sideStepIconActive {
+  background: rgba(217, 79, 61, 0.12);
+  border-color: rgba(217, 79, 61, 0.3);
+}
+
+.sideStepText {
+  min-width: 0;
+}
+
+.sideStepLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-grey-400);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sideStepLabelDone {
+  font-weight: 600;
+  color: var(--color-grey-700);
+}
+
+.sideStepLabelActive {
+  font-weight: 700;
+  color: var(--color-red);
+}
+
+.sideStepDesc {
+  font-size: 9px;
+  color: var(--color-grey-300);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sideStepDescDone {
+  color: var(--color-grey-400);
+}
+
+.sideStepDescActive {
+  color: var(--color-red);
+  opacity: 0.8;
+}
+
+.activeBar {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, var(--color-red), var(--color-red-mid));
+  box-shadow: 0 0 8px rgba(217, 79, 61, 0.38);
+}
+
+.connectorLine {
+  position: absolute;
+  left: 24px;
+  bottom: -10px;
+  width: 2px;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 1px;
+  z-index: 0;
+}
+
+.connectorLineDone {
+  background: rgba(34, 197, 94, 0.35);
+}
+
+.footer {
+  padding: 10px 16px 14px;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.footerHint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  color: var(--color-grey-400);
+  line-height: 1.4;
+}
+
+.horizontalBar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.horizontalStepWrap {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.horizontalStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 64px;
+  cursor: default;
+}
+
+.horizontalStepClickable {
+  cursor: pointer;
+}
+
+.horizontalLabel {
+  font-size: 9px;
+  color: var(--color-grey-500);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.horizontalLabelDone {
+  color: var(--color-success);
+}
+
+.horizontalLabelActive {
+  color: var(--color-red);
+  font-weight: 700;
+}
+
+.horizontalConnector {
+  width: 14px;
+  height: 2px;
+  background: var(--color-grey-200);
+  border-radius: 2px;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+  transition: background 0.4s;
+}
+
+.horizontalConnectorDone {
+  background: var(--color-success);
+}

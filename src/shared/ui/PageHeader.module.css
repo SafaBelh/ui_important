@@ -1,0 +1,53 @@
+.root {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.eyebrowRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 6px;
+}
+
+.eyebrowLine {
+  width: 18px;
+  height: 2px;
+  background: var(--color-red);
+  border-radius: 2px;
+}
+
+.eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--color-red);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.title {
+  font-family: var(--font-title);
+  font-size: 34px;
+  font-weight: 400;
+  color: var(--color-grey-900);
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+}
+
+.subtitle {
+  font-size: 11px;
+  color: var(--color-grey-500);
+  margin: 7px 0 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}

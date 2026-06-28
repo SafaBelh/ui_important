@@ -1,0 +1,117 @@
+.root { display: contents; }
+
+.chartGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.card {
+  padding: 20px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #3D4149;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 14px;
+}
+
+.card :global(.recharts-legend-wrapper) {
+  font-size: 11px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px;
+  font-size: 12px;
+  color: #9CA3AF;
+}
+
+.rateLabel {
+  fill: #6B7280;
+  font-size: 10px;
+}
+
+.tableScroller {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.headerRow {
+  border-bottom: 2px solid #E5E7EB;
+}
+
+.headerRow th {
+  text-align: left;
+  padding: 7px 10px;
+  font-weight: 700;
+  font-size: 10px;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.dataRow {
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.dataRow td {
+  padding: 9px 10px;
+}
+
+.pipelineName {
+  font-weight: 700;
+  color: #18191C;
+}
+
+.frequency {
+  font-size: 11px;
+  color: #525761;
+}
+
+.invoiceCount {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.kFactor {
+  font-family: inherit;
+  font-size: 11px;
+  color: #8B5CF6;
+}
+
+.tolerance {
+  font-family: inherit;
+  font-size: 11px;
+  color: #14B8A6;
+}
+
+.anomalyHigh,
+.anomalyOk {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.anomalyHigh {
+  color: #D94F3D;
+}
+
+.anomalyOk {
+  color: #22C55E;
+}
+
+.lastRun {
+  font-size: 10px;
+  color: #6B7280;
+  font-family: inherit;
+}

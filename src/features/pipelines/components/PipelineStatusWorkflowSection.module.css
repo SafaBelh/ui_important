@@ -1,0 +1,77 @@
+.root {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 20px;
+}
+
+.topGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.allowedStatuses {
+  margin-bottom: 16px;
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.cardOrange {
+  background: rgba(251, 191, 36, .07);
+  border: 1.5px solid rgba(251, 191, 36, .3);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cardOrangeHeader {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #d97706;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.cardOrangeHelper {
+  font-size: 11px;
+  color: #d97706;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.cardGreen {
+  background: rgba(34, 197, 94, .07);
+  border: 1.5px solid rgba(34, 197, 94, .28);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cardGreenHeader {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #16a34a;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.cardGreenHelper {
+  font-size: 11px;
+  color: #16a34a;
+  margin-top: 4px;
+  line-height: 1.5;
+}

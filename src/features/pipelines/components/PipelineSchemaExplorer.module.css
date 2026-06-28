@@ -1,0 +1,392 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #f3f4f6;
+  padding-bottom: 10px;
+}
+
+.title {
+  color: #18191c;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 11px;
+}
+
+.refreshButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.infoNotice,
+.emptyNotice {
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 12px;
+}
+
+.infoNotice {
+  border: 1px solid rgba(59, 130, 246, .18);
+  background: rgba(59, 130, 246, .06);
+  color: #3d4149;
+}
+
+.emptyNotice,
+.sqlEmpty {
+  border: 1px dashed #e5e7eb;
+  background: rgba(0, 0, 0, .02);
+  color: #9ca3af;
+}
+
+.emptyNotice {
+  font-size: 12px;
+}
+
+.schemaGrid {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 14px;
+}
+
+.panel {
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f3f4f6;
+  background: rgba(0, 0, 0, .025);
+  padding: 9px 12px;
+}
+
+.panelTitle {
+  color: #3d4149;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.panelCount {
+  color: #9ca3af;
+  font-size: 10px;
+}
+
+.panelBody {
+  display: grid;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.tableCard,
+.relationCard {
+  border-radius: 10px;
+  background: rgba(248, 250, 252, .7);
+  padding: 10px;
+}
+
+.tableCard {
+  border: 1.5px solid #f3f4f6;
+}
+
+.tableCardSelected {
+  border-color: rgba(217, 79, 61, .32);
+  background: rgba(217, 79, 61, .05);
+}
+
+.tableCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tableNameWrap {
+  min-width: 0;
+}
+
+.tableName {
+  color: #18191c;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tableMeta {
+  margin-top: 2px;
+  color: #9ca3af;
+  font-size: 10px;
+}
+
+.addTableButton {
+  cursor: pointer;
+  border: 1px solid #e8736a;
+  border-radius: 8px;
+  background: rgba(217, 79, 61, .07);
+  color: #d94f3d;
+  padding: 5px 9px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.addTableButtonSelected {
+  cursor: default;
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, .08);
+  color: #22c55e;
+}
+
+.columnList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.columnChip {
+  border-radius: 6px;
+  background: rgba(59, 130, 246, .08);
+  color: #3b82f6;
+  padding: 2px 6px;
+  font-family: inherit;
+  font-size: 9px;
+}
+
+.moreColumns,
+.noRelations,
+.emptySelected {
+  color: #9ca3af;
+}
+
+.moreColumns {
+  font-size: 9px;
+}
+
+.relationCard {
+  border: 1px solid #f3f4f6;
+  background: rgba(248, 250, 252, .8);
+}
+
+.relationHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #3d4149;
+  font-family: inherit;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.relationFrom,
+.relationTo {
+  font-weight: 800;
+}
+
+.relationFrom {
+  color: #d94f3d;
+}
+
+.relationTo {
+  color: #3b82f6;
+}
+
+.relationIcon {
+  color: #9ca3af;
+}
+
+.relationColumns {
+  margin-top: 4px;
+  color: #6b7280;
+  font-family: inherit;
+  font-size: 10px;
+}
+
+.useRelationButton,
+.addJoinButton {
+  cursor: pointer;
+  border: 1px dashed rgba(59, 130, 246, .35);
+  border-radius: 8px;
+  background: rgba(59, 130, 246, .07);
+  color: #3b82f6;
+  padding: 5px 9px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.useRelationButton {
+  margin-top: 8px;
+}
+
+.selectedSection {
+  border-top: 1px solid #f3f4f6;
+  padding-top: 14px;
+}
+
+.selectedList {
+  display: grid;
+  gap: 7px;
+}
+
+.emptySelected,
+.noRelations {
+  font-size: 11px;
+}
+
+.selectedRow {
+  display: grid;
+  grid-template-columns: 26px 1fr 90px 28px;
+  align-items: center;
+  gap: 8px;
+}
+
+.tableIndex {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: rgba(0, 0, 0, .06);
+  color: #6b7280;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.tableIndexPrimary {
+  background: rgba(217, 79, 61, .12);
+  color: #d94f3d;
+}
+
+.selectedInput,
+.whereInput {
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.removeTableButton,
+.removeJoinButton {
+  cursor: pointer;
+  border: 1px solid #e5e7eb;
+  background: rgba(217, 79, 61, .06);
+  color: #d94f3d;
+}
+
+.removeTableButton {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+}
+
+.joinsSection,
+.whereSection {
+  margin-top: 14px;
+}
+
+.joinRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  border: 1px solid #f3f4f6;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, .02);
+  padding: 7px 10px;
+}
+
+.joinTypeSelect {
+  width: 80px;
+  padding: 4px 6px;
+  font-size: 10px;
+}
+
+.joinLabel {
+  color: #6b7280;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.joinAliasInput,
+.joinConditionInput {
+  padding: 4px 6px;
+  font-family: inherit;
+  font-size: 10px;
+}
+
+.joinAliasInput {
+  width: 60px;
+}
+
+.joinConditionInput {
+  flex: 1;
+  min-width: 120px;
+}
+
+.removeJoinButton {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.addJoinButton {
+  border-color: rgba(59, 130, 246, .3);
+  padding: 5px 12px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.sqlEmpty,
+.sqlPreview {
+  margin-top: 12px;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.sqlEmpty {
+  font-size: 11px;
+}
+
+.sqlPreview {
+  background: #0d1117;
+  color: #94a3b8;
+  font-family: inherit;
+  font-size: 10px;
+  line-height: 1.8;
+}
+
+.sqlKeyword {
+  color: #60a5fa;
+}
+
+.sqlTable {
+  color: #4ade80;
+}
+
+.sqlAlias {
+  color: #f9a8d4;
+}
+
+.sqlWhere {
+  color: #d94f3d;
+}

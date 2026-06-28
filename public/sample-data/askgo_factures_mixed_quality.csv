@@ -1,0 +1,21 @@
+invoice_ref,invoice_date,supplier_code,supplier_name,category,amount,status,tenant_id,cost_center,currency,notes
+INV-2026-001,2026-01-15,EAU,EAU_SAISON,Eau potable,120.00,COMPTABILISE,whitecape_ask,FACILITY,EUR,normal winter invoice
+INV-2026-002,2026-02-15,EAU,EAU_SAISON,Eau potable,120.00,COMPTABILISE,whitecape_ask,FACILITY,EUR,normal winter invoice
+INV-2026-003,2026-03-15,EAU,EAU_SAISON,Eau potable,120.00,COMPTABILISE,whitecape_ask,FACILITY,EUR,normal winter invoice
+INV-2026-004,2026-04-15,EAU,EAU_SAISON,Eau potable,120.00,COMPTABILISE,whitecape_ask,FACILITY,EUR,normal spring invoice
+INV-2026-005,2026-05-15,EAU,EAU_SAISON,Eau potable,120.00,COMPTABILISE,whitecape_ask,FACILITY,EUR,normal spring invoice
+INV-2026-006,2026-06-15,EAU,EAU_SAISON,Eau potable,240.00,RECU,whitecape_ask,FACILITY,EUR,summer provisional invoice
+INV-2026-007,2026-01-10,FOURN,FOURNITURES_BUREAU,Fournitures scolaires,100.00,COMPTABILISE,whitecape_ask,SCHOOL,EUR,monthly supplies
+INV-2026-008,2026-02-10,FOURN,FOURNITURES_BUREAU,Fournitures scolaires,100.00,COMPTABILISE,whitecape_ask,SCHOOL,EUR,monthly supplies
+INV-2026-009,2026-03-10,FOURN,FOURNITURES_BUREAU,Fournitures scolaires,100.00,COMPTABILISE,whitecape_ask,SCHOOL,EUR,monthly supplies
+INV-2026-010,2026-04-10,FOURN,FOURNITURES_BUREAU,Fournitures scolaires,,COMPTABILISE,whitecape_ask,SCHOOL,EUR,missing amount for cleaning test
+INV-2026-011,2026-05-10,FOURN,FOURNITURES_BUREAU,Fournitures scolaires,100.00,COMPTABILISE,whitecape_ask,SCHOOL,EUR,duplicate row follows
+INV-2026-011,2026-05-10,FOURN,FOURNITURES_BUREAU,Fournitures scolaires,100.00,COMPTABILISE,whitecape_ask,SCHOOL,EUR,duplicate row
+INV-2026-012,2026-09-10,FOURN,FOURNITURES_BUREAU,Fournitures scolaires,400.00,RECU,whitecape_ask,SCHOOL,EUR,expected seasonal spike
+INV-2026-013,2026-01-05,TEL,TELECOM_FIBRE,Fibre Optique,300.00,COMPTABILISE,whitecape_ask,IT,EUR,stable fibre
+INV-2026-014,2026-01-05,TEL,TELECOM_FIBRE,Internet ADSL,50.00,COMPTABILISE,whitecape_ask,IT,EUR,stable internet
+INV-2026-015,05/02/2026,TEL,TELECOM_FIBRE,Fibre Optique,300.00,COMPTABILISE,whitecape_ask,IT,EUR,invalid date format for validation
+INV-2026-016,2026-02-05,TEL,TELECOM_FIBRE,Internet ADSL,50,COMPTABILISE,whitecape_ask,IT,EUR,integer amount
+INV-2026-017,2026-03-05,TEL,TELECOM_FIBRE,Fibre Optique,not_a_number,COMPTABILISE,whitecape_ask,IT,EUR,invalid amount
+INV-2026-018,2026-03-05,TEL,TELECOM_FIBRE,Internet ADSL,50.00,,whitecape_ask,IT,EUR,missing status
+INV-RED-001,2026-01-15,RED,FOURNISSEUR_RED,Services RED,999.00,COMPTABILISE,tenant_red,RED,EUR,tenant isolation row

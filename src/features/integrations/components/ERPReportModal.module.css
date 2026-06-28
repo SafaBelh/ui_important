@@ -1,0 +1,490 @@
+.root { display: contents; }
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  backdrop-filter: blur(8px);
+  z-index: 9995;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
+  overflow: hidden;
+}
+
+.modal {
+  background: #f8f7f5;
+  border-radius: 0;
+  width: min(920px, calc(100vw - 42px));
+  height: 100vh;
+  min-height: 0;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -28px 0 80px rgba(0, 0, 0, .28);
+  animation: reportDrawerIn .28s cubic-bezier(.34, 1, .64, 1);
+  overflow: hidden;
+}
+
+@keyframes reportDrawerIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.header {
+  padding: 20px 28px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  min-height: 72px;
+}
+
+.headerIdentity,
+.headerActions,
+.statsRow,
+.badgeList,
+.pipelineHeader,
+.tableBadgeList,
+.jsonHeader {
+  display: flex;
+}
+
+.headerIdentity {
+  align-items: center;
+  gap: 14px;
+}
+
+.connectorLogo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.connectorRed { background: #d94f3d; }
+.connectorIndigo { background: #6366f1; }
+.connectorInfo { background: #3b82f6; }
+.connectorEmerald { background: #059669; }
+.connectorWarning { background: #f59e0b; }
+.connectorPurple { background: #8b5cf6; }
+
+.title {
+  font-size: 20px;
+  color: #111827;
+}
+
+.subtitle {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.headerActions {
+  gap: 8px;
+  align-items: center;
+}
+
+.copyButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all .15s;
+}
+
+.copyButton:hover {
+  background: #e5e7eb;
+}
+
+.closeButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: #f3f4f6;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+}
+
+.body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.body > * {
+  flex-shrink: 0;
+}
+
+.body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.body::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 99px;
+}
+
+.statsRow {
+  gap: 10px;
+}
+
+.statCard {
+  flex: 1;
+  padding: 14px 16px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.statInfo {
+  background: rgba(59, 130, 246, .03);
+  border: 1px solid rgba(59, 130, 246, .13);
+  color: #3b82f6;
+}
+
+.statWarning {
+  background: rgba(245, 158, 11, .03);
+  border: 1px solid rgba(245, 158, 11, .13);
+  color: #f59e0b;
+}
+
+.statSuccess {
+  background: rgba(34, 197, 94, .03);
+  border: 1px solid rgba(34, 197, 94, .13);
+  color: #22c55e;
+}
+
+.statRed {
+  background: rgba(217, 79, 61, .03);
+  border: 1px solid rgba(217, 79, 61, .13);
+  color: #d94f3d;
+}
+
+.statPurple {
+  background: rgba(139, 92, 246, .03);
+  border: 1px solid rgba(139, 92, 246, .13);
+  color: #8b5cf6;
+}
+
+.statIcon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4px;
+  opacity: .7;
+}
+
+.statValue {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.statLabel {
+  font-size: 9px;
+  color: #9ca3af;
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.section {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  padding: 12px 18px;
+  border-bottom: 1px solid #f3f4f6;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.sectionMeta {
+  font-size: 9px;
+  color: #9ca3af;
+  margin-left: auto;
+}
+
+.logLine {
+  font-size: 11px;
+  font-family: inherit;
+  padding: 6px 18px;
+  border-bottom: 1px solid rgba(0, 0, 0, .03);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.logLine:last-child {
+  border-bottom: none;
+}
+
+.logLineAlt {
+  background: rgba(248, 247, 245, .4);
+}
+
+.logTs {
+  color: #9ca3af;
+  flex-shrink: 0;
+  font-size: 10px;
+}
+
+.logOk { color: #16a34a; }
+.logInfo { color: #3b82f6; }
+.logWarn { color: #b45309; }
+.logErr { color: #dc2626; }
+
+.tenantRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgba(0, 0, 0, .04);
+}
+
+.tenantRow:last-child {
+  border-bottom: none;
+}
+
+.tenantStatus {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tenantStatusActive { background: rgba(34, 197, 94, .1); }
+.tenantStatusInactive { background: #f3f4f6; }
+
+.tenantMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.tenantName {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.tenantMeta {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.badgeList {
+  gap: 6px;
+}
+
+.pipelineBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.badgeInfo {
+  background: rgba(59, 130, 246, .1);
+  color: #1d4ed8;
+  border: 1px solid rgba(59, 130, 246, .2);
+}
+
+.badgeWarning {
+  background: rgba(245, 158, 11, .1);
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, .2);
+}
+
+.badgeSuccess {
+  background: rgba(34, 197, 94, .08);
+  color: #15803d;
+  border: 1px solid rgba(34, 197, 94, .2);
+}
+
+.inactiveText {
+  font-size: 10px;
+  color: #d1d5db;
+}
+
+.pipelineLine {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.pipelineHeader {
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.pipelineName {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.activeBadge {
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 99px;
+  background: rgba(34, 197, 94, .1);
+  color: #15803d;
+  font-weight: 600;
+}
+
+.pipelineMeta {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-left: auto;
+}
+
+.tableBadgeList {
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.tableBadge {
+  font-size: 9px;
+  font-family: inherit;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.emptyState {
+  padding: 12px 14px;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.activationText {
+  font-size: 11px;
+}
+
+.activationSuccess { color: #22c55e; }
+.activationError { color: #d94f3d; }
+.activationWarning { color: #f59e0b; }
+.activationInfo { color: #3b82f6; }
+.activationMuted { color: #9ca3af; }
+
+.jsonBlock {
+  background: #1e1e2e;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.jsonHeader {
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, .03);
+  border-bottom: 1px solid rgba(255, 255, 255, .07);
+}
+
+.jsonTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #e4e4e7;
+  flex: 1;
+}
+
+.jsonCopyButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .1);
+  color: #9ca3af;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all .15s;
+}
+
+.jsonCopyButton:hover {
+  background: rgba(255, 255, 255, .1);
+  color: #e5e7eb;
+}
+
+.jsonPre {
+  padding: 16px 20px;
+  font-family: inherit;
+  font-size: 11px;
+  color: #86efac;
+  overflow-x: auto;
+  line-height: 1.75;
+  margin: 0;
+}
+
+.bodySpacer {
+  height: 16px;
+}
+
+@media (max-width: 720px) {
+  .modal {
+    width: 100vw;
+  }
+
+  .header,
+  .body {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .statsRow,
+  .tenantRow {
+    flex-wrap: wrap;
+  }
+
+  .statCard {
+    min-width: calc(50% - 5px);
+  }
+
+  .badgeList {
+    flex-wrap: wrap;
+  }
+}

@@ -1,0 +1,226 @@
+.root {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 20px 24px 16px;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.statusIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.statusIconDone {
+  background: rgba(34,197,94,.12);
+}
+
+.statusIconConnecting {
+  background: rgba(96,165,250,.1);
+}
+
+.spinner {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(96,165,250,.3);
+  border-top-color: #3B82F6;
+  animation: spin 0.8s linear infinite;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #18191C;
+  letter-spacing: -.2px;
+}
+
+.subtitle {
+  font-size: 11px;
+  color: #6B7280;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.terminal {
+  flex: 1;
+  background: #0d1117;
+  border-radius: 14px;
+  overflow: hidden;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.terminalBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #161b22;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  flex-shrink: 0;
+}
+
+.dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+
+.dotRed {
+  background: #ff5f57;
+}
+
+.dotYellow {
+  background: #febc2e;
+}
+
+.dotGreen {
+  background: #28c840;
+}
+
+.terminalTitle {
+  font-size: 11px;
+  color: rgba(255,255,255,.3);
+  margin-left: 10px;
+  font-weight: 500;
+}
+
+.terminalFile {
+  font-size: 10px;
+  color: rgba(255,255,255,.18);
+  margin-left: auto;
+}
+
+.terminalBody {
+  flex: 1;
+  padding: 16px 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.line {
+  font-size: 11px;
+  line-height: 1.7;
+  white-space: pre;
+  letter-spacing: .01em;
+}
+
+.lineCommand {
+  color: #a8d8a8;
+}
+
+.lineMuted {
+  color: #94a3b8;
+}
+
+.lineSuccess {
+  color: #4ade80;
+}
+
+.lineInfo {
+  color: #60a5fa;
+}
+
+.linePink {
+  color: #f9a8d4;
+}
+
+.lineWarning {
+  color: #fbbf24;
+}
+
+.cursorWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 2px;
+}
+
+.cursor {
+  font-size: 11px;
+  color: rgba(255,255,255,.4);
+  animation: blink 1s step-end infinite;
+}
+
+.schemaBlock {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+.schemaTitle {
+  font-size: 10px;
+  color: rgba(255,255,255,.3);
+  margin-bottom: 8px;
+  letter-spacing: .06em;
+}
+
+.fieldList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.fieldTag {
+  background: rgba(34,197,94,.12);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 10px;
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.rowCount {
+  margin-top: 10px;
+  font-size: 10px;
+  color: rgba(255,255,255,.25);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+button.editButton {
+  font-size: 13px;
+  padding: 8px 16px;
+}
+
+button.confirmButton {
+  font-size: 13px;
+  padding: 8px 20px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}

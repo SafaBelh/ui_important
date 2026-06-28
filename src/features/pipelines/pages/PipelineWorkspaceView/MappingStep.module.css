@@ -1,0 +1,42 @@
+.shell { max-width: 860px; margin: 0 auto; }
+.errorMessage { background: var(--color-red-pale); border: 1px solid rgba(217, 79, 61, 0.25); border-radius: 10px; padding: 10px 14px; font-size: 12px; color: var(--color-red); margin-bottom: 12px; }
+.chipsCard { padding: 12px 16px; margin-bottom: 12px; }
+.card { padding: 18px; margin-bottom: 12px; }
+.compactCard { padding: 16px; margin-bottom: 12px; }
+.extrasCard { padding: 16px; margin-bottom: 14px; }
+.sectionTitle { font-size: 12px; font-weight: 700; color: var(--color-grey-700); margin-bottom: 14px; }
+.smallTitle { font-size: 11px; font-weight: 700; color: var(--color-grey-700); margin-bottom: 8px; }
+.titleHint { color: var(--color-grey-400); font-weight: 400; margin-left: 6px; }
+.chipRow { display: flex; flex-wrap: wrap; gap: 5px; }
+.columnChip { border-radius: 6px; padding: 3px 10px; font-size: 10px; font-weight: 600; border: 1px solid var(--color-grey-200); background: var(--color-grey-100); color: var(--color-grey-600); }
+.columnChipMapped { background: rgba(217, 79, 61, 0.1); color: var(--color-red); border-color: rgba(217, 79, 61, 0.2); }
+.mappedArrow { font-size: 9px; color: var(--color-red-mid); margin-left: 4px; }
+.mappingGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+.fieldBlock { margin-bottom: 16px; }
+.fieldHeader { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.fieldLabel { font-size: 11px; color: var(--color-grey-600); font-weight: 700; }
+.requiredMark { color: var(--color-red); }
+.confidenceBadge { font-size: 9px; color: var(--confidence-color); font-weight: 700; padding: 1px 6px; background: color-mix(in srgb, var(--confidence-color) 8%, transparent); border-radius: 4px; }
+.confidenceHigh { --confidence-color: var(--color-success); border-color: color-mix(in srgb, var(--color-success) 38%, transparent); }
+.confidenceMed { --confidence-color: var(--color-warning); border-color: color-mix(in srgb, var(--color-warning) 38%, transparent); }
+.selectMappedHigh { border-color: color-mix(in srgb, var(--color-success) 38%, transparent); }
+.selectMappedMed { border-color: color-mix(in srgb, var(--color-warning) 38%, transparent); }
+.fieldHint { font-size: 9px; color: var(--color-grey-400); margin-bottom: 5px; }
+.sampleValueRow { margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap; }
+.sampleValue { font-size: 9px; background: var(--color-grey-50); border: 1px solid var(--color-grey-200); border-radius: 4px; padding: 1px 6px; color: var(--color-grey-600); font-family: var(--font-sans); }
+.requiredWarning { font-size: 9px; color: var(--color-red); margin-top: 3px; display: flex; align-items: center; gap: 3px; }
+.tableWrap { overflow-x: auto; }
+.previewTable { width: 100%; border-collapse: collapse; font-size: 10px; }
+.headerRow { border-bottom: 1px solid var(--color-grey-100); }
+.bodyRow { border-bottom: 1px solid var(--color-grey-50); }
+.headCell { padding: 5px 8px; text-align: left; font-weight: 700; white-space: nowrap; color: var(--color-grey-500); }
+.headCellMapped { color: var(--color-red); background: rgba(217, 79, 61, 0.04); }
+.mappedLabel { font-size: 8px; color: var(--color-red-mid); font-weight: 400; }
+.bodyCell { padding: 4px 8px; color: var(--color-grey-400); font-weight: 400; white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+.bodyCellMapped { color: var(--color-grey-900); font-weight: 600; background: rgba(217, 79, 61, 0.03); }
+.extrasText { font-size: 11px; color: var(--color-grey-500); margin-bottom: 10px; }
+.extraButtonRow { display: flex; flex-wrap: wrap; gap: 8px; }
+.extraButton { font-size: 11px; padding: 5px 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.checkIcon { margin-right: 3px; }
+.extraSample { font-size: 8px; opacity: 0.6; font-weight: 400; }
+.confirmButton { width: 100%; justify-content: center; }

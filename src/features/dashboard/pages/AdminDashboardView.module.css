@@ -1,0 +1,354 @@
+.page {
+  padding: 20px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.toneRed {
+  --accent: #D94F3D;
+  --accent-soft: rgba(217, 79, 61, 0.08);
+}
+
+.toneSuccess {
+  --accent: #22C55E;
+  --accent-soft: rgba(34, 197, 94, 0.08);
+}
+
+.toneWarning {
+  --accent: #F59E0B;
+  --accent-soft: rgba(245, 158, 11, 0.08);
+}
+
+.toneInfo {
+  --accent: #3B82F6;
+  --accent-soft: rgba(59, 130, 246, 0.08);
+}
+
+.tonePurple {
+  --accent: #8B5CF6;
+  --accent-soft: rgba(139, 92, 246, 0.08);
+}
+
+.toneTeal {
+  --accent: #14B8A6;
+  --accent-soft: rgba(20, 184, 166, 0.08);
+}
+
+.toneOrange {
+  --accent: #F97316;
+  --accent-soft: rgba(249, 115, 22, 0.08);
+}
+
+.tonePink {
+  --accent: #EC4899;
+  --accent-soft: rgba(236, 72, 153, 0.08);
+}
+
+.toneRedMid {
+  --accent: #E8736A;
+  --accent-soft: rgba(232, 115, 106, 0.08);
+}
+
+.criticalPill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(217, 79, 61, 0.1);
+  border: 1px solid rgba(217, 79, 61, 0.2);
+  border-radius: 99px;
+}
+
+.criticalDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #D94F3D;
+  display: inline-block;
+}
+
+.criticalText {
+  font-size: 11px;
+  font-weight: 700;
+  color: #D94F3D;
+}
+
+.headerButton {
+  font-size: 12px;
+  padding: 7px 14px;
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 11px;
+  margin-bottom: 24px;
+}
+
+.kpiCard {
+  padding: 16px 14px;
+}
+
+.kpiIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 9px;
+}
+
+.kpiValue {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: -0.4px;
+}
+
+.kpiLabel {
+  font-size: 10px;
+  color: #6B7280;
+  margin-top: 5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.kpiSub {
+  font-size: 9px;
+  color: var(--accent);
+  margin-top: 2px;
+  opacity: 0.7;
+}
+
+.platformGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.twoColumnGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.chartCard {
+  padding: 20px;
+}
+
+.pipelineCard {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.cardTitle,
+.cardTitleWithMargin {
+  font-size: 12px;
+  font-weight: 700;
+  color: #3D4149;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cardTitleWithMargin {
+  margin-bottom: 14px;
+}
+
+.legendChartWrap :global(.recharts-legend-wrapper) {
+  font-size: 11px;
+}
+
+.statusList {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: auto;
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.statusName {
+  font-size: 11px;
+  color: #3D4149;
+  flex: 1;
+}
+
+.statusCount {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--accent);
+}
+
+.statusProgress,
+.anomalyProgress {
+  appearance: none;
+  border: 0;
+  height: 4px;
+  border-radius: 2px;
+  background: #F3F4F6;
+  overflow: hidden;
+}
+
+.statusProgress {
+  flex: 2;
+}
+
+.anomalyProgress {
+  width: 100%;
+  display: block;
+}
+
+.statusProgress::-webkit-progress-bar,
+.anomalyProgress::-webkit-progress-bar {
+  background: #F3F4F6;
+  border-radius: 2px;
+}
+
+.statusProgress::-webkit-progress-value,
+.anomalyProgress::-webkit-progress-value {
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.8s ease-out;
+}
+
+.statusProgress::-moz-progress-bar,
+.anomalyProgress::-moz-progress-bar {
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.donutContentGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.anomalyList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.anomalyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.anomalyNameWrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.anomalyDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.anomalyName {
+  font-size: 11px;
+  color: #3D4149;
+  text-transform: capitalize;
+}
+
+.anomalyCount {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--accent);
+}
+
+.alertGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.alertCard {
+  padding: 12px 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.alertCritical {
+  --alert-accent: #D94F3D;
+  border: 1px solid rgba(217, 79, 61, 0.2);
+  box-shadow: 0 10px 24px rgba(217, 79, 61, 0.07);
+}
+
+.alertWarning {
+  --alert-accent: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  box-shadow: 0 10px 24px rgba(245, 158, 11, 0.07);
+}
+
+.alertDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--alert-accent);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.alertBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.alertMessage {
+  font-size: 11px;
+  font-weight: 700;
+  color: #18191C;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alertTimestamp {
+  font-size: 10px;
+  color: #6B7280;
+  margin-top: 2px;
+}
+
+.alertBadge {
+  font-size: 9px;
+  flex-shrink: 0;
+  max-width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

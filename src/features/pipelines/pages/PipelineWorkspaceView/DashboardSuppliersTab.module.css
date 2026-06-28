@@ -1,0 +1,27 @@
+.tooltipContent {
+  background: var(--color-white);
+  border: 1px solid var(--color-grey-100);
+  border-radius: 10px;
+  font-size: 11px;
+  padding: 8px 10px;
+  color: var(--color-grey-700);
+}
+
+.tooltipLabel {
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.tooltipRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.tooltipName {
+  color: var(--color-grey-500);
+}
+
+.tooltipValue {
+  font-weight: 700;
+}

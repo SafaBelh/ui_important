@@ -1,0 +1,43 @@
+.shell { max-width: 860px; margin: 0 auto; }
+.title { font-family: var(--font-sans); font-size: 24px; color: var(--color-grey-900); margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: var(--color-grey-500); margin-bottom: 20px; }
+.errorMessage { background: var(--color-red-pale); border: 1px solid rgba(217, 79, 61, 0.25); border-radius: 10px; padding: 10px 14px; font-size: 12px; color: var(--color-red); margin-bottom: 12px; }
+.loadingState { text-align: center; padding: 48px; }
+.metricGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.metricCard { padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; }
+.metricIcon { width: 28px; height: 28px; border-radius: 8px; background: color-mix(in srgb, var(--tone) 8%, transparent); display: flex; align-items: center; justify-content: center; margin-bottom: 2px; color: var(--tone); }
+.metricValue { font-size: 22px; font-weight: 800; color: var(--tone); line-height: 1; font-family: inherit; }
+.metricLabel { font-size: 11px; color: var(--color-grey-500); }
+.toneInfo { --tone: var(--color-info); }
+.toneSuccess { --tone: var(--color-success); }
+.toneRed { --tone: var(--color-red); }
+.toneWarning { --tone: var(--color-warning); }
+.tonePurple { --tone: var(--color-purple); }
+.card { padding: 16px; margin-bottom: 14px; }
+.sectionTitle { font-size: 12px; font-weight: 700; color: var(--color-grey-700); margin-bottom: 12px; }
+.sectionTitleCompact { font-size: 12px; font-weight: 700; color: var(--color-grey-700); margin-bottom: 8px; }
+.rulesGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.ruleCard { background: var(--color-grey-50); border-radius: 10px; padding: 10px 12px; }
+.ruleValue { font-size: 13px; font-weight: 800; color: var(--tone); }
+.ruleLabel { font-size: 10px; color: var(--color-grey-500); margin-bottom: 6px; }
+.ruleProgress { width: 100%; height: 4px; appearance: none; }
+.ruleProgress::-webkit-progress-bar { background: var(--color-grey-100); border-radius: 2px; }
+.ruleProgress::-webkit-progress-value { background: var(--tone); border-radius: 2px; transition: width 0.5s; }
+.ruleProgress::-moz-progress-bar { background: var(--tone); border-radius: 2px; }
+.sectionBlock { margin-bottom: 14px; }
+.scrollCard { padding: 14px; max-height: 220px; overflow-y: auto; margin-bottom: 8px; }
+.acceptedScrollCard { padding: 14px; max-height: 200px; overflow-y: auto; margin-bottom: 8px; }
+.dataTable { width: 100%; border-collapse: collapse; font-size: 10px; }
+.acceptedTable { width: 100%; border-collapse: collapse; font-size: 11px; }
+.tableRow { border-bottom: 1px solid var(--color-grey-100); }
+.tableHead { text-align: left; padding: 4px 8px; color: var(--color-grey-500); font-weight: 700; }
+.acceptedHead { text-align: left; padding: 5px 8px; color: var(--color-grey-500); font-weight: 700; }
+.tableCell { padding: 4px 8px; color: var(--color-grey-700); }
+.warningCell { padding: 4px 8px; color: var(--color-warning); font-size: 10px; }
+.supplierCell { padding: 4px 8px; color: var(--color-info); font-weight: 700; }
+.amountCell { padding: 4px 8px; color: var(--color-success); font-weight: 700; }
+.mutedCell { padding: 4px 8px; color: var(--color-grey-500); }
+.buttonRow { display: flex; gap: 8px; }
+.smallButton { font-size: 12px; }
+.successBanner { padding: 14px 18px; background: rgba(34, 197, 94, 0.05); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px; margin-bottom: 14px; font-size: 12px; color: var(--color-success); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.confirmButton { width: 100%; justify-content: center; }

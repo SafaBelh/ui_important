@@ -1,0 +1,12 @@
+record_id,date_posted,vendor_name,expense_type,gross_amount,tax_amount,currency,approval_state,project_code,comment
+EXP-001,2026-01-03,Alpha Office,Office Supplies,87.30,17.46,EUR,APPROVED,OPS-001,baseline
+EXP-002,2026-01-17,Alpha Office,Office Supplies,91.20,18.24,EUR,APPROVED,OPS-001,baseline
+EXP-003,2026-02-07,North Water,Utilities,120.00,0,EUR,APPROVED,FAC-001,water
+EXP-004,2026-02-31,North Water,Utilities,120.00,0,EUR,APPROVED,FAC-001,invalid calendar date
+EXP-005,2026-03-11,FiberNet,Telecom,300.00,60.00,EUR,APPROVED,IT-001,fibre
+EXP-006,2026-03-11,FiberNet,Telecom,50.00,10.00,EUR,APPROVED,IT-001,internet
+EXP-007,2026-04-04,Alpha Office,Office Supplies,450.00,90.00,EUR,PENDING,OPS-001,potential anomaly
+EXP-007,2026-04-04,Alpha Office,Office Supplies,450.00,90.00,EUR,PENDING,OPS-001,duplicate id
+EXP-008,,Missing Date Vendor,Services,200.00,40.00,EUR,APPROVED,OPS-002,missing date
+EXP-009,2026-05-09,Bad Amount Vendor,Services,N/A,12.00,EUR,APPROVED,OPS-002,invalid numeric
+EXP-010,2026-05-18,Null Category,,75.00,15.00,EUR,REJECTED,OPS-003,missing category

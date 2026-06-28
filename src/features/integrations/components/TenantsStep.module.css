@@ -1,0 +1,629 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.importPanel {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.importTitle,
+.platformLabel,
+.pipelineHeader,
+.invalidHeader,
+.platformHeader {
+  display: flex;
+  align-items: center;
+}
+
+.importTitle {
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #374151;
+}
+
+.importHelp {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.importError,
+.deployError {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #ef4444;
+}
+
+.importActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.centerButton,
+.importFileButton {
+  justify-content: center;
+}
+
+.importFileButton {
+  cursor: pointer;
+}
+
+.dimmed {
+  opacity: .5;
+}
+
+.addTenantGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 150px auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.emptyState {
+  padding: 2.5rem;
+  border: 1px dashed #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.emptyState p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.emptyIcon {
+  display: block;
+  margin: 0 auto 10px;
+  opacity: .4;
+}
+
+.tenantCard {
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.tenantCardActive {
+  border-color: rgba(34, 197, 94, .25);
+}
+
+.tenantCardProcessing {
+  border-color: rgba(59, 130, 246, .3);
+}
+
+.tenantHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+}
+
+.tenantIcon,
+.deployIcon,
+.platformIcon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.tenantIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f3f4f6;
+}
+
+.tenantIconActive {
+  background: rgba(34, 197, 94, .1);
+}
+
+.tenantIconProcessing {
+  background: rgba(59, 130, 246, .1);
+}
+
+.tenantMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.tenantName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.tenantNameActive {
+  color: #111827;
+}
+
+.tenantMeta {
+  margin-top: 1px;
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.metaLinked,
+.metaStorage {
+  margin-left: 6px;
+}
+
+.metaLinked {
+  color: #22c55e;
+}
+
+.metaStorageShared {
+  color: #3b82f6;
+}
+
+.metaStorageIsolated,
+.dbHelp,
+.deployHelp {
+  color: #92400e;
+}
+
+.statusBadges {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.badgeActive {
+  border: 1px solid rgba(34, 197, 94, .25);
+  background: rgba(34, 197, 94, .1);
+  color: #15803d;
+}
+
+.badgeLinked {
+  border: 1px solid rgba(59, 130, 246, .25);
+  background: rgba(59, 130, 246, .1);
+  color: #1d4ed8;
+}
+
+.badgeIsolated {
+  border: 1px solid rgba(245, 158, 11, .25);
+  background: rgba(245, 158, 11, .1);
+  color: #92400e;
+}
+
+.badgeInactive {
+  border: 1px solid #e5e7eb;
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+.toggleButton {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-start;
+  width: 48px;
+  height: 26px;
+  padding: 3px;
+  border: 1px solid #e5e7eb;
+  border-radius: 99px;
+  background: #f3f4f6;
+  cursor: pointer;
+  transition: all .18s;
+}
+
+.toggleButtonActive {
+  justify-content: flex-end;
+  border-color: rgba(34, 197, 94, .25);
+  background: rgba(34, 197, 94, .1);
+}
+
+.toggleButtonBlocked {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.toggleKnob {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #d1d5db;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .12);
+  color: #fff;
+  transition: all .18s;
+}
+
+.toggleKnobActive {
+  background: #22c55e;
+}
+
+.iconButton {
+  flex-shrink: 0;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: #d1d5db;
+  cursor: pointer;
+}
+
+.chevron {
+  flex-shrink: 0;
+  cursor: pointer;
+  transform: rotate(-90deg);
+  transition: transform .2s;
+}
+
+.chevronExpanded {
+  transform: rotate(0);
+}
+
+.processingPanel {
+  padding: 0 16px 16px;
+}
+
+.expandedPanel {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.formBlock,
+.isolatedDbPanel {
+  margin-bottom: 14px;
+}
+
+.platformLabel {
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+.isolatedDbPanel {
+  padding: 12px;
+  border: 1px solid rgba(245, 158, 11, .28);
+  border-radius: 12px;
+  background: rgba(245, 158, 11, .1);
+}
+
+.dbGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 8px;
+}
+
+.dbHelp {
+  margin-top: 7px;
+  font-size: 10px;
+}
+
+.pipelineCard {
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: rgba(249, 250, 251, .65);
+}
+
+.pipelineHeader {
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.pipelineTitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.statusGrid {
+  display: flex;
+  gap: 10px;
+}
+
+.statusColumn {
+  flex: 1;
+}
+
+.warningLabel {
+  color: #f59e0b;
+}
+
+.successLabel {
+  color: #22c55e;
+}
+
+.deployPanel {
+  padding: 16px;
+  border-radius: 14px;
+}
+
+.deployPanelReady {
+  border: 1.5px solid rgba(34, 197, 94, .3);
+  background: rgba(34, 197, 94, .04);
+}
+
+.deployPanelPending {
+  border: 1.5px solid rgba(245, 158, 11, .35);
+  background: rgba(245, 158, 11, .05);
+}
+
+.deployHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.deployIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+}
+
+.deployIconReady {
+  background: rgba(34, 197, 94, .12);
+}
+
+.deployIconPending {
+  background: rgba(245, 158, 11, .15);
+}
+
+.deployText {
+  flex: 1;
+  min-width: 200px;
+}
+
+.deployTitle {
+  font-size: 12px;
+  font-weight: 800;
+  color: #1f2937;
+}
+
+.deployMeta {
+  font-size: 10px;
+  color: #6b7280;
+}
+
+.deployHelp {
+  margin-top: 8px;
+  font-size: 10px;
+}
+
+.deployError {
+  margin-top: 8px;
+}
+
+.invalidPanel {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(239, 68, 68, .25);
+  border-radius: 12px;
+  background: rgba(239, 68, 68, .06);
+}
+
+.invalidHeader {
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.invalidTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ef4444;
+}
+
+.invalidRow {
+  padding: 3px 0;
+  font-size: 11px;
+  color: #374151;
+}
+
+.invalidTemplate {
+  font-family: inherit;
+  font-weight: 700;
+  color: #111827;
+}
+
+.invalidMessage,
+.invalidHelp {
+  color: #6b7280;
+}
+
+.invalidHelp {
+  margin-top: 6px;
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.progressBlock {
+  margin-top: 12px;
+}
+
+.progressMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 10px;
+  color: #6b7280;
+}
+
+.progressBar {
+  display: block;
+  width: 100%;
+  height: 6px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 3px;
+  background: #f3f4f6;
+}
+
+.progressBar::-webkit-progress-bar {
+  border-radius: 3px;
+  background: #f3f4f6;
+}
+
+.progressBar::-webkit-progress-value {
+  border-radius: 3px;
+  background: #22c55e;
+  transition: width .5s;
+}
+
+.progressBar::-moz-progress-bar {
+  border-radius: 3px;
+  background: #22c55e;
+  transition: width .5s;
+}
+
+.progressBarWarning::-webkit-progress-value,
+.progressBarWarning::-moz-progress-bar {
+  background: #f59e0b;
+}
+
+.deployRows {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.deployRow {
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 9px;
+}
+
+.rowSuccess {
+  border: 1px solid rgba(34, 197, 94, .25);
+  background: rgba(34, 197, 94, .05);
+  color: #22c55e;
+}
+
+.rowFailed {
+  border: 1px solid rgba(239, 68, 68, .25);
+  background: rgba(239, 68, 68, .05);
+  color: #ef4444;
+}
+
+.rowPartial {
+  border: 1px solid rgba(245, 158, 11, .25);
+  background: rgba(245, 158, 11, .05);
+  color: #f59e0b;
+}
+
+.rowRunning {
+  border: 1px solid rgba(59, 130, 246, .25);
+  background: rgba(59, 130, 246, .05);
+  color: #3b82f6;
+}
+
+.rowIdle {
+  border: 1px solid rgba(156, 163, 175, .25);
+  background: rgba(156, 163, 175, .05);
+  color: #9ca3af;
+}
+
+.platformPanel {
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.platformHeader {
+  gap: 6px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.platformTitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: #4b5563;
+}
+
+.platformList {
+  display: flex;
+  flex-direction: column;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.platformRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-bottom: 1px solid #f9fafb;
+  font-size: 12px;
+}
+
+.platformIcon {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: rgba(59, 130, 246, .1);
+}
+
+.platformInfo {
+  flex: 1;
+}
+
+.platformName {
+  font-weight: 600;
+}
+
+.platformMeta {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.platformLinked {
+  padding: 1px 6px;
+  border-radius: 99px;
+  background: rgba(34, 197, 94, .1);
+  color: #15803d;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+@media (max-width: 760px) {
+  .importPanel,
+  .addTenantGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .importActions {
+    justify-content: flex-start;
+  }
+
+  .tenantHeader,
+  .deployHeader {
+    align-items: flex-start;
+  }
+
+  .statusBadges,
+  .statusGrid,
+  .dbGrid {
+    flex-direction: column;
+    grid-template-columns: 1fr;
+  }
+}

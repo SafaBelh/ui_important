@@ -1,0 +1,424 @@
+.root { display: contents; }
+
+.inlineRoot {
+  border: 1.5px solid rgba(217, 79, 61, .18);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .85);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.inlineHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(217, 79, 61, .12);
+  background: linear-gradient(135deg, rgba(217, 79, 61, .07), rgba(217, 79, 61, .02));
+}
+
+.inlineHeaderIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: rgba(217, 79, 61, .12);
+  font-size: 12px;
+}
+
+.inlineHeaderText {
+  flex: 1;
+}
+
+.inlineTitle {
+  color: #111827;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.inlineSubtitle {
+  color: #6b7280;
+  font-size: 9px;
+}
+
+.inlineCloseButton {
+  display: flex;
+  padding: 3px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.inlineBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.label {
+  display: block;
+  color: #374151;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.labelSpaced {
+  margin-bottom: 6px;
+}
+
+.labelCompact {
+  margin-bottom: 5px;
+}
+
+.required {
+  color: #d94f3d;
+}
+
+.optional {
+  color: #9ca3af;
+  font-size: 9px;
+  font-weight: 400;
+}
+
+.connectorList,
+.erpTenantList {
+  display: flex;
+  flex-direction: column;
+}
+
+.connectorList {
+  gap: 4px;
+}
+
+.erpTenantList {
+  gap: 6px;
+}
+
+.connectorOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1.5px solid #f3f4f6;
+  border-radius: 10px;
+  background: rgba(107, 114, 128, .02);
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.connectorOptionSelected {
+  border-color: #d94f3d;
+  background: rgba(217, 79, 61, .06);
+}
+
+.optionDisabled {
+  cursor: not-allowed;
+  opacity: .62;
+}
+
+.connectorLogo {
+  position: relative;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.connectorLogoBg {
+  position: absolute;
+  inset: 0;
+  width: 28px;
+  height: 28px;
+}
+
+.connectorLogoText {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connectorInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.connectorName {
+  color: #111827;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.connectorNameSelected {
+  color: #d94f3d;
+}
+
+.connectorMeta {
+  color: #6b7280;
+  font-size: 9px;
+}
+
+.badge {
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.badgeMuted {
+  color: #6b7280;
+  background: rgba(107, 114, 128, .08);
+}
+
+.badgeWarning {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, .08);
+}
+
+.badgeSuccess {
+  color: #22c55e;
+  background: rgba(34, 197, 94, .08);
+}
+
+.radioMark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  background: transparent;
+  transition: all .15s;
+}
+
+.radioMarkSelected {
+  border-color: #d94f3d;
+  background: #d94f3d;
+}
+
+.radioDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.emptyConnectors {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(107, 114, 128, .04);
+  color: #9ca3af;
+  font-size: 11px;
+  text-align: center;
+}
+
+.emptyConnectorsHint {
+  font-size: 10px;
+}
+
+.searchInput {
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.erpTenantOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1.5px solid #f3f4f6;
+  border-radius: 10px;
+  background: rgba(107, 114, 128, .02);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+
+.erpTenantOptionLinked {
+  border-color: #e5e7eb;
+  background: rgba(107, 114, 128, .04);
+  cursor: not-allowed;
+  opacity: .62;
+}
+
+.erpTenantOptionSelected {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, .06);
+}
+
+.erpTenantOptionWarning {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, .06);
+}
+
+.statusDot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.statusDotMuted {
+  background: #9ca3af;
+}
+
+.statusDotSuccess {
+  background: #22c55e;
+}
+
+.statusDotWarning {
+  background: #f59e0b;
+}
+
+.erpTenantInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.erpTenantName {
+  display: block;
+  color: #111827;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.erpTenantId {
+  display: block;
+  color: #6b7280;
+  font-family: inherit;
+  font-size: 9px;
+}
+
+.noResultsMessage {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(107, 114, 128, .04);
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.warningMessage,
+.selectedWarningMessage {
+  border: 1px solid rgba(245, 158, 11, .2);
+  border-radius: 10px;
+  background: rgba(245, 158, 11, .06);
+  color: #f59e0b;
+  line-height: 1.5;
+}
+
+.warningMessage {
+  padding: 12px;
+  font-size: 11px;
+}
+
+.selectedWarningMessage {
+  margin-top: 8px;
+  padding: 8px 10px;
+  font-size: 10px;
+}
+
+.selectedTenantBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 9px 12px;
+  border: 1.5px solid rgba(107, 114, 128, .18);
+  border-radius: 10px;
+  background: rgba(107, 114, 128, .04);
+  font-size: 11px;
+}
+
+.selectedTenantName {
+  color: #111827;
+  font-weight: 800;
+}
+
+.selectedTenantId {
+  color: #6b7280;
+}
+
+.selectedTenantPlaceholder {
+  color: #9ca3af;
+}
+
+.notesInput {
+  min-height: 48px;
+  resize: none;
+  font-size: 11px;
+}
+
+.inlineActions,
+.formActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.inlineActions {
+  padding-top: 2px;
+}
+
+.inlineCancelButton {
+  padding: 6px 12px;
+  font-size: 11px;
+}
+
+.inlineSaveButton {
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 11px;
+}
+
+.formCard {
+  margin-top: 8px;
+  padding: 20px;
+  border-color: rgba(217, 79, 61, .15);
+}
+
+.formHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.formTitle {
+  color: #111827;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.formCloseButton {
+  padding: 4px;
+}
+
+.formBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.connectorSelect {
+  height: 36px;
+  font-size: 12px;
+}
+
+.externalIdInput,
+.formActionButton {
+  font-size: 12px;
+}
+
+.formActions {
+  margin-top: 4px;
+}

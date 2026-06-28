@@ -1,0 +1,170 @@
+.root { display: contents; }
+
+.tenantGrid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.tenantCard { padding: 18px; }
+
+.tenantHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tenantLogo {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.tenantLogoText {
+  fill: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.tenantInfo { min-width: 0; }
+
+.tenantName {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-grey-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planBadge { font-size: 9px; }
+
+.metricRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--color-grey-100);
+}
+
+.metricLabel {
+  font-size: 10px;
+  color: var(--color-grey-500);
+}
+
+.metricValue {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--tone-color);
+}
+
+.twoColumnGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.chartCard { padding: 20px; }
+
+.fullWidthCard {
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+.chartTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-grey-700);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 14px;
+}
+
+.storageBody {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.storageLegend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.storageLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.storageLegendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--tone-color);
+  flex-shrink: 0;
+}
+
+.storageLegendLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-grey-700);
+  flex: 1;
+}
+
+.storageLegendValue {
+  font-size: 14px;
+  font-weight: 800;
+  font-family: inherit;
+  color: var(--tone-color);
+}
+
+.chartLegend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  font-size: 11px;
+}
+
+.chartLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-grey-700);
+}
+
+.chartLegendIcon {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+.scatterTooltip {
+  background: rgba(255,255,255,.97);
+  border: 1px solid var(--color-grey-200);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 11px;
+}
+
+.scatterTooltipTitle {
+  font-weight: 700;
+  color: var(--color-grey-900);
+  margin-bottom: 4px;
+}
+
+.infoText { color: var(--color-info); }
+.dangerText { color: var(--color-red); }
+
+.toneRed { --tone-color: var(--color-red); }
+.toneSuccess { --tone-color: var(--color-success); }
+.toneWarning { --tone-color: var(--color-warning); }
+.toneInfo { --tone-color: var(--color-info); }
+.tonePurple { --tone-color: var(--color-purple); }
+.toneTeal { --tone-color: var(--color-teal); }

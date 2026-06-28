@@ -1,0 +1,59 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Design tokens — the single source of truth for colours, radii, shadows and
+   typography. Values mirror src/constants/colors.js (the JS-side source) and the
+   global utility styles. Reference these as var(--…) from CSS Modules and from
+   global.css so colours are never hardcoded inline again.
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Brand */
+  --color-red: #d94f3d;
+  --color-red-mid: #e8736a;
+  --color-red-light: #f2a49f;
+  --color-red-pale: #fdf1f0;
+
+  /* Neutrals */
+  --color-grey-900: #18191c;
+  --color-grey-800: #2d3038;
+  --color-grey-700: #3d4149;
+  --color-grey-600: #525761;
+  --color-grey-500: #6b7280;
+  --color-grey-400: #9ca3af;
+  --color-grey-300: #c4c7cc;
+  --color-grey-200: #e5e7eb;
+  --color-grey-100: #f3f4f6;
+  --color-grey-50: #fafafa;
+  --color-white: #ffffff;
+
+  /* Status */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+  --color-purple: #8b5cf6;
+  --color-teal: #14b8a6;
+  --color-pink: #ec4899;
+  --color-orange: #f97316;
+
+  /* Surfaces */
+  --color-bg: #f0ede8;
+  --color-glass: rgba(255, 255, 255, 0.65);
+  --color-glass-border: rgba(255, 255, 255, 0.88);
+
+  /* Radii */
+  --radius-sm: 9px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-card-sm: 0 2px 12px rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --shadow-primary: 0 6px 20px rgba(217, 79, 61, 0.28);
+
+  /* Typography */
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-mono: var(--font-sans);
+  --font-serif: var(--font-sans);
+  --font-title: "Instrument Serif", Georgia, serif;
+}

@@ -1,0 +1,20 @@
+.root {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+}
+
+.label {
+  color: var(--color-grey-600);
+  font-size: 13px;
+  font-weight: 700;
+}

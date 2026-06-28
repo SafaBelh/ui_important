@@ -1,0 +1,267 @@
+.page {
+  padding: 28px 26px;
+  min-height: calc(100vh - 68px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.adminTenantSelect {
+  padding: 7px 13px;
+  border-radius: 9px;
+  border: 1.5px solid rgba(0, 0, 0, .07);
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+  background: #fff;
+  color: #3a3a3a;
+  cursor: pointer;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.statCard {
+  --stat-color: #3a3a3a;
+  --stat-shadow: rgba(58, 58, 58, .08);
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, .07);
+  border-radius: 14px;
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 30px var(--stat-shadow), 0 2px 8px rgba(24, 25, 28, .04);
+  transition: box-shadow .2s, transform .2s;
+}
+
+.statNeutral {
+  --stat-color: #3a3a3a;
+  --stat-shadow: rgba(58, 58, 58, .08);
+}
+
+.statSuccess {
+  --stat-color: #22c55e;
+  --stat-shadow: rgba(34, 197, 94, .08);
+}
+
+.statInfo {
+  --stat-color: #3b82f6;
+  --stat-shadow: rgba(59, 130, 246, .08);
+}
+
+.statRed {
+  --stat-color: #d94f3d;
+  --stat-shadow: rgba(217, 79, 61, .08);
+}
+
+.statHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.statLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9a9a9a;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.statIcon,
+.statValue {
+  color: var(--stat-color);
+}
+
+.statValue {
+  font-family: var(--font-sans);
+  font-size: 34px;
+  letter-spacing: -.03em;
+  line-height: 1;
+}
+
+.pipelineList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 50px;
+}
+
+.loadingText,
+.emptyState {
+  font-size: 12px;
+  color: #9a9a9a;
+}
+
+.emptyState {
+  padding: 48px;
+  text-align: center;
+}
+
+.pipelineCard {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, .07);
+  overflow: hidden;
+  box-shadow: none;
+  transition: box-shadow .2s;
+}
+
+.pipelineCardExpanded {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, .06);
+}
+
+.pipelineHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid transparent;
+  background: #fff;
+  transition: background .15s;
+}
+
+.pipelineHeader:not(.pipelineHeaderExpanded):hover {
+  background: #f5f4f1;
+}
+
+.pipelineHeaderExpanded {
+  border-bottom-color: rgba(0, 0, 0, .07);
+  background: rgba(217, 79, 61, .012);
+}
+
+.chevronBox {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: #f5f4f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+
+.chevronBoxExpanded {
+  background: rgba(217, 79, 61, .063);
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statusDotActive {
+  background: #22c55e;
+}
+
+.statusDotInactive {
+  background: #bfbfbf;
+}
+
+.pipelineInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.pipelineName {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #111;
+}
+
+.pipelineMeta {
+  --partner-color: #707070;
+  font-size: 10.5px;
+  color: #9a9a9a;
+  display: flex;
+  gap: 7px;
+  margin-top: 3px;
+  align-items: center;
+}
+
+.metaSeparator {
+  color: #bfbfbf;
+}
+
+.partnerName {
+  color: var(--partner-color);
+  font-weight: 600;
+}
+
+.notStarted {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.pipelineChips {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.flaggedChip,
+.seriesChip {
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.flaggedChip {
+  padding: 3px 9px;
+  background: rgba(217, 79, 61, .063);
+  color: #d94f3d;
+  letter-spacing: .04em;
+}
+
+.seriesChip {
+  padding: 3px 10px;
+}
+
+.seriesChipActive {
+  background: rgba(59, 130, 246, .063);
+  color: #3b82f6;
+}
+
+.seriesChipEmpty {
+  background: #f5f4f1;
+  color: #9a9a9a;
+}
+
+.expandedBody {
+  padding: 12px 20px 18px;
+}
+
+.expandedMessage {
+  font-size: 11px;
+  color: #9a9a9a;
+  padding: 16px 0;
+  text-align: center;
+}
+
+.seriesList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.seriesCardButton {
+  cursor: pointer;
+}

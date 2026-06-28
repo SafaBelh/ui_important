@@ -1,0 +1,366 @@
+.root {
+  padding: 22px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeSlideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.root input:focus {
+  outline: none;
+  border-color: rgba(217, 79, 61, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(217, 79, 61, 0.1);
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.headerKicker {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 6px;
+}
+
+.headerLine {
+  width: 18px;
+  height: 2px;
+  background: var(--color-red);
+  border-radius: 2px;
+}
+
+.headerEyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--color-red);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.title {
+  font-family: var(--font-sans);
+  font-size: 30px;
+  font-weight: 400;
+  color: var(--color-grey-900);
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1;
+}
+
+.subtitle {
+  font-size: 11px;
+  color: var(--color-grey-500);
+  margin: 7px 0 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tenantSelectShell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tenantSelectIcon {
+  position: absolute;
+  left: 11px;
+  pointer-events: none;
+}
+
+.tenantSelect {
+  min-width: 210px;
+  padding: 9px 12px 9px 32px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-grey-200);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--color-grey-800);
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  outline: none;
+}
+
+.tenantSelectGlobal {
+  border-color: rgba(217, 79, 61, 0.38);
+  background: rgba(217, 79, 61, 0.04);
+  color: var(--color-red);
+}
+
+.tabsOuter {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: -6px;
+}
+
+.tabsList {
+  display: flex;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  padding: 3px;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.tabButton {
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  color: var(--color-grey-500);
+  box-shadow: none;
+  transition: all 0.15s;
+}
+
+.tabButtonActive {
+  background: linear-gradient(135deg, var(--color-red), rgba(217, 79, 61, 0.87));
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(217, 79, 61, 0.28);
+}
+
+.tabBadge {
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--color-red);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tabBadgeActive {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.emptyAlertCard {
+  padding: 30px 24px;
+  border-radius: 18px;
+  text-align: center;
+}
+
+.emptyAlertTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-success);
+}
+
+.emptyAlertText {
+  font-size: 11px;
+  color: var(--color-grey-500);
+  margin-top: 5px;
+}
+
+.kpiGrid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.chartCard {
+  padding: 22px 26px;
+  border-radius: 18px;
+}
+
+.chartLegend {
+  display: flex;
+  gap: 22px;
+  margin-top: 12px;
+  justify-content: center;
+}
+
+.chartLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.chartLegendText {
+  font-size: 10px;
+  color: var(--color-grey-400);
+}
+
+.resetRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.seriesStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.seriesSelectorCard {
+  padding: 20px 24px;
+  border-radius: 18px;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.seriesSelectorColumn {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.fieldLabel {
+  display: block;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-grey-400);
+  margin-bottom: 6px;
+}
+
+.seriesSelect {
+  width: 100%;
+  padding: 10px 13px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid var(--color-grey-200);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--color-grey-900);
+  outline: none;
+  font-family: inherit;
+  height: 42px;
+  box-sizing: border-box;
+}
+
+.seriesDivider {
+  width: 1px;
+  background: var(--color-grey-200);
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+.budgetInputRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.budgetInput {
+  flex: 1;
+  padding: 10px 13px;
+  border-radius: 10px;
+  height: 42px;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  border: 1.5px solid var(--color-grey-200);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--color-grey-900);
+  outline: none;
+}
+
+.currencySuffix {
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--color-grey-400);
+  flex-shrink: 0;
+}
+
+.autoBudgetButton {
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--color-grey-200);
+  background: transparent;
+  color: var(--color-grey-500);
+  font-family: inherit;
+  height: 42px;
+  box-sizing: border-box;
+}
+
+.budgetHelperText {
+  font-family: inherit;
+  font-size: 9px;
+  color: var(--color-grey-400);
+  margin-top: 5px;
+}
+
+.seriesInfoBox {
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  border-radius: 14px;
+  padding: 15px 20px;
+  font-size: 11px;
+  line-height: 1.65;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.seriesInfoStrong {
+  color: var(--color-info);
+}
+
+.globalBackButton {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid rgba(217, 79, 61, 0.3);
+  background: rgba(217, 79, 61, 0.05);
+  color: var(--color-red);
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s;
+}
+
+.globalBackButton:hover,
+.globalBackButton:focus-visible {
+  background: rgba(217, 79, 61, 0.1);
+}
+
+.manualBudgetResetButton {
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--color-grey-200);
+  background: transparent;
+  color: var(--color-grey-500);
+  font-family: inherit;
+  transition: border-color 0.18s, color 0.18s;
+}
+
+.manualBudgetResetButton:hover,
+.manualBudgetResetButton:focus-visible {
+  border-color: var(--color-red);
+  color: var(--color-red);
+}

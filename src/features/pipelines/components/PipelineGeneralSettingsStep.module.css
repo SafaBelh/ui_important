@@ -1,0 +1,134 @@
+.root { display: contents; }
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionHeader {
+  border-bottom: 1px solid #f3f4f6;
+  padding-bottom: 8px;
+}
+
+.scheduleHeader {
+  margin-top: 8px;
+}
+
+.generalTitle {
+  color: #18191c;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.scheduleTitle {
+  color: #8b5cf6;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.sectionDescription {
+  color: #6b7280;
+  font-size: 11px;
+}
+
+.erpField {
+  background: rgba(0, 0, 0, .025);
+  color: #6b7280;
+}
+
+.descriptionInput {
+  resize: none;
+}
+
+.executionGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.executionButton {
+  background: rgba(255, 255, 255, .75);
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  color: #3d4149;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.executionButtonSelected {
+  background: rgba(217, 79, 61, .06);
+  border-color: #d94f3d;
+  color: #d94f3d;
+}
+
+.executionLabel {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.executionDescription {
+  color: #6b7280;
+  font-size: 10px;
+  line-height: 1.45;
+  margin-top: 4px;
+}
+
+.executionDescriptionSelected {
+  color: #d94f3d;
+}
+
+.scheduleModeList {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.scheduleModeButton {
+  background: transparent;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  color: #6b7280;
+  cursor: pointer;
+  flex: 1;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.scheduleModeMANUAL {
+  background: rgba(0, 0, 0, .05);
+  border-color: #6b7280;
+  color: #3d4149;
+}
+
+.scheduleModeCRON {
+  background: rgba(139, 92, 246, .08);
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+}
+
+.scheduleModePOLLING {
+  background: rgba(59, 130, 246, .08);
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.scheduleModeDescription {
+  font-size: 9px;
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.scheduleInput {
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.intervalInput {
+  width: 120px;
+}

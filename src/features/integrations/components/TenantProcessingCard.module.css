@@ -1,0 +1,91 @@
+.root { display: contents; }
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.iconBox {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(59, 130, 246, .12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.title {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.titleDone {
+  color: #15803d;
+}
+
+.titleActive {
+  color: #1d4ed8;
+}
+
+.tenantLabel {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.progressText {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.progressDone {
+  color: #22c55e;
+}
+
+.progressActive {
+  color: #3b82f6;
+}
+
+.progressFill {
+  width: var(--tenant-progress-width, 0%);
+  background: var(--tenant-progress-bg, linear-gradient(90deg, #3b82f6, #6366f1));
+}
+
+.logScroll {
+  max-height: 120px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.statsGrid {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.statCard {
+  flex: 1;
+  text-align: center;
+  padding: 8px 6px;
+  border-radius: 9px;
+  background: rgba(34, 197, 94, .07);
+  border: 1px solid rgba(34, 197, 94, .2);
+}
+
+.statValue {
+  font-size: 14px;
+  font-weight: 800;
+  color: #15803d;
+}
+
+.statLabel {
+  font-size: 9px;
+  color: #9ca3af;
+  margin-top: 2px;
+}

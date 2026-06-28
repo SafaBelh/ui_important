@@ -1,0 +1,33 @@
+.root {
+  min-height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  max-width: 460px;
+  padding: 24px;
+  text-align: center;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--color-red);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.title {
+  margin: 8px 0;
+  font-size: 24px;
+  color: var(--color-grey-900);
+}
+
+.message {
+  margin: 0;
+  color: var(--color-grey-500);
+  font-size: 13px;
+}

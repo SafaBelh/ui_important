@@ -1,0 +1,46 @@
+export const COLORS = {
+  red: "#D94F3D",
+  redMid: "#E8736A",
+  redLight: "#F2A49F",
+  redPale: "#FDF1F0",
+  grey900: "#18191C",
+  grey800: "#2D3038",
+  grey700: "#3D4149",
+  grey600: "#525761",
+  grey500: "#6B7280",
+  grey400: "#9CA3AF",
+  grey300: "#C4C7CC",
+  grey200: "#E5E7EB",
+  grey100: "#F3F4F6",
+  grey50: "#FAFAFA",
+  white: "#FFFFFF",
+  glass: "rgba(255,255,255,0.65)",
+  glassBd: "rgba(255,255,255,0.88)",
+  success: "#22C55E",
+  warning: "#F59E0B",
+  info: "#3B82F6",
+  purple: "#8B5CF6",
+  teal: "#14B8A6",
+  pink: "#EC4899",
+  orange: "#F97316",
+  bg: "#F0EDE8",
+};
+
+export const CHART_COLORS = [
+  COLORS.red,
+  COLORS.info,
+  COLORS.success,
+  COLORS.warning,
+  COLORS.purple,
+  COLORS.teal,
+  COLORS.orange,
+  COLORS.pink,
+  COLORS.redMid,
+];
+
+export const SEVERITY_COLORS = {
+  CRITIQUE: COLORS.red,
+  ALERTE: COLORS.warning,
+  INFO: COLORS.info,
+  OK: COLORS.success,
+};

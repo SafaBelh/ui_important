@@ -1,0 +1,13 @@
+.root { display: contents; }
+
+.stepStack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.summaryStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

@@ -1,0 +1,67 @@
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 4px 0 18px;
+}
+
+.dividerLineStart,
+.dividerLineEnd {
+  height: 1px;
+  flex: 1;
+}
+
+.dividerLineStart {
+  background: linear-gradient(90deg, rgba(217, 79, 61, 0.18), transparent);
+}
+
+.dividerLineEnd {
+  background: linear-gradient(270deg, rgba(217, 79, 61, 0.18), transparent);
+}
+
+.dividerLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-grey-400);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sectionNav {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  width: fit-content;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.sectionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  font-family: inherit;
+  background: transparent;
+  color: var(--color-grey-500);
+}
+
+.sectionButtonActive {
+  background: linear-gradient(135deg, #D94F3D, #E8736A);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(217, 79, 61, 0.25);
+}

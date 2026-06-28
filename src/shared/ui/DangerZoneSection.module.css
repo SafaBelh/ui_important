@@ -1,0 +1,190 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card {
+  border: 1.5px solid rgba(217, 79, 61, .25);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .8);
+}
+
+.cardHeader {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardTitleGroup,
+.cardIcon,
+.deleteButton,
+.done,
+.confirmRow,
+.confirmButton {
+  display: flex;
+  align-items: center;
+}
+
+.cardTitleGroup {
+  gap: 12px;
+}
+
+.cardIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(217, 79, 61, .1);
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cardTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #18191C;
+}
+
+.cardSubtitle {
+  font-size: 11px;
+  color: #6B7280;
+  margin-top: 2px;
+}
+
+.deleteButton {
+  padding: 7px 16px;
+  border-radius: 9px;
+  border: 1.5px solid rgba(217, 79, 61, .4);
+  background: rgba(217, 79, 61, .07);
+  color: #D94F3D;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  gap: 6px;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.deleteButton:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.done {
+  font-size: 12px;
+  font-weight: 700;
+  color: #22C55E;
+  gap: 5px;
+}
+
+.confirmPanel {
+  padding: 14px 20px 18px;
+  border-top: 1px solid rgba(217, 79, 61, .15);
+  background: rgba(217, 79, 61, .03);
+}
+
+.confirmText {
+  font-size: 12px;
+  color: #3D4149;
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.confirmCode {
+  font-family: inherit;
+  background: rgba(217, 79, 61, .1);
+  color: #D94F3D;
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.confirmRow {
+  gap: 8px;
+}
+
+.confirmInput {
+  flex: 1;
+  font-size: 12px;
+  border-color: #E5E7EB;
+}
+
+.confirmInputMatched {
+  border-color: rgba(217, 79, 61, .6);
+}
+
+.confirmButton {
+  padding: 9px 18px;
+  border-radius: 9px;
+  border: none;
+  background: rgba(217, 79, 61, .2);
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: not-allowed;
+  opacity: .6;
+  gap: 6px;
+  font-family: inherit;
+  flex-shrink: 0;
+  box-shadow: none;
+  transition: all .2s;
+}
+
+.confirmButtonActive {
+  background: linear-gradient(135deg, #991b1b, #D94F3D);
+  cursor: pointer;
+  opacity: 1;
+  box-shadow: 0 4px 14px rgba(217, 79, 61, .35);
+}
+
+.cancelButton {
+  font-size: 12px;
+  padding: 7px 12px;
+}
+
+.warningBanner {
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(217, 79, 61, .07);
+  border: 1.5px solid rgba(217, 79, 61, .25);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.warningIcon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.warningTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #D94F3D;
+  margin-bottom: 4px;
+}
+
+.warningText {
+  font-size: 12px;
+  color: #525761;
+  line-height: 1.6;
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 10px;
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

@@ -1,0 +1,61 @@
+.box {
+  max-width: var(--modal-max-width, 600px);
+}
+
+.boxNoScroll {
+  display: flex;
+  flex-direction: column;
+  height: min(92vh, 850px);
+  max-height: 92vh;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.88);
+  border-radius: 18px 18px 0 0;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-sans);
+  font-size: 21px;
+  line-height: 1.2;
+  color: #18191C;
+}
+
+.subtitle {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #6B7280;
+}
+
+.closeButton {
+  flex-shrink: 0;
+}
+
+.noScrollBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.body {
+  padding: 24px;
+}

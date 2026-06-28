@@ -1,0 +1,178 @@
+.root { display: contents; }
+
+.sectionHeaderStatic { cursor: default; }
+.cardIcon { width: 26px; height: 26px; border-radius: 8px; background: rgba(34, 197, 94, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cardTitleWrap { flex: 1; min-width: 0; }
+.cardTitle { font-size: 12px; font-weight: 700; color: var(--color-grey-800); }
+.cardSubtitle { font-size: 10px; color: var(--color-grey-400); }
+.selectWrap { flex: 1; min-width: 150px; }
+.labelInline { display: flex; gap: 4px; }
+.requiredMark { color: var(--color-red); }
+.selectInput { font-size: 11px; width: 100%; }
+.selectRequiredEmpty { border-color: rgba(217, 79, 61, 0.4); }
+.chipRow { display: flex; flex-wrap: wrap; gap: 4px; }
+.chipRowWithValues { margin-bottom: 5px; }
+.statusChip { cursor: pointer; font-size: 10px; }
+.smallInput { font-size: 11px; }
+.editorStack { display: flex; flex-direction: column; gap: 8px; }
+.editorRow { display: flex; gap: 8px; flex-wrap: wrap; }
+.yearInput { font-size: 11px; width: 110px; }
+.reasonInput { font-size: 11px; flex: 1; min-width: 180px; }
+.smallGhostButton { font-size: 11px; }
+.mutedText { font-size: 10px; color: var(--color-grey-400); }
+.yearChipRow { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.sourceCard { border-radius: 12px; border: 1.5px solid var(--source-border); background: var(--source-bg); overflow: hidden; }
+.sourceEnabled { --source-border: color-mix(in srgb, var(--source-color) 34%, transparent); --source-bg: color-mix(in srgb, var(--source-color) 3%, transparent); }
+.sourceDisabled { --source-color: var(--color-grey-600); --source-border: var(--color-grey-200); --source-bg: rgba(248, 247, 245, 0.6); }
+.kindCommande { --source-color: #8b5cf6; }
+.kindFacture { --source-color: #3b82f6; }
+.sourceHeader { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; }
+.sourceIcon { width: 24px; height: 24px; border-radius: 7px; background: color-mix(in srgb, var(--source-color) 10%, transparent); display: flex; align-items: center; justify-content: center; color: var(--source-color); }
+.sourceText { flex: 1; }
+.sourceTitle { font-size: 12px; font-weight: 700; color: var(--source-color); }
+.sourceSubtitle { font-size: 10px; color: var(--color-grey-400); }
+.switchTrack { width: 34px; height: 19px; border-radius: 12px; background: var(--source-color); position: relative; transition: background 0.2s; flex-shrink: 0; }
+.switchTrackOff { background: var(--color-grey-300); }
+.switchKnob { position: absolute; top: 2px; left: var(--switch-left); width: 15px; height: 15px; border-radius: 50%; background: #fff; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); }
+.switchOn { --switch-left: 17px; }
+.switchOff { --switch-left: 2px; }
+.sourceBody { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+.formRow { display: flex; gap: 8px; flex-wrap: wrap; }
+.formRowEnd { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.wideField { flex: 2; min-width: 180px; }
+.subSection { border-top: 1px dashed var(--color-grey-200); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.subSectionTitle { font-size: 10px; font-weight: 700; color: var(--color-grey-500); text-transform: uppercase; letter-spacing: 0.06em; }
+.subSectionHint { font-size: 10px; color: var(--color-grey-400); margin-top: -4px; }
+.axisTitle { font-size: 10px; font-weight: 700; color: var(--color-grey-500); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.axisList { display: flex; flex-direction: column; gap: 6px; }
+.axisRow { display: flex; align-items: center; gap: 8px; }
+.axisBadge { font-size: 10px; min-width: 110px; justify-content: center; }
+.arrowIcon { flex-shrink: 0; }
+.axisSelect { font-size: 11px; flex: 1; }
+.axisSelectMissing { border-color: rgba(217, 79, 61, 0.4); }
+.joinHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.joinButton { font-size: 10px; padding: 3px 8px; }
+.joinRow { display: flex; gap: 6px; align-items: center; margin-bottom: 5px; }
+.joinSelect { font-size: 10px; flex: 1; }
+.equalsText { font-size: 10px; color: var(--color-grey-400); }
+.iconOnlyButton { padding: 4px; }
+
+.emptyPreview { font-size: 11px; color: var(--color-grey-400); text-align: center; padding: 16px; }
+.previewTableShell { border: 1px solid var(--color-grey-200); border-radius: 10px; overflow: hidden; }
+.tableScroll { overflow-x: auto; }
+.previewTable { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 620px; }
+.previewHeadRow { background: rgba(248, 247, 245, 0.9); }
+.headCell { padding: 8px 10px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-grey-500); white-space: nowrap; }
+.headCellLeft { text-align: left; }
+.headCellRight { text-align: right; }
+.previewRow { border-top: 1px solid var(--color-grey-100); cursor: default; }
+.previewRowExpandable { cursor: pointer; }
+.previewRowExpanded { background: rgba(248, 247, 245, 0.7); }
+.cell { padding: 8px 10px; }
+.cellRight { padding: 8px 10px; text-align: right; }
+.cellRightMin { padding: 8px 10px; text-align: right; min-width: 86px; }
+.axisCellInner { display: flex; align-items: center; gap: 6px; }
+.chevron { transition: transform 0.15s; flex-shrink: 0; }
+.chevronExpanded { transform: rotate(90deg); }
+.axisKey { font-weight: 700; color: var(--color-grey-800); }
+.axisLabel { font-size: 9px; color: var(--color-grey-400); }
+.allocatedCell { font-weight: 700; color: var(--color-grey-800); }
+.consumedCell { color: var(--color-grey-700); }
+.detailLine { font-size: 8px; color: var(--color-grey-400); }
+.remainingPositive { font-weight: 700; color: var(--color-success); }
+.remainingNegative { font-weight: 700; color: var(--color-red); }
+.rateWrap { display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
+.rateProgress { width: 44px; height: 5px; appearance: none; }
+.rateProgress::-webkit-progress-bar { background: var(--color-grey-100); border-radius: 3px; overflow: hidden; }
+.rateProgress::-webkit-progress-value { background: var(--status-color); border-radius: 3px; }
+.rateProgress::-moz-progress-bar { background: var(--status-color); border-radius: 3px; }
+.rateText { font-size: 10px; color: var(--color-grey-500); }
+.projectedCell { color: var(--color-grey-600); }
+.seasonalityMark { margin-left: 4px; font-size: 8px; color: var(--color-grey-400); }
+.thresholdCell { font-size: 10px; color: var(--color-grey-400); }
+.thresholdWarn { color: #b45309; }
+.statusBadge { font-size: 9px; font-weight: 800; color: var(--status-color); background: color-mix(in srgb, var(--status-color) 9%, transparent); padding: 2px 8px; border-radius: 8px; white-space: nowrap; }
+.statusOk { --status-color: var(--color-success); }
+.statusWarn { --status-color: var(--color-warning); }
+.statusDanger { --status-color: var(--color-red); }
+.statusInfo { --status-color: var(--color-info); }
+.detailRow { background: rgba(248, 247, 245, 0.5); }
+.detailCell { padding: 6px 10px 8px 28px; }
+.supplierDetailCell { padding: 6px 10px 10px 28px; }
+.detailTitle { font-size: 9px; font-weight: 700; color: var(--detail-color); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.detailTitleMuted { --detail-color: var(--color-grey-500); }
+.kindDetailCommande { --detail-color: #8b5cf6; }
+.kindDetailFacture { --detail-color: #3b82f6; }
+.detailChipRow { display: flex; flex-wrap: wrap; gap: 5px; }
+.detailChip { font-size: 9px; padding: 3px 8px; border-radius: 7px; background: #fff; border: 1px solid var(--color-grey-200); color: var(--color-grey-600); }
+.supplierChip { color: var(--color-grey-700); }
+
+.stepStack { display: flex; flex-direction: column; gap: 12px; }
+.topRow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.suggestButton { font-size: 11px; flex-shrink: 0; }
+.modeGrid { display: flex; gap: 8px; }
+.modeCard { flex: 1; padding: 10px 12px; border-radius: 11px; cursor: pointer; background: rgba(248, 247, 245, 0.8); border: 1.5px solid var(--color-grey-200); }
+.modeCardActive { background: rgba(34, 197, 94, 0.07); border-color: var(--color-success); }
+.modeTitle { font-size: 12px; font-weight: 700; color: var(--color-grey-700); }
+.modeTitleActive { color: #15803d; }
+.modeHint { font-size: 10px; color: var(--color-grey-400); }
+.sectionStack { display: flex; flex-direction: column; gap: 10px; }
+.labelSpaced { margin-bottom: 6px; }
+.pillRow { display: flex; gap: 6px; flex-wrap: wrap; }
+.optionButton { padding: 7px 11px; border-radius: 9px; cursor: pointer; font-family: inherit; text-align: left; background: #fff; border: 1.5px solid var(--color-grey-200); }
+.optionButtonActive { background: rgba(34, 197, 94, 0.08); border-color: var(--color-success); }
+.optionButtonCompact { padding: 5px 12px; font-size: 11px; font-weight: 700; }
+.optionTitle { font-size: 11px; font-weight: 700; color: var(--color-grey-700); }
+.optionTitleActive { color: #15803d; }
+.optionHint { font-size: 9px; color: var(--color-grey-400); }
+.fiscalBox { border-top: 1px dashed #e5e7eb; padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.fiscalHeader { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.fieldLimited { flex: 1; min-width: 170px; max-width: 280px; }
+.fullSelect { font-size: 11px; width: 100%; }
+.sampleKey { font-size: 10px; color: var(--color-grey-500); background: rgba(34, 197, 94, 0.08); padding: 3px 9px; border-radius: 8px; }
+.emptyMessage { font-size: 11px; color: var(--color-grey-400); text-align: center; padding: 10px; }
+.axisChipRow { display: flex; flex-wrap: wrap; gap: 5px; }
+.axisChipSelected { background: rgba(34, 197, 94, 0.12); border-color: rgba(34, 197, 94, 0.5); color: #15803d; font-weight: 800; }
+.checkOffset { margin-right: 3px; }
+.axisLabelStack { display: flex; flex-direction: column; gap: 5px; }
+.axisLabelRow { display: flex; align-items: center; gap: 8px; }
+.axisColumnName { font-size: 10px; color: var(--color-grey-500); min-width: 130px; }
+.axisLabelInput { font-size: 11px; flex: 1; }
+.keyPreview { font-size: 10px; color: var(--color-grey-400); }
+.keyPreviewValue { color: #15803d; font-weight: 700; }
+.formulaToggle { font-size: 10px; padding: 4px 10px; }
+.formulaStack { display: flex; flex-direction: column; gap: 8px; }
+.formulaBox { font-size: 12px; font-weight: 700; color: #15803d; background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 9px; padding: 9px 12px; }
+.checkboxRow { display: flex; gap: 14px; flex-wrap: wrap; }
+.checkboxLabel { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--color-grey-700); cursor: pointer; }
+.formulaDropReady { border-color: rgba(34, 197, 94, 0.3); }
+.formulaPlaceholder { font-size: 11px; color: var(--color-grey-400); }
+.formulaToolRow { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.divider { width: 1px; height: 18px; background: var(--color-grey-200); }
+.constantInput { font-size: 11px; width: 80px; }
+.helpText { font-size: 10px; color: var(--color-grey-400); }
+.validationBox { border-radius: 11px; border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.06); padding: 10px 14px; }
+.validationTitle { font-size: 11px; font-weight: 700; color: #b45309; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.validationItem { font-size: 10px; color: #92400e; }
+.previewControls { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.targetButton { padding: 6px 12px; border-radius: 9px; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 700; background: #fff; border: 1.5px solid var(--color-grey-200); color: var(--color-grey-600); }
+.targetButtonActive { background: rgba(34, 197, 94, 0.1); border-color: var(--color-success); color: #15803d; }
+.dateInput { font-size: 11px; width: 140px; }
+.tenantPreviewInput { font-size: 11px; width: 200px; }
+.spacer { flex: 1; }
+.runPreviewButtonDisabled { opacity: 0.5; }
+.previewError { font-size: 11px; color: var(--color-red); display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 9px; background: rgba(217, 79, 61, 0.06); border: 1px solid rgba(217, 79, 61, 0.2); }
+.totalsGrid { display: flex; gap: 8px; flex-wrap: wrap; }
+.totalCard { flex: 1; min-width: 110px; padding: 9px 12px; border-radius: 10px; background: rgba(248, 247, 245, 0.8); border: 1px solid var(--color-grey-200); }
+.totalLabel { font-size: 9px; color: var(--color-grey-400); text-transform: uppercase; letter-spacing: 0.05em; }
+.totalValue { font-size: 15px; font-weight: 800; color: var(--total-color); }
+.totalDefault { --total-color: var(--color-grey-800); }
+.totalInfo { --total-color: var(--color-info); }
+.totalWarn { --total-color: #b45309; }
+.totalSuccess { --total-color: #15803d; }
+.totalDanger { --total-color: var(--color-red); }
+.warningList { font-size: 10px; color: var(--color-grey-500); }
+.legendText { font-size: 9px; color: var(--color-grey-400); }
+.warningInline { color: #b45309; }
+.footerNote { font-size: 10px; color: var(--color-grey-400); text-align: right; }

@@ -1,0 +1,257 @@
+.root {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.criticalSubtitle {
+  color: var(--color-red);
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+.severityChip {
+  --chip-border: transparent;
+  --chip-bg: transparent;
+  --chip-dot: currentColor;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
+  color: var(--color-grey-900);
+}
+
+.severityDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--chip-dot);
+}
+
+.toolbar {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tabsWrap {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.tabBtn {
+  font-size: 12px;
+  padding: 6px 14px;
+}
+
+.adminTenantSelect {
+  margin-left: 8px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--color-grey-200);
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+}
+
+.topActionBtn {
+  font-size: 11px;
+  padding: 5px 12px;
+}
+
+.alertList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.alertCard {
+  --card-opacity: 1;
+  --card-shadow: none;
+  --card-border: 1px solid transparent;
+  --card-left: 4px solid transparent;
+
+  padding: 20px;
+  opacity: var(--card-opacity);
+  box-shadow: var(--card-shadow);
+  border: var(--card-border);
+  border-left: var(--card-left);
+}
+
+.alertMain {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.iconBox {
+  --icon-bg: transparent;
+  --icon-ring: transparent;
+
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--icon-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px var(--icon-ring);
+}
+
+.alertContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.alertHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.alertMessage {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-grey-900);
+  line-height: 1.4;
+}
+
+.badgeGroup {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.dynamicBadge {
+  --badge-bg: transparent;
+  --badge-color: inherit;
+  --badge-border: 1px solid transparent;
+
+  background: var(--badge-bg);
+  color: var(--badge-color);
+  border: var(--badge-border);
+  font-weight: 700;
+}
+
+.statusBadge {
+  --status-bg: transparent;
+  --status-color: inherit;
+  --status-border: 1px solid transparent;
+
+  background: var(--status-bg);
+  color: var(--status-color);
+  border: var(--status-border);
+}
+
+.markReadBtn {
+  font-size: 10px;
+  padding: 3px 8px;
+}
+
+.metaRow {
+  --meta-margin-bottom: 0px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 10px;
+  color: var(--color-grey-500);
+  margin-bottom: var(--meta-margin-bottom);
+}
+
+.timeMeta {
+  font-family: var(--font-mono);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.clockIcon {
+  flex-shrink: 0;
+}
+
+.pipelineMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.invoiceRef {
+  font-family: var(--font-mono);
+}
+
+.scoreLabel {
+  font-size: 9px;
+  color: var(--color-grey-500);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.scoreRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.scoreTrack {
+  --track-bg: transparent;
+  --track-shadow: none;
+
+  flex: 1;
+  height: 7px;
+  border-radius: 99px;
+  background: var(--track-bg);
+  overflow: hidden;
+  box-shadow: var(--track-shadow);
+}
+
+.scoreFill {
+  --bar-width: 0%;
+  --bar-grad: transparent;
+
+  height: 100%;
+  border-radius: 99px;
+  background: var(--bar-grad);
+  width: var(--bar-width);
+  transition: width .8s cubic-bezier(.22,1,.36,1);
+}
+
+.scoreValue {
+  --score-color: currentColor;
+
+  font-size: 12px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--score-color);
+}
+
+.feedbackActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.feedbackBtn {
+  font-size: 11px;
+  padding: 5px 12px;
+}

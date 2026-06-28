@@ -1,0 +1,143 @@
+.root { display: contents; }
+
+.label {
+  color: #6b7280;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 6px;
+}
+
+.helper {
+  color: #9ca3af;
+  font-size: 10px;
+  margin-top: 4px;
+}
+
+.tagInput {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.78);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 42px;
+  padding: 7px 10px;
+}
+
+.tag {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 700;
+  gap: 5px;
+  padding: 4px 8px;
+}
+
+.tagAccentInfo {
+  background: #3b82f612;
+  border: 1px solid #3b82f635;
+  color: #3b82f6;
+}
+
+.tagAccentOrange {
+  background: #d9770612;
+  border: 1px solid #d9770635;
+  color: #d97706;
+}
+
+.tagAccentGreen {
+  background: #16a34a12;
+  border: 1px solid #16a34a35;
+  color: #16a34a;
+}
+
+.tagRemove {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  padding: 0;
+}
+
+.tagInputField {
+  background: transparent;
+  border: none;
+  color: #18191c;
+  flex: 1;
+  font-family: inherit;
+  font-size: 12px;
+  min-width: 120px;
+  outline: none;
+}
+
+.sectionHeader {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.sectionBadge {
+  align-items: center;
+  border-radius: 8px;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 800;
+  height: 24px;
+  justify-content: center;
+  width: 24px;
+}
+
+.sectionBadgeBlue {
+  background: rgba(59, 130, 246, 0.12);
+  border: 1.5px solid rgba(59, 130, 246, 0.25);
+  color: #3b82f6;
+}
+
+.sectionBadgeRed {
+  background: rgba(217, 79, 61, 0.12);
+  border: 1.5px solid rgba(217, 79, 61, 0.25);
+  color: #d94f3d;
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sectionTitleBlue {
+  color: #3b82f6;
+}
+
+.sectionTitleRed {
+  color: #d94f3d;
+}
+
+.sectionSub {
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.sliderHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.sliderValue {
+  color: #d94f3d;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sliderInput {
+  height: 5px;
+  width: 100%;
+}

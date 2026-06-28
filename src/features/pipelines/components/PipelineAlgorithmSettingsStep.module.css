@@ -1,0 +1,44 @@
+.root { display: contents; }
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  border-bottom: 1px solid var(--color-grey-100);
+  padding-bottom: 8px;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-grey-900);
+}
+
+.description {
+  font-size: 11px;
+  color: var(--color-grey-500);
+}
+
+.infoBox {
+  padding: 11px 13px;
+  background: rgba(217,79,61,.05);
+  border-radius: 10px;
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  margin-top: 8px;
+}
+
+.infoIcon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.infoText {
+  font-size: 11px;
+  color: var(--color-grey-700);
+  line-height: 1.5;
+}

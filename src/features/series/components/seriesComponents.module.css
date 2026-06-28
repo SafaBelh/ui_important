@@ -1,0 +1,279 @@
+.root { display: contents; }
+
+.toggle {
+  width: 34px;
+  height: 18px;
+  border-radius: 99px;
+  cursor: pointer;
+  position: relative;
+  transition: background .25s;
+  flex-shrink: 0;
+  border: 1.5px solid #BFBFBF;
+  background: #BFBFBF;
+}
+
+.toggleOn {
+  border-color: #D94F3D;
+  background: #D94F3D;
+}
+
+.toggleOff {
+  border-color: #BFBFBF;
+  background: #BFBFBF;
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.22);
+  transition: left .22s cubic-bezier(.4,0,.2,1);
+}
+
+.toggleKnobOn {
+  left: 15px;
+}
+
+.badge {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  padding: 2px 6px;
+  line-height: 1.6;
+}
+
+.badge.toneRed {
+  color: #D94F3D;
+  background: #D94F3D15;
+}
+
+.badge.toneWarning {
+  color: #F59E0B;
+  background: #F59E0B15;
+}
+
+.badge.toneInfo {
+  color: #3B82F6;
+  background: #3B82F615;
+}
+
+.badge.toneSuccess {
+  color: #22C55E;
+  background: #22C55E15;
+}
+
+.badge.toneInk {
+  color: #3A3A3A;
+  background: #3A3A3A15;
+}
+
+.statPill {
+  display: flex;
+  flex-direction: column;
+  padding: 9px 13px;
+  border-radius: 10px;
+  flex: 1;
+  min-width: 80px;
+}
+
+.statPill.toneRed {
+  background: #D94F3D08;
+  border: 1px solid #D94F3D18;
+}
+
+.statPill.toneWarning {
+  background: #F59E0B08;
+  border: 1px solid #F59E0B18;
+}
+
+.statPill.toneInfo {
+  background: #3B82F608;
+  border: 1px solid #3B82F618;
+}
+
+.statPill.toneSuccess {
+  background: #22C55E08;
+  border: 1px solid #22C55E18;
+}
+
+.statPill.toneInk {
+  background: #3A3A3A08;
+  border: 1px solid #3A3A3A18;
+}
+
+.statPillLabel {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.toneRed .statPillLabel { color: #D94F3D; }
+.toneWarning .statPillLabel { color: #F59E0B; }
+.toneInfo .statPillLabel { color: #3B82F6; }
+.toneSuccess .statPillLabel { color: #22C55E; }
+.toneInk .statPillLabel { color: #3A3A3A; }
+
+.statPillValue {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #111111;
+}
+
+.seriesCard {
+  padding: 13px 16px;
+  border-radius: 11px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,.07);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: box-shadow .15s, border-color .15s;
+  box-shadow: none;
+}
+
+.flagged {
+  border-color: #D94F3D22;
+}
+
+.hovered {
+  border-color: rgba(0,0,0,.11);
+  box-shadow: 0 3px 14px rgba(0,0,0,.07);
+}
+
+.flagged.hovered {
+  border-color: #D94F3D44;
+}
+
+.paused {
+  background: #F5F4F1;
+  border-color: rgba(0,0,0,.07);
+}
+
+.paused.hovered {
+  border-color: rgba(0,0,0,.11);
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statusRed {
+  background: #D94F3D;
+  box-shadow: 0 0 0 3px #D94F3D22;
+}
+
+.statusSuccess {
+  background: #22C55E;
+  box-shadow: 0 0 0 3px #22C55E22;
+}
+
+.statusMuted {
+  background: #9A9A9A;
+  box-shadow: 0 0 0 3px #9A9A9A22;
+}
+
+.cardMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 5px;
+}
+
+.seriesName {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #111111;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seriesNamePaused {
+  color: #9A9A9A;
+}
+
+.metricsRow {
+  display: flex;
+  gap: 0;
+  align-items: center;
+}
+
+.metric {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  margin-right: 14px;
+}
+
+.metricValue {
+  font-size: 11px;
+  font-weight: 700;
+  color: #3A3A3A;
+}
+
+.metricValueMono {
+  font-family: inherit;
+}
+
+.metricValueRed {
+  color: #D94F3D;
+}
+
+.metricLabel {
+  font-size: 9px;
+  color: #9A9A9A;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.toggleColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.toggleLabel {
+  font-size: 9px;
+  color: #9A9A9A;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #707070;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0,0,0,.07);
+}
+
+.sectionIcon {
+  color: #9A9A9A;
+}

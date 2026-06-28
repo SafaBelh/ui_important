@@ -1,0 +1,56 @@
+.shell { max-width: 960px; margin: 0 auto; }
+.title { font-family: var(--font-sans); font-size: 24px; color: var(--color-grey-900); margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: var(--color-grey-500); margin-bottom: 20px; }
+.errorMessage { background: var(--color-red-pale); border-radius: 10px; padding: 10px 14px; font-size: 12px; color: var(--color-red); margin-bottom: 12px; }
+.sectionCard { padding: 20px; margin-bottom: 14px; }
+.sectionTitle { font-size: 13px; font-weight: 700; color: var(--color-grey-900); margin-bottom: 10px; }
+.subLabel { font-size: 11px; color: var(--color-grey-500); margin-bottom: 6px; }
+.chipRow { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.scenarioButton { font-size: 11px; }
+.fieldButton { font-size: 12px; display: flex; align-items: center; gap: 5px; }
+.checkIcon { margin-right: 3px; }
+.currentGrouping { font-size: 11px; color: var(--color-info); padding: 6px 10px; background: rgba(59, 130, 246, 0.06); border-radius: 8px; margin-bottom: 14px; }
+.supplierWarning { color: var(--color-warning); margin-left: 8px; }
+.inlineIconText { display: inline-flex; align-items: center; gap: 4px; }
+.previewButton { font-size: 12px; display: flex; align-items: center; gap: 8px; }
+.previewHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.previewTitle { font-size: 14px; font-weight: 800; color: var(--color-grey-900); }
+.previewSubtitle { font-size: 11px; color: var(--color-grey-500); margin-top: 2px; }
+.statusRow { display: flex; gap: 6px; }
+.statusPill { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px; display: inline-flex; align-items: center; gap: 4px; }
+.statusOk { background: rgba(34, 197, 94, 0.1); color: var(--color-success); }
+.statusWarning { background: rgba(245, 158, 11, 0.1); color: var(--color-warning); }
+.seriesList { display: flex; flex-direction: column; gap: 10px; max-height: 480px; overflow-y: auto; }
+.seriesCard { border-radius: 12px; padding: 12px 14px; }
+.seriesReady { border: 1.5px solid rgba(34, 197, 94, 0.25); background: rgba(34, 197, 94, 0.03); }
+.seriesFlagged { border: 1.5px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.03); }
+.seriesHeader { display: flex; align-items: center; justify-content: space-between; }
+.seriesHeaderWithIssues { margin-bottom: 10px; }
+.seriesIdentity { display: flex; align-items: center; gap: 10px; }
+.seriesDot { width: 8px; height: 8px; border-radius: 50%; background: var(--series-color); flex-shrink: 0; }
+.chartColor0 { --series-color: var(--color-red); }
+.chartColor1 { --series-color: var(--color-info); }
+.chartColor2 { --series-color: var(--color-success); }
+.chartColor3 { --series-color: var(--color-warning); }
+.chartColor4 { --series-color: var(--color-purple); }
+.chartColor5 { --series-color: var(--color-teal); }
+.chartColor6 { --series-color: var(--color-orange); }
+.chartColor7 { --series-color: var(--color-pink); }
+.chartColor8 { --series-color: var(--color-red-mid); }
+.seriesName { font-size: 13px; font-weight: 800; color: var(--color-grey-900); }
+.seriesStats { font-size: 11px; color: var(--color-grey-500); margin-top: 2px; display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.seriesStat { display: inline-flex; align-items: center; gap: 4px; }
+.seriesStatPlain { display: inline-flex; align-items: center; }
+.statWarn { color: var(--color-warning); }
+.seriesStatusPill { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px; display: inline-flex; align-items: center; gap: 4px; }
+.seriesStatusReady { background: rgba(34, 197, 94, 0.12); color: var(--color-success); border: 1px solid rgba(34, 197, 94, 0.25); }
+.seriesStatusFlagged { background: rgba(245, 158, 11, 0.12); color: var(--color-warning); border: 1px solid rgba(245, 158, 11, 0.25); }
+.issuesList { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid rgba(0, 0, 0, 0.06); }
+.issueCard { display: flex; gap: 8px; align-items: flex-start; background: rgba(255, 255, 255, 0.65); border-radius: 8px; padding: 8px 10px; }
+.issueIcon { flex-shrink: 0; margin-top: 1px; }
+.issueTitle { font-size: 11px; font-weight: 700; color: var(--issue-color); margin-bottom: 2px; }
+.issueWarning { --issue-color: var(--color-warning); color: var(--issue-color); }
+.issueDanger { --issue-color: var(--color-red); color: var(--issue-color); }
+.issueDetail { font-size: 11px; color: var(--color-grey-600); line-height: 1.5; }
+.issueNote { font-size: 10px; color: var(--color-grey-400); padding: 3px 2px; }
+.confirmButton { width: 100%; justify-content: center; }

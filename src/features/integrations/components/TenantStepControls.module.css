@@ -1,0 +1,92 @@
+.root { display: contents; }
+
+.tagInput {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 5px 8px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+}
+
+.tagInput.hasTags.info { border-color: rgba(59, 130, 246, .207843); }
+.tagInput.hasTags.warning { border-color: rgba(245, 158, 11, .207843); }
+.tagInput.hasTags.success { border-color: rgba(34, 197, 94, .207843); }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 7px;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid;
+}
+
+.tag.info {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, .070588);
+  border-color: rgba(59, 130, 246, .156863);
+}
+
+.tag.warning {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, .070588);
+  border-color: rgba(245, 158, 11, .156863);
+}
+
+.tag.success {
+  color: #22c55e;
+  background: rgba(34, 197, 94, .070588);
+  border-color: rgba(34, 197, 94, .156863);
+}
+
+.removeTagButton {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+}
+
+.removeTagButton.info { color: #3b82f6; }
+.removeTagButton.warning { color: #f59e0b; }
+.removeTagButton.success { color: #22c55e; }
+
+.tagInputField {
+  flex: 1;
+  min-width: 120px;
+  border: none;
+  outline: none;
+  font-size: 11px;
+  font-family: 'DM Sans', sans-serif;
+  color: #1f2937;
+  padding: 4px 2px;
+}
+
+.dbTester {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dbTestButton {
+  font-size: 10px;
+  padding: 5px 11px;
+}
+
+.dbStatus {
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dbStatusOk { color: #22c55e; }
+.dbStatusError { color: #D94F3D; }

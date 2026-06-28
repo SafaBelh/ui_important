@@ -1,0 +1,161 @@
+.root {
+  position: relative;
+}
+
+.entityMark,
+.globalMark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.entityMark {
+  background: var(--entity-color);
+  font-weight: 700;
+}
+
+.globalMark {
+  background: linear-gradient(135deg, #D94F3D, #E8736A);
+}
+
+.markDefault {
+  width: 32px;
+  height: 32px;
+}
+
+.markMedium {
+  width: 24px;
+  height: 24px;
+}
+
+.markSmall {
+  width: 22px;
+  height: 22px;
+}
+
+.markRadiusDefault {
+  border-radius: 8px;
+}
+
+.markRadiusMedium {
+  border-radius: 6px;
+}
+
+.markRadiusSmall {
+  border-radius: 5px;
+}
+
+.markFontDefault {
+  font-size: 11px;
+}
+
+.markFontSmall {
+  font-size: 9px;
+}
+
+.switcherRow {
+  width: 100%;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.switcherRowIndented {
+  padding: 8px 12px 8px 46px;
+}
+
+.switcherRowActive {
+  background: rgba(217, 79, 61, .07);
+}
+
+.rowText {
+  flex: 1;
+  text-align: left;
+}
+
+.rowTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #18191C;
+}
+
+.rowTitleSmall {
+  font-size: 11px;
+}
+
+.rowSubtitle {
+  font-size: 10px;
+  color: #6B7280;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: var(--trigger-bg);
+  border: 1px solid var(--trigger-border);
+  cursor: pointer;
+}
+
+.triggerText {
+  flex: 1;
+  text-align: left;
+  min-width: 0;
+}
+
+.triggerTitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: #18191C;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.triggerSubtitle {
+  font-size: 9px;
+  color: #6B7280;
+  white-space: nowrap;
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  width: 280px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .12);
+  overflow: hidden;
+  z-index: 50;
+}
+
+.dropdownHeader {
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 9px;
+  font-weight: 700;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dropdownContent {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 4px;
+}
