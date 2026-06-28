@@ -1,6 +1,6 @@
 
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import "./AnomaliesView.module.css";
+import "./AnomaliesView.css";
 import {
   Check,
   Download,

@@ -1,7 +1,5 @@
-/* AnomaliesView styles. Selectors stay globally named for now because the JSX
-   still uses literal anm-* classes, but the file is feature-owned and loaded as a
-   CSS Module to prevent accidental app-wide stylesheet conventions from spreading. */
-:global {
+/* AnomaliesView styles. Selectors stay globally named because the JSX uses
+   literal anm-* classes and Recharts descendant selectors. */
   .anomalies-root * { box-sizing: border-box; }
 
   .anomalies-root {
@@ -462,5 +460,82 @@
     background: rgba(15,23,42,.045);
     font-size: 10px; font-weight: 700;
     color: var(--text-muted); font-family: var(--mono);
+  }
+@media (max-width: 960px) {
+  .anomalies-root {
+    padding: 22px 18px;
+  }
+
+  .anm-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .anm-stats {
+    width: 100%;
+  }
+
+  .anm-stat {
+    flex: 1 1 140px;
+  }
+
+  .anm-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .anm-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .anm-actions-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .anm-shortcuts {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .anomalies-root {
+    padding: 18px 12px;
+  }
+
+  .anm-title {
+    font-size: 24px;
+  }
+
+  .anm-filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .anm-select,
+  .anm-input,
+  .anm-reset {
+    width: 100%;
+  }
+
+  .anm-filter-count {
+    margin-left: 0;
+  }
+
+  .anm-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .anm-row-meta {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+
+  .anm-score-badge {
+    margin-left: 47px;
+  }
+
+  .anm-detail-grid {
+    grid-template-columns: 1fr;
   }
 }

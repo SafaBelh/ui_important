@@ -37,6 +37,11 @@ export function GlobalAdminDashboard({ tenants = [], allInvoices = [], historica
 
 export function GlobalBudgetTable({ seriesStats = [], onSelectSeries, flaggedSuppliers = [], onToggleFlag }) {
   const [search, setSearch] = useState("");
+  const isFlagged = useMemo(() => {
+    if (flaggedSuppliers instanceof Set) return (name) => flaggedSuppliers.has(name);
+    if (Array.isArray(flaggedSuppliers)) return (name) => flaggedSuppliers.includes(name);
+    return () => false;
+  }, [flaggedSuppliers]);
   const filtered = seriesStats.filter((series) => series.name.toLowerCase().includes(search.toLowerCase()));
   return (
     <Card>
@@ -49,7 +54,7 @@ export function GlobalBudgetTable({ seriesStats = [], onSelectSeries, flaggedSup
         <table className={styles.seriesTable}>
           <tbody>
             {filtered.slice(0, 40).map((series) => {
-              const flagged = flaggedSuppliers.includes(series.name);
+              const flagged = isFlagged(series.name);
               return (
                 <tr key={series.name}>
                   <td className={styles.seriesNameCell}>{series.name}</td>

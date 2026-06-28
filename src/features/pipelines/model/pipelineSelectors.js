@@ -1,8 +1,10 @@
+const EMPTY_PIPELINES = [];
+
 export const selectPipelinesByTenantId = (state) => state.pipelines.byTenantId;
 
 export const selectPipelinesForTenant = (state, tenantId) => {
-  if (!tenantId) return [];
-  return state.pipelines.byTenantId[tenantId] || [];
+  if (!tenantId) return EMPTY_PIPELINES;
+  return state.pipelines.byTenantId[tenantId] || EMPTY_PIPELINES;
 };
 
 export const selectPipelineById = (state, pipelineId) => {
