@@ -19,6 +19,7 @@ import { MLContent } from "@/features/pipelines/components/MLContent";
 import { createTenant, deleteTenant, deleteTenantConnection, getTenantConnections, getTenants, updateTenant, updateTenantConnection } from "@/features/tenants/api/tenantsApi";
 import { CredsMView, CredsPanel, ChangeCredentialsForm } from "@/features/tenants/components/TenantCredentialsPanel";
 import { ErpConnectInline, ErpConnectionForm } from "@/features/tenants/components/TenantErpConnection";
+import { TenantSourceDbForm } from "@/features/tenants/components/TenantSourceDbForm";
 import { TenantForm } from "@/features/tenants/components/TenantForm";
 import { logError } from "@/shared/utils/logError";
 import styles from "./TenantsView.module.css";
@@ -397,6 +398,7 @@ export function TenantsView() {
                                         Sauvegarder
                                       </button>
                                     </div>
+                                    <TenantSourceDbForm connectionId={conn.id} toast={toast} />
                                   </div>
                                 )}
                               </div>

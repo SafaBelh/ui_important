@@ -51,6 +51,14 @@ export function deleteTenantConnection(connectionId) {
   return requestData("DELETE", `/admin/tenant-connections/${connectionId}`);
 }
 
+export function getTenantSourceConnection(connectionId) {
+  return requestData("GET", `/admin/tenant-connections/${connectionId}/source-connection`);
+}
+
+export function updateTenantSourceConnection(connectionId, payload) {
+  return requestData("PUT", `/admin/tenant-connections/${connectionId}/source-connection`, payload);
+}
+
 export function activateTenantConnection(connectionId) {
   return requestData("POST", `/admin/tenant-connections/${connectionId}/activate`);
 }
