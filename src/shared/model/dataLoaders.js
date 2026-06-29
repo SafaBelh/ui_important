@@ -80,6 +80,21 @@ function pageItems(response) {
   return response?.content || response?.commandes || response || [];
 }
 
+// Fetch ALL document pages so a tenant with more than one page is never silently
+// truncated. Walks pages until the last one, with a safety cap on total rows.
+async function fetchAllDocuments(baseParams, pageSize = 1000, maxRows = 100000) {
+  const all = [];
+  for (let page = 0; all.length < maxRows; page += 1) {
+    const response = await getDocuments({ ...baseParams, page, size: pageSize });
+    const items = pageItems(response);
+    all.push(...items);
+    const totalPages = response?.totalPages;
+    const lastPage = items.length < pageSize || (totalPages != null && page + 1 >= totalPages);
+    if (lastPage) break;
+  }
+  return all;
+}
+
 function firstNonBlank(...values) {
   return values.find((value) => value != null && String(value).trim() !== "");
 }
@@ -210,29 +225,28 @@ export async function loadAlertsForTenant(tenantId) {
 }
 
 /** Loads invoices for one tenant, preserving ERP-derived identifiers used by the UI. */
-export async function loadInvoicesForTenant(tenantId, size = 1000) {
+export async function loadInvoicesForTenant(tenantId, pageSize = 1000) {
   if (!tenantId) return [];
-  const response = await getDocuments({ ...adminParams(tenantId, size), recordType: "INVOICE" });
-  const invoices = pageItems(response).map(normalizeInvoice);
+  const documents = await fetchAllDocuments({ ...adminParams(tenantId), recordType: "INVOICE" }, pageSize);
+  const invoices = documents.map(normalizeInvoice);
   dispatchApp(invoicesCacheUpdated({ tenantId, invoices }));
   return invoices;
 }
 
-/** Loads purchase orders for one tenant and tolerates both paged and raw-array API responses. */
-export async function loadCommandesForTenant(tenantId, size = 1000) {
+/** Loads purchase orders for one tenant across all pages. */
+export async function loadCommandesForTenant(tenantId, pageSize = 1000) {
   if (!tenantId) return [];
-  const response = await getDocuments({ ...adminParams(tenantId, size), recordType: "COMMANDE" });
-  const commandes = pageItems(response).map(normalizeCommande);
-  const list = Array.isArray(commandes) ? commandes : [];
-  dispatchApp(commandesCacheUpdated({ tenantId, commandes: list }));
-  return list;
+  const documents = await fetchAllDocuments({ ...adminParams(tenantId), recordType: "COMMANDE" }, pageSize);
+  const commandes = documents.map(normalizeCommande);
+  dispatchApp(commandesCacheUpdated({ tenantId, commandes }));
+  return commandes;
 }
 
 /** Loads all document records for one tenant while refreshing the legacy split caches. */
-export async function loadDocumentsForTenant(tenantId, size = 1000) {
+export async function loadDocumentsForTenant(tenantId, pageSize = 1000) {
   if (!tenantId) return [];
-  const response = await getDocuments(adminParams(tenantId, size));
-  const documents = pageItems(response).map((document) => normalizeDocument(document, document.recordType || "INVOICE"));
+  const raw = await fetchAllDocuments(adminParams(tenantId), pageSize);
+  const documents = raw.map((document) => normalizeDocument(document, document.recordType || "INVOICE"));
   dispatchApp(invoicesCacheUpdated({ tenantId, invoices: documents.filter((document) => document.recordType === "INVOICE") }));
   dispatchApp(commandesCacheUpdated({ tenantId, commandes: documents.filter((document) => document.recordType === "COMMANDE") }));
   return documents;
