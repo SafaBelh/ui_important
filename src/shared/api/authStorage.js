@@ -1,5 +1,6 @@
 const TOKEN_KEY = "anomalyiq_token";
 const USER_KEY = "anomalyiq_user";
+const sessionListeners = new Set();
 
 // Browser sessionStorage facade for the auth credentials needed by API and role checks.
 
@@ -27,6 +28,24 @@ function isMalformedOrExpiredToken(token) {
   return !payload || isExpired(payload);
 }
 
+function emitSessionChanged() {
+  const session = getSession();
+  sessionListeners.forEach((listener) => listener(session));
+  return session;
+}
+
+export function getSession() {
+  return {
+    token: getToken(),
+    user: getUser(),
+  };
+}
+
+export function subscribeAuthSession(listener) {
+  sessionListeners.add(listener);
+  return () => sessionListeners.delete(listener);
+}
+
 /** Returns the stored JWT, clearing auth state if a malformed token is detected. */
 export function getToken() {
   const token = sessionStorage.getItem(TOKEN_KEY);
@@ -39,7 +58,12 @@ export function getToken() {
 
 /** Persists the current access token used by API requests for this browser session. */
 export function setToken(token) {
-  sessionStorage.setItem(TOKEN_KEY, token);
+  if (token) {
+    sessionStorage.setItem(TOKEN_KEY, token);
+  } else {
+    sessionStorage.removeItem(TOKEN_KEY);
+  }
+  return emitSessionChanged();
 }
 
 /** Returns the stored user profile, or null when storage contains invalid JSON. */
@@ -53,11 +77,33 @@ export function getUser() {
 
 /** Persists the user profile used for role and tenant-scoping decisions in sessionStorage. */
 export function setUser(user) {
-  sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+  if (user) {
+    sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+  } else {
+    sessionStorage.removeItem(USER_KEY);
+  }
+  return emitSessionChanged();
+}
+
+export function setSession({ token, user }) {
+  if (token) {
+    sessionStorage.setItem(TOKEN_KEY, token);
+  } else {
+    sessionStorage.removeItem(TOKEN_KEY);
+  }
+
+  if (user) {
+    sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+  } else {
+    sessionStorage.removeItem(USER_KEY);
+  }
+
+  return emitSessionChanged();
 }
 
 /** Clears authentication credentials from sessionStorage. */
 export function clearSession() {
   sessionStorage.removeItem(TOKEN_KEY);
   sessionStorage.removeItem(USER_KEY);
+  return emitSessionChanged();
 }

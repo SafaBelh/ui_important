@@ -1,5 +1,7 @@
 import axios from "axios";
 import { clearSession, getToken, getUser, setToken } from "./authStorage";
+import { sessionSynced } from "@/features/auth/model/authSlice";
+import { dispatchApp } from "@/shared/model/storeBridge";
 
 // Shared Axios client that attaches auth, tenant scope, and token-refresh behavior.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
@@ -19,11 +21,12 @@ function getAdminTenantId(config) {
 async function refreshAccessToken() {
   if (!refreshTokenRequest) {
     refreshTokenRequest = apiClient
-      .post("/auth/refresh", undefined, { skipAuthRefresh: true })
+      .post("/auth/refresh")
       .then((response) => {
         const nextToken = response.data?.access_token || response.data?.token || response.data?.accessToken;
         if (!nextToken) throw new Error("Token refresh failed");
-        setToken(nextToken);
+        const session = setToken(nextToken);
+        dispatchApp(sessionSynced(session));
         return nextToken;
       })
       .finally(() => {
@@ -61,7 +64,7 @@ apiClient.interceptors.response.use(
         await refreshAccessToken();
         return apiClient(originalRequest);
       } catch {
-        clearSession();
+        dispatchApp(sessionSynced(clearSession()));
       }
     }
 
@@ -72,5 +75,18 @@ apiClient.interceptors.response.use(
 /** Returns the most useful backend-provided error text for UI notifications. */
 export function getErrorMessage(error) {
   const payload = error?.response?.data;
-  return payload?.message || payload?.error || payload || error?.message || "Request failed";
+  return toErrorText(payload?.message || payload?.error || payload || error?.message) || "Request failed";
+}
+
+function toErrorText(value) {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (Array.isArray(value)) return value.map(toErrorText).filter(Boolean).join(", ");
+  if (value instanceof Error) return value.message;
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
 }

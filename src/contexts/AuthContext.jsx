@@ -1,17 +1,26 @@
-import { useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { loginRequest } from "@/features/auth/api/authApi";
-import { sessionEnded, sessionStarted } from "@/features/auth/model/authSlice";
-import { clearSession, getToken as getStoredToken, getUser as getStoredUser, setToken, setUser } from "@/shared/api/authStorage";
+import { sessionSynced } from "@/features/auth/model/authSlice";
+import { clearSession, getSession, setSession, subscribeAuthSession } from "@/shared/api/authStorage";
 import { setActiveTenant } from "@/shared/model/sessionActions";
 import { AuthContext } from "@/contexts/authContextValue";
 
 export function AuthProvider({ children }) {
   const dispatch = useDispatch();
-  const [user, setUserState] = useState(getStoredUser);
-  const [token, setTokenState] = useState(getStoredToken);
+  const [session, setSessionState] = useState(getSession);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const syncSession = (nextSession = getSession()) => {
+      setSessionState(nextSession);
+      dispatch(sessionSynced(nextSession));
+    };
+
+    syncSession();
+    return subscribeAuthSession(syncSession);
+  }, [dispatch]);
 
   const login = useCallback(async (username, password) => {
     setLoading(true);
@@ -24,8 +33,6 @@ export function AuthProvider({ children }) {
       const roles = profile.roles || profile.role || [];
       const roleList = Array.isArray(roles) ? roles : [roles];
       const isEngineAdmin = roleList.includes("ADMIN") || roleList.includes("ENGINE_ADMIN") || !!profile.isEngineAdmin;
-      setToken(tokenStr);
-      setTokenState(tokenStr);
       const userData = {
         id: profile.id,
         name: profile.name || profile.username || username,
@@ -38,9 +45,7 @@ export function AuthProvider({ children }) {
         color: profile.color,
         logo: profile.logo,
       };
-      setUser(userData);
-      setUserState(userData);
-      dispatch(sessionStarted({ token: tokenStr, user: userData }));
+      setSession({ token: tokenStr, user: userData });
       if (!userData.isEngineAdmin && userData.tenantId) {
         setActiveTenant(userData.tenantId, userData.tenantName);
       } else if (userData.isEngineAdmin) {
@@ -54,14 +59,14 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, [dispatch]);
+  }, []);
 
   const logout = useCallback(() => {
     clearSession();
-    setTokenState(null);
-    setUserState(null);
-    dispatch(sessionEnded());
-  }, [dispatch]);
+  }, []);
+
+  const user = session.user;
+  const token = session.token;
 
   const value = {
     user,
