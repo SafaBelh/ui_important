@@ -24,6 +24,7 @@ const BUDGET_TABS = [
   { id: "simulation", label: "Simulation budget" },
   { id: "commandes", label: "Budget Commandes" },
   { id: "engage", label: "Engagé" },
+  { id: "factureEnCours", label: "Facture en cours" },
   { id: "liquide", label: "Liquidé" },
   { id: "synthese", label: "Synthèse globale" },
   { id: "previsions", label: "Prévisions" },
@@ -32,11 +33,77 @@ const BUDGET_TABS = [
 ];
 // ERP-driven budget intelligence tabs (GET /budget/analysis) — rendered by
 // ErpAnalysisTabs instead of the invoice-based panels below.
-const ANALYSIS_TABS = new Set(["engage", "liquide", "synthese", "previsions"]);
+const ANALYSIS_TABS = new Set(["engage", "factureEnCours", "liquide", "synthese", "previsions"]);
 // Legacy local-budget tabs, hidden when an ERP budget connector is active.
 const LEGACY_BUDGET_TABS = new Set(["serie", "simulation", "commandes"]);
 // New backend-aggregated series-analysis tabs (shown ONLY in ERP-connector mode).
 const SERIES_ANALYSIS_TABS = new Set(["facture-analyse", "commande-analyse"]);
+
+const rowsFromResponse = (response) => {
+  if (Array.isArray(response)) return response;
+  return response?.rows || response?.items || response?.content || response?.series || [];
+};
+
+const budgetConnectorIdOf = (connector) => connector?.connectorId || connector?.id || "";
+
+const numberFrom = (...values) => {
+  for (const value of values) {
+    if (value == null || value === "") continue;
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return 0;
+};
+
+const monthIndexOf = (monthLike) => {
+  if (typeof monthLike?.month === "number") return monthLike.month - 1;
+  const value = String(monthLike?.month ?? monthLike ?? "");
+  const month = value.length >= 7 ? Number(value.slice(5, 7)) : Number(value);
+  return Number.isFinite(month) ? month - 1 : -1;
+};
+
+const monthlyActualFromSeries = (series) => {
+  if (Array.isArray(series.monthlyActual) || Array.isArray(series.monthly_actual)) {
+    return (series.monthlyActual || series.monthly_actual).map((value) => Number(value || 0));
+  }
+  const values = Array.from({ length: 12 }, () => 0);
+  (series.monthlyBehavior || series.monthly_behavior || series.monthly || []).forEach((monthRow) => {
+    const index = monthIndexOf(monthRow);
+    if (index >= 0 && index < 12) values[index] = numberFrom(monthRow.currentAmount, monthRow.amount, monthRow.actual, monthRow.realized, monthRow.total);
+  });
+  return values;
+};
+
+const monthlyProfileFromSeries = (series) => {
+  const profile = series.monthlyProfile || series.monthly_profile;
+  if (Array.isArray(profile)) return profile.map((value) => Number(value || 0));
+  const monthlyMu = series.monthlyMu || series.monthly_mu || {};
+  const mu = numberFrom(series.mu, series.average, series.avg);
+  return Array.from({ length: 12 }, (_, index) => numberFrom(monthlyMu[index + 1], monthlyMu[String(index + 1)], mu));
+};
+
+const normalizeFactureBudgetSeries = (series) => {
+  const monthlyActual = monthlyActualFromSeries(series);
+  const seasonalProfile = monthlyProfileFromSeries(series);
+  const currentYearTotal = numberFrom(series.currentYearTotal, series.total, series.realisedYtd, series.realizedYtd, series.consumedToDate, monthlyActual.reduce((sum, value) => sum + value, 0));
+  const annualBudget = numberFrom(series.budgetAllocated, series.annualBudget, series.budget, series.autoAnnualBudget, currentYearTotal);
+  const name = series.displayName || [series.supplier || series.supplierName, series.label || series.articleName].filter(Boolean).join(" — ") || series.axisKey || series.id || "Série";
+  const monthly = Object.fromEntries(monthlyActual.map((value, index) => [`${DATA_YEAR}-${String(index + 1).padStart(2, "0")}`, value]));
+  return {
+    ...series,
+    name,
+    monthly,
+    monthlyActual,
+    seasonalProfile,
+    currentYearTotal,
+    annualBudget,
+    autoAnnualBudget: annualBudget,
+    avg: annualBudget / 12,
+    projectedYearTotal: numberFrom(series.projectedAtFiscalEnd, series.projection, series.projectedYearTotal, currentYearTotal),
+    historicalPattern: seasonalProfile,
+    exceeded: annualBudget > 0 && numberFrom(series.projectedAtFiscalEnd, series.projection, series.projectedYearTotal, currentYearTotal) > annualBudget,
+  };
+};
 
 
 /* ─────────────────────────────────────────────────────────────
@@ -88,6 +155,13 @@ export function BudgetView() {
   const selectedTenantName = isEngineAdmin
     ? (adminTenantId ? adminTenants.find(t => t.id === adminTenantId)?.name : "Tous les tenants")
     : tenant?.name;
+  const isErpBudget = budgetConnectors.length > 0;
+  const needsBudgetConnectorSelection = isErpBudget && budgetConnectors.length > 1 && !budgetConnectorId && budgetMode !== "consolidated";
+  const budgetScopeParams = useMemo(() => ({
+    ...(isEngineAdmin && selectedTenantId ? { adminTenantId: selectedTenantId } : {}),
+    ...(budgetConnectorId ? { connectorId: budgetConnectorId } : {}),
+    ...(budgetMode ? { mode: budgetMode } : {}),
+  }), [isEngineAdmin, selectedTenantId, budgetConnectorId, budgetMode]);
 
   // Load the tenant's budget-enabled connectors for the scope selector; auto-
   // select when there is exactly one (no forced choice for the common case).
@@ -99,10 +173,10 @@ export function BudgetView() {
     getBudgetConnectors(params)
       .then(res => {
         if (!live) return;
-        const list = res?.budgetConnectors || [];
+        const list = Array.isArray(res?.budgetConnectors) ? res.budgetConnectors : Array.isArray(res?.connectors) ? res.connectors : rowsFromResponse(res);
         setBudgetConnectors(list);
         setBudgetMode(null);
-        setBudgetConnectorId(list.length === 1 ? list[0].connectorId : null);
+        setBudgetConnectorId(list.length === 1 ? budgetConnectorIdOf(list[0]) : null);
       })
       .catch((error) => { logError("budget.loadConnectors", error); if (live) { setBudgetConnectors([]); setBudgetConnectorId(null); } })
       .finally(() => { if (live) setConnectorsLoading(false); });
@@ -141,12 +215,11 @@ export function BudgetView() {
   // backend (GET /budget/series-analysis?pipelineType=COMMANDE) and adapted to the panel shape.
   const [commandBudgetSeries, setCommandBudgetSeries] = useState([]);
   useEffect(() => {
-    const erp = budgetConnectors.length > 0;
-    if (!selectedTenantId || !erp) { setCommandBudgetSeries([]); return; }
+    if (!selectedTenantId || !isErpBudget || needsBudgetConnectorSelection) { setCommandBudgetSeries([]); return; }
     let live = true;
-    const params = { pipelineType: "COMMANDE", ...(isEngineAdmin ? { adminTenantId: selectedTenantId } : {}) };
+    const params = { pipelineType: "COMMANDE", ...budgetScopeParams };
     getBudgetSeriesAnalysis(params)
-      .then(rows => {
+      .then(response => {
         if (!live) return;
         const idxOf = (m) => {
           if (typeof m?.month === "number") return m.month - 1;
@@ -154,7 +227,7 @@ export function BudgetView() {
           const mm = s.length >= 7 ? Number(s.slice(5, 7)) - 1 : Number(s) - 1;
           return Number.isFinite(mm) ? mm : -1;
         };
-        setCommandBudgetSeries((Array.isArray(rows) ? rows : []).map(s => {
+        setCommandBudgetSeries(rowsFromResponse(response).map(s => {
           // Per-month totals from the engine: currentAmount = this year's real spend,
           // histAmount = average monthly total across prior years (same basis as réel, so
           // the two are directly comparable). This is the true historical rhythm.
@@ -201,25 +274,26 @@ export function BudgetView() {
       })
       .catch((error) => { logError("budget.loadCommandSeries", error); if (live) setCommandBudgetSeries([]); });
     return () => { live = false; };
-  }, [selectedTenantId, isEngineAdmin, budgetConnectors.length]);
+  }, [selectedTenantId, isErpBudget, needsBudgetConnectorSelection, budgetScopeParams]);
 
   // Real seasonal profile per facture series (engine monthly μ) keyed by "supplier — label",
   // so the old "Analyse par série" / "Simulation" show TRUE seasonality (not a flat budget/12).
   const [factureSeasonal, setFactureSeasonal] = useState({});
+  const [factureBudgetSeries, setFactureBudgetSeries] = useState([]);
   // Article code → human name, derived from facture series labels (commande series only
   // carry codes), so the commande heatmap can show real names instead of "A1".
   const [articleNames, setArticleNames] = useState({});
   useEffect(() => {
-    const erp = budgetConnectors.length > 0;
-    if (!selectedTenantId || !erp) { setFactureSeasonal({}); setArticleNames({}); return; }
+    if (!selectedTenantId || !isErpBudget || needsBudgetConnectorSelection) { setFactureSeasonal({}); setFactureBudgetSeries([]); setArticleNames({}); return; }
     let live = true;
-    const params = { pipelineType: "FACTURE", ...(isEngineAdmin ? { adminTenantId: selectedTenantId } : {}) };
+    const params = { pipelineType: "FACTURE", ...budgetScopeParams };
     getBudgetSeriesAnalysis(params)
-      .then(rows => {
+      .then(response => {
         if (!live) return;
         const map = {};
         const names = {};
-        (Array.isArray(rows) ? rows : []).forEach(s => {
+        const rows = rowsFromResponse(response);
+        rows.forEach(s => {
           // Article-code → name (a label that isn't just the code itself).
           if (s.articleCode && s.label && s.label !== s.articleCode) names[s.articleCode] = s.label;
           const mm = s.monthlyMu || {};
@@ -235,54 +309,63 @@ export function BudgetView() {
           const prev = map[key];
           map[key] = prev ? prev.map((v, i) => v + profile[i]) : profile;
         });
+        setFactureBudgetSeries(rows.map(normalizeFactureBudgetSeries));
         setFactureSeasonal(map);
         setArticleNames(names);
       })
-      .catch((error) => { logError("budget.loadFactureSeasonal", error); if (live) { setFactureSeasonal({}); setArticleNames({}); } });
+      .catch((error) => { logError("budget.loadFactureSeasonal", error); if (live) { setFactureSeasonal({}); setFactureBudgetSeries([]); setArticleNames({}); } });
     return () => { live = false; };
-  }, [selectedTenantId, isEngineAdmin, budgetConnectors.length]);
+  }, [selectedTenantId, isErpBudget, needsBudgetConnectorSelection, budgetScopeParams]);
 
   // Budget-overrun risks surfaced inside the budget view — derived from the SAME live
   // /budget/overview the panel uses (always current, no read/unread state). Mirrors the
   // engine's BUDGET_MONTHLY/ANNUAL_OVERRUN logic (consumed ≥ budget, or projected > budget).
   const [budgetRisks, setBudgetRisks] = useState([]);
   useEffect(() => {
-    const erp = budgetConnectors.length > 0;
-    if (!selectedTenantId || !erp) { setBudgetRisks([]); return; }
-    if (budgetConnectors.length > 1 && !budgetConnectorId && budgetMode !== "consolidated") { setBudgetRisks([]); return; }
+    if (!selectedTenantId || !isErpBudget) { setBudgetRisks([]); return; }
+    if (needsBudgetConnectorSelection) { setBudgetRisks([]); return; }
     let live = true;
-    const params = {
-      ...(isEngineAdmin ? { adminTenantId: selectedTenantId } : {}),
-      ...(budgetConnectorId ? { connectorId: budgetConnectorId } : {}),
-      ...(budgetMode ? { mode: budgetMode } : {}),
-    };
+    const params = budgetScopeParams;
     getBudgetOverview(params)
       .then(res => {
         if (!live) return;
         const rows = res?.rows || [];
         const risks = rows.map(r => {
-          const budget = Number(r.budgetAllocated) || 0;
-          const consumed = Number(r.consumedToDate) || 0;
-          const projected = Number(r.projectedAtTargetDate) || 0;
-          const remaining = r.remaining != null ? Number(r.remaining) : budget - consumed;
+          const readNumber = (...values) => {
+            for (const value of values) {
+              if (value == null || value === "") continue;
+              const parsed = Number(value);
+              if (Number.isFinite(parsed)) return parsed;
+            }
+            return 0;
+          };
+          const budget = readNumber(r.budgetAllocated, r.alloue, r.allocated);
+          const consumed = readNumber(r.liquide, r.consumedToDate);
+          const factureEnCours = readNumber(r.factureEnCours);
+          const engage = readNumber(r.engage, r.openEngage);
+          const remaining = r.remaining != null || r.restant != null ? readNumber(r.remaining, r.restant) : budget - consumed;
+          const disponibleProjete = r.disponibleProjete != null || r.ecart != null ? readNumber(r.disponibleProjete, r.ecart) : remaining - engage - factureEnCours;
+          const projected = readNumber(r.projectedAtTargetDate, r.projectedExposure, consumed + engage + factureEnCours);
           const pct = budget > 0 ? Math.round(consumed / budget * 100) : 0;
           const futureSpend = Math.max(0, projected - consumed);          // expected spend still to come
           const futureFrac = projected > 0 ? Math.round(futureSpend / projected * 100) : 0;
-          const exceeded = budget > 0 && consumed >= budget;
+          const exceeded = remaining < 0 || (budget > 0 && consumed >= budget);
+          const commitmentOverrun = disponibleProjete < 0;
           const projOverrun = budget > 0 && projected > budget;
           const near = budget > 0 && consumed / budget >= 0.9;
-          if (!exceeded && !projOverrun && !near) return null;
-          const severity = exceeded ? "CRITIQUE" : projOverrun ? "ALERTE" : "OK";
+          if (!exceeded && !commitmentOverrun && !projOverrun && !near) return null;
+          const severity = exceeded || commitmentOverrun ? "CRITIQUE" : projOverrun ? "ALERTE" : "OK";
           // The forward-looking case: still under budget now, but the seasonal rhythm back-loads spend.
           const seasonalRisk = projOverrun && !exceeded && pct < 90;
-          const typeText = exceeded ? "Budget dépassé" : seasonalRisk ? "Risque saisonnier — dépassement à venir" : projOverrun ? "Dépassement projeté" : "Proche du seuil";
+          const typeText = exceeded ? "Budget dépassé" : commitmentOverrun ? "Dépassement d'engagement" : seasonalRisk ? "Risque saisonnier — dépassement à venir" : projOverrun ? "Dépassement projeté" : "Proche du seuil";
           let explanation;
           if (exceeded) explanation = `Consommé ${formatCurrency(consumed)} pour un budget alloué de ${formatCurrency(budget)} — dépassé de ${formatCurrency(consumed - budget)}.`;
+          else if (commitmentOverrun) explanation = `Disponible projeté négatif : restant ${formatCurrency(remaining)} - engagé ${formatCurrency(engage)} - facture en cours ${formatCurrency(factureEnCours)} = ${formatCurrency(disponibleProjete)}.`;
           else if (projOverrun) explanation = `Encore sous le budget (${pct} % consommé), mais le rythme saisonnier prévoit ~${formatCurrency(futureSpend)} de dépenses sur les mois restants (≈ ${futureFrac} % du total projeté arrive après le mois courant) → projection ${formatCurrency(projected)} > budget ${formatCurrency(budget)}, dépassement prévu ${formatCurrency(projected - budget)}${r.estimatedThresholdReachDate ? `, seuil atteint vers ${r.estimatedThresholdReachDate}` : ""}.`;
           else explanation = `${pct} % du budget consommé (${formatCurrency(consumed)} / ${formatCurrency(budget)}) — proche du seuil.`;
           return {
-            name: `${r.axisKey || ""}${r.label ? " · " + r.label : ""}`.trim() || "Pointeur",
-            severity, typeText, explanation, consumed, budget, projected, remaining,
+            name: r.tenantName || `${r.axisKey || ""}${r.label ? " · " + r.label : ""}`.trim() || "Pointeur",
+            severity, typeText, explanation, consumed, budget, projected, remaining, factureEnCours, engage, disponibleProjete,
             thresholdDate: r.estimatedThresholdReachDate || null,
           };
         }).filter(Boolean).sort((a, b) => {
@@ -293,13 +376,22 @@ export function BudgetView() {
       })
       .catch((error) => { logError("budget.loadRisks", error); if (live) setBudgetRisks([]); });
     return () => { live = false; };
-  }, [selectedTenantId, isEngineAdmin, budgetConnectors.length, budgetConnectorId, budgetMode]);
+  }, [selectedTenantId, isErpBudget, needsBudgetConnectorSelection, budgetScopeParams]);
 
   const nowYear = CURRENT_EXERCISE_YEAR;
   const dataYear = DATA_YEAR;
   const nowMonth = CURRENT_MONTH_IDX;
 
   const { seriesStats, allMonths, totalRealized, totalBudget } = useMemo(() => {
+    if (isErpBudget && factureBudgetSeries.length > 0) {
+      const months = Array.from({ length: 12 }, (_, index) => `${nowYear}-${String(index + 1).padStart(2, "0")}`);
+      return {
+        seriesStats: factureBudgetSeries,
+        allMonths: months,
+        totalRealized: factureBudgetSeries.reduce((sum, series) => sum + Number(series.currentYearTotal || 0), 0),
+        totalBudget: factureBudgetSeries.reduce((sum, series) => sum + Number(series.annualBudget || series.autoAnnualBudget || 0), 0),
+      };
+    }
     // Computed from the tenant's loaded invoices (series = supplier · label). Feeds the
     // restored old "Analyse par série" / "Simulation" views (facture-analyse / simulation tabs).
     const sMap = {};
@@ -349,7 +441,7 @@ export function BudgetView() {
     }).sort((a, b) => b.currentYearTotal - a.currentYearTotal);
 
     return { seriesStats: stats, allMonths: sortedMonths, totalRealized: tReal, totalBudget: tBudg };
-  }, [invoices, historicalInvoices, customBudgets, nowYear, dataYear, nowMonth, factureSeasonal]);
+  }, [isErpBudget, factureBudgetSeries, invoices, historicalInvoices, customBudgets, nowYear, dataYear, nowMonth, factureSeasonal]);
 
   const trendData = useMemo(() => {
     return allMonths.slice(-12).map(m => ({
@@ -381,10 +473,9 @@ export function BudgetView() {
   // local-budget tabs (Analyse par série, Simulation budget, Budget Commandes)
   // show stale/0-0/budget=realized data there, so hide them when an ERP budget
   // connector is active. They remain for tenants with no ERP budget. (#4,#5,#6,#12)
-  const isErpBudget = budgetConnectors.length > 0;
   // ERP order: backend pointer tabs + the restored old views (facture-analyse = old
   // "Analyse par série", commande-analyse = old "Budget Commandes", simulation = old SimulationPanel).
-  const ERP_TAB_ORDER = ["suivi", "alertes", "engage", "liquide", "synthese", "previsions", "facture-analyse", "commande-analyse", "simulation"];
+  const ERP_TAB_ORDER = ["suivi", "alertes", "engage", "factureEnCours", "liquide", "synthese", "previsions", "facture-analyse", "commande-analyse", "simulation"];
   const TABS = isErpBudget
     ? ERP_TAB_ORDER.map(id => BUDGET_TABS.find(t => t.id === id)).filter(Boolean)
     : BUDGET_TABS.filter(t => !SERIES_ANALYSIS_TABS.has(t.id));        // non-ERP: legacy tabs
@@ -493,12 +584,18 @@ export function BudgetView() {
               onConsolidated={() => { setBudgetConnectorId(null); setBudgetMode("consolidated"); }}
             />
           )}
+          {needsBudgetConnectorSelection && (
+            <div className={`card ${styles.emptyAlertCard}`}>
+              <div className={styles.emptyAlertTitle}>Sélectionnez un périmètre budget</div>
+              <div className={styles.emptyAlertText}>Choisissez un connecteur budget ou la vue consolidée pour afficher ce tab.</div>
+            </div>
+          )}
           {/* ── TABS: Budget intelligence ERP (Engagé / Liquidé / Synthèse / Prévisions) ── */}
-          {ANALYSIS_TABS.has(tab) && (
+          {!needsBudgetConnectorSelection && ANALYSIS_TABS.has(tab) && (
             <ErpAnalysisTabs tab={tab} tenantId={selectedTenantId} isEngineAdmin={isEngineAdmin} connectorId={budgetConnectorId} mode={budgetMode} />
           )}
           {/* Budget-overrun risk alerts — dedicated tab (ERP), badge count in the tab bar. */}
-          {tab === "alertes" && isErpBudget && (
+          {!needsBudgetConnectorSelection && tab === "alertes" && isErpBudget && (
             budgetRisks.length > 0
               ? <BudgetAlertsBanner risks={budgetRisks} />
               : (
@@ -509,7 +606,7 @@ export function BudgetView() {
               )
           )}
           {/* Suivi shows the backend ERP budget panel (per-pointeur Suivi budgétaire). */}
-          {tab === "suivi" && (
+          {!needsBudgetConnectorSelection && tab === "suivi" && (
             <ErpBudgetPanel tenantId={selectedTenantId} isEngineAdmin={isEngineAdmin} connectorId={budgetConnectorId} mode={budgetMode} />
           )}
           {/* Global KPI header — non-ERP frontend mode only (each restored panel carries its own KPIs). */}
@@ -523,7 +620,7 @@ export function BudgetView() {
           )}
 
           {/* ── TAB: Suivi budgétaire ── */}
-          {tab === "suivi" && (
+          {!needsBudgetConnectorSelection && tab === "suivi" && (
             <>
               {/* Frontend seasonal banner + trend + spend table — non-ERP only.
                   In ERP mode the Suivi tab is the backend ErpBudgetPanel above.
@@ -573,7 +670,7 @@ export function BudgetView() {
           )}
 
           {/* ── TAB: Analyse par série (ERP renders it under "Analyse budget facture") ── */}
-          {(tab === "serie" || tab === "facture-analyse") && (
+          {!needsBudgetConnectorSelection && (tab === "serie" || tab === "facture-analyse") && (
             <div className={styles.seriesStack}>
               <div className={`card ${styles.seriesSelectorCard}`}>
                 <div className={styles.seriesSelectorColumn}>
@@ -657,12 +754,12 @@ export function BudgetView() {
           )}
 
           {/* ── TAB: Simulation ── */}
-          {tab === "simulation" && (
+          {!needsBudgetConnectorSelection && tab === "simulation" && (
             <SimulationPanel invoices={invoices} seriesStats={seriesStats} historicalInvoices={historicalInvoices} />
           )}
 
           {/* ── TAB: Budget Commandes (ERP renders it under "Analyse budget commande") ── */}
-          {(tab === "commandes" || tab === "commande-analyse") && (
+          {!needsBudgetConnectorSelection && (tab === "commandes" || tab === "commande-analyse") && (
             <CommandesBudgetPanel commandes={commandes} invoices={invoices} budgetSeries={commandBudgetSeries} articleNames={articleNames} />
           )}
         </>

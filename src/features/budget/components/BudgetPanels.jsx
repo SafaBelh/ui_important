@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, ChevronRight, Search } from "lucide-react";
 import { COLORS } from "@/constants/colors";
 import { getBudgetSuivi } from "@/features/budget/api/BudgetApi";
-import { computeSeasonalForecast, computeTenantStats, formatCurrency, seriesNameForInvoice, CURRENT_EXERCISE_YEAR } from "@/features/budget/utils/budgetHelpers";
+import { computeSeasonalForecast, computeTenantStats, formatCurrency, monthShort, seriesNameForInvoice, CURRENT_EXERCISE_YEAR } from "@/features/budget/utils/budgetHelpers";
 import { Card, KpiTile, MonthlyBarsChart, SectionLabel, StatusPill } from "@/features/budget/components/BudgetWidgets";
 import styles from "./BudgetPanels.module.css";
 
@@ -78,7 +78,13 @@ export function GlobalBudgetTable({ seriesStats = [], onSelectSeries, flaggedSup
 export function SeriesBudgetPanel({ series, invoices = [], historicalInvoices = [], allMonths = [], budgetInput, autoAnnualBudget }) {
   if (!series) return null;
   const budget = Number(budgetInput || autoAnnualBudget || series.annualBudget || series.autoAnnualBudget || 0);
-  const rows = allMonths.map((month) => ({ name: month.slice(5), value: invoices.filter((invoice) => seriesNameForInvoice(invoice) === series.name && invoice.date?.startsWith(month)).reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0) }));
+  const months = allMonths.length ? allMonths : Array.from({ length: 12 }, (_, index) => `${CURRENT_EXERCISE_YEAR}-${String(index + 1).padStart(2, "0")}`);
+  const rows = months.map((month) => {
+    const monthIndex = Number(month.slice(5, 7)) - 1;
+    const invoiceValue = invoices.filter((invoice) => seriesNameForInvoice(invoice) === series.name && invoice.date?.startsWith(month)).reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
+    const fallbackValue = Array.isArray(series.monthlyActual) ? Number(series.monthlyActual[monthIndex] || 0) : 0;
+    return { name: month.slice(5), value: invoiceValue || fallbackValue };
+  });
   const historicalTotal = historicalInvoices.filter((invoice) => seriesNameForInvoice(invoice) === series.name).reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
   return (
     <Card>
@@ -101,7 +107,9 @@ export function SimulationPanel({ invoices = [], seriesStats = [], historicalInv
   if (!selected) return <Card>Aucune série disponible pour la simulation.</Card>;
   const monthlyHistorical = {};
   historicalInvoices.filter((invoice) => seriesNameForInvoice(invoice) === selected.name).forEach((invoice) => { const month = invoice.date?.slice(0, 7); if (month) monthlyHistorical[month] = (monthlyHistorical[month] || 0) + Number(invoice.amount || 0); });
-  const forecast = computeSeasonalForecast({ monthlyHistorical, annualBudget: Number(budget || 0) });
+  const forecast = Array.isArray(selected.seasonalProfile) && selected.seasonalProfile.some((value) => Number(value) > 0)
+    ? selected.seasonalProfile.map((expected, index) => ({ name: monthShort(index), expected: Number(expected || 0) }))
+    : computeSeasonalForecast({ monthlyHistorical, annualBudget: Number(budget || 0) });
   const current = invoices.filter((invoice) => seriesNameForInvoice(invoice) === selected.name).reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
   return (
     <Card>
@@ -124,7 +132,7 @@ export function CommandesBudgetPanel({ commandes = [], budgetSeries = [], articl
   return (
     <Card>
       <SectionLabel n="5">Budget commandes</SectionLabel>
-      {rows.length === 0 ? <div className={styles.emptyText}>Aucune commande disponible.</div> : <MonthlyBarsChart data={rows.map((row) => ({ name: row.name || row.label, value: row.amount || row.realized || row.total || 0 }))} color={COLORS.warning} />}
+      {rows.length === 0 ? <div className={styles.emptyText}>Aucune commande disponible.</div> : <MonthlyBarsChart data={rows.map((row) => ({ name: row.budgetCode || row.name || row.label, value: row.amount || row.realized || row.total || row.totalCommandes || row.budgetAlloue || 0 }))} color={COLORS.warning} />}
     </Card>
   );
 }
@@ -134,26 +142,33 @@ export function BudgetConnectorBar({ connectors = [], connectorId, mode, onSelec
     <Card>
       <div className={styles.connectorBar}>
         <button onClick={onConsolidated} className={`${styles.connectorButton} ${mode === "consolidated" ? styles.connectorButtonActive : ""}`}>Consolidé</button>
-        {connectors.map((connector) => (
-          <button key={connector.id} onClick={() => onSelect?.(connector.id)} className={`${styles.connectorButton} ${connectorId === connector.id ? styles.connectorButtonActive : ""}`}>{connector.name || connector.label || connector.id}</button>
-        ))}
+        {connectors.map((connector) => {
+          const id = connector.connectorId || connector.id;
+          return (
+            <button key={id} onClick={() => onSelect?.(id)} className={`${styles.connectorButton} ${connectorId === id ? styles.connectorButtonActive : ""}`}>{connector.name || connector.label || connector.connectorName || id}</button>
+          );
+        })}
       </div>
     </Card>
   );
 }
 
 export function ErpBudgetPanel({ tenantId, isEngineAdmin, connectorId, mode }) {
-  const [state, setState] = useState({ loading: true, rows: [], error: "" });
+  const [state, setState] = useState({ loading: true, rows: [], totals: {}, error: "" });
   useEffect(() => {
     let live = true;
-    setState({ loading: true, rows: [], error: "" });
+    setState({ loading: true, rows: [], totals: {}, error: "" });
     const params = { year: CURRENT_EXERCISE_YEAR };
     if (connectorId) params.connectorId = connectorId;
     if (mode) params.mode = mode;
     if (isEngineAdmin && tenantId) params.adminTenantId = tenantId;
     getBudgetSuivi(params)
-      .then((res) => { if (live) setState({ loading: false, rows: Array.isArray(res?.items) ? res.items : Array.isArray(res) ? res : [], error: "" }); })
-      .catch((err) => { if (live) setState({ loading: false, rows: [], error: err?.message || "Budget indisponible" }); });
+      .then((res) => {
+        if (!live) return;
+        const rows = Array.isArray(res?.rows) ? res.rows : Array.isArray(res?.items) ? res.items : Array.isArray(res) ? res : [];
+        setState({ loading: false, rows, totals: res?.totals || {}, error: "" });
+      })
+      .catch((err) => { if (live) setState({ loading: false, rows: [], totals: {}, error: err?.message || "Budget indisponible" }); });
     return () => { live = false; };
   }, [connectorId, isEngineAdmin, mode, tenantId]);
   if (state.loading) return <Card>Chargement du budget ERP...</Card>;
@@ -161,9 +176,28 @@ export function ErpBudgetPanel({ tenantId, isEngineAdmin, connectorId, mode }) {
   return (
     <Card>
       <SectionLabel n="1">Suivi budgétaire ERP</SectionLabel>
+      <div className={styles.kpiGridWithMargin}>
+        <KpiTile label="Alloué" value={formatCurrency(state.totals.alloue ?? state.totals.allocated)} sub="Budget" />
+        <KpiTile label="Liquidé" value={formatCurrency(state.totals.liquide)} sub="INVOICE final" />
+        <KpiTile label="Facture en cours" value={formatCurrency(state.totals.factureEnCours)} sub="INVOICE non final" accent={COLORS.warning} />
+        <KpiTile label="Engagé" value={formatCurrency(state.totals.engage ?? state.totals.openEngage)} sub="COMMANDE non final" accent={COLORS.info} />
+        <KpiTile label="Disponible projeté" value={formatCurrency(state.totals.ecart ?? state.totals.disponibleProjete)} sub="restant - engagé - facture en cours" accent={(Number(state.totals.ecart ?? state.totals.disponibleProjete ?? 0) < 0) ? COLORS.red : COLORS.success} />
+      </div>
       {state.rows.length === 0 ? <div className={styles.emptyText}>Aucune donnée budgétaire disponible.</div> : (
         <div className={styles.listStack}>
-          {state.rows.map((row, idx) => <div key={row.id || idx} className={styles.erpRow}><span>{row.label || row.name || row.pointeur || `Ligne ${idx + 1}`}</span><strong>{formatCurrency(row.realized || row.amount || row.consumed || 0)}</strong></div>)}
+          {state.rows.map((row, idx) => (
+            <div key={row.id || row.axisKey || idx} className={styles.erpRow}>
+              <div>
+                <div className={styles.tenantName}>{row.lineLabel || row.label || row.name || row.pointeur || `Ligne ${idx + 1}`}</div>
+                <div className={styles.erpRowDetails}>
+                  Alloué {formatCurrency(row.alloue ?? row.allocated)} · L {formatCurrency(row.liquide)} · FEC {formatCurrency(row.factureEnCours)} · E {formatCurrency(row.engage ?? row.openEngage)}
+                </div>
+              </div>
+              <strong className={Number(row.disponibleProjete ?? row.ecart ?? row.restant ?? 0) < 0 ? styles.textDanger : styles.textSuccess}>
+                {formatCurrency(row.disponibleProjete ?? row.ecart ?? row.restant ?? 0)}
+              </strong>
+            </div>
+          ))}
         </div>
       )}
     </Card>

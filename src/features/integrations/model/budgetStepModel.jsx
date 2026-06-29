@@ -1,4 +1,5 @@
-import { Database, Layers } from "lucide-react";
+/* eslint-disable react-refresh/only-export-components */
+import { Clock, Database, Layers } from "lucide-react";
 
 export const BUDGET_DATE_MODES = [
   { id: "YEAR_COLUMN", label: "Colonne année", hint: "ex: budgets.year" },
@@ -17,7 +18,20 @@ export const BUDGET_TARGET_MODES = [
 export const BUDGET_KIND_META = {
   COMMANDE: { label: "Commandes", color: "#3B82F6", Icon: Layers },
   FACTURE: { label: "Factures", color: "#D94F3D", Icon: Database },
+  FACTURE_EN_COURS: { label: "Factures en cours", color: "#F59E0B", Icon: Clock },
 };
+
+export const BUDGET_POINTER_OPTIONS = [
+  { id: "consumptionRate", label: "Taux de consommation", hint: "liquidé / alloué" },
+  { id: "factureEnCours", label: "Facture en cours", hint: "INVOICE non validée" },
+  { id: "disponibleProjete", label: "Disponible projeté", hint: "restant - engagé - facture en cours" },
+  { id: "monthlyBurn", label: "Burn mensuel", hint: "rythme réel par mois" },
+  { id: "yearEndProjection", label: "Projection fin d'année", hint: "liquidé projeté + engagé + facture en cours" },
+];
+
+export const DEFAULT_BUDGET_POINTERS = BUDGET_POINTER_OPTIONS.map((item) => item.id);
+
+export const FIXED_BUDGET_FORMULA = { mode: "DEFAULT", includeOrders: false, includeFactures: true };
 
 export const BUDGET_STATUS_META = {
   ok: { label: "OK", color: "#22c55e" },
@@ -31,24 +45,32 @@ export function defaultBudgetTemplate() {
     mode: "BY_AXES",
     budgetSource: { table: "", allocatedAmountColumn: "", dateMode: "NO_DATE", fiscalYearStartMonth: 1, fiscalSourceMode: "MANUAL", fiscalTable: "", fiscalStartColumn: "", fiscalEndColumn: "", fiscalTenantColumn: "", tenantColumn: "", yearColumn: "", startDateColumn: "", endDateColumn: "", dateColumn: "", currencyColumn: "", labelColumn: "" },
     axes: [],
-    consumptionSources: [
-      { kind: "COMMANDE", enabled: false, table: "", amountColumn: "", dateColumn: "", statusColumn: "", supplierColumn: "", idColumn: "", tenantColumn: "", finalStatuses: [], axisMappings: {}, joins: [], settlementTable: "", settlementLinkColumn: "", sourceKeyColumn: "", settlementStatusColumn: "", settlementFinalStatuses: [] },
-      { kind: "FACTURE", enabled: false, table: "", amountColumn: "", dateColumn: "", statusColumn: "", supplierColumn: "", idColumn: "", tenantColumn: "", finalStatuses: [], axisMappings: {}, joins: [], settlementTable: "", settlementLinkColumn: "", sourceKeyColumn: "", settlementStatusColumn: "", settlementFinalStatuses: [] },
-    ],
-    formula: { mode: "DEFAULT", tokens: [], includeCommandes: true, includeFactures: true },
+    consumptionSources: [],
+    formula: FIXED_BUDGET_FORMULA,
     forecast: { defaultTargetDateMode: "END_OF_YEAR", seasonalityMode: "SERIES", ignoredYears: [], ignoredYearNotes: {} },
-    previewSettings: { limit: 50, sampleAxes: [] },
+    previewSettings: { limit: 50, sampleAxes: DEFAULT_BUDGET_POINTERS },
   };
 }
 
 export function migrateLegacyBudget(data) {
   const template = defaultBudgetTemplate();
   if (data.budgetSourceTables?.length) template.budgetSource.table = data.budgetSourceTables[0];
-  if (data.budgetFormula?.length) {
-    template.formula.mode = "CUSTOM";
-    template.formula.tokens = data.budgetFormula;
-  }
   return template;
+}
+
+export function deterministicBudgetTemplate(template = defaultBudgetTemplate()) {
+  return {
+    ...defaultBudgetTemplate(),
+    ...template,
+    budgetSource: { ...defaultBudgetTemplate().budgetSource, ...(template.budgetSource || {}) },
+    consumptionSources: [],
+    formula: FIXED_BUDGET_FORMULA,
+    forecast: { ...defaultBudgetTemplate().forecast, ...(template.forecast || {}) },
+    previewSettings: {
+      ...defaultBudgetTemplate().previewSettings,
+      ...(template.previewSettings || {}),
+    },
+  };
 }
 
 export function suggestBudgetTemplate(tables = []) {
@@ -64,38 +86,6 @@ export function suggestBudgetTemplate(tables = []) {
   if (yearColumn) { template.budgetSource.dateMode = "YEAR_COLUMN"; template.budgetSource.yearColumn = yearColumn; }
   template.budgetSource.labelColumn = find(/label|libelle|designation/i, budgetColumns) || "";
   template.axes = budgetColumns.filter((column) => /ligne_budgetaire|cle_budgetaire|centre|article|pointeur/i.test(column)).map((column) => ({ key: column, label: column, budgetColumn: column, type: "string" }));
-  const wire = (kind, tablePattern, datePattern, finalStatus) => {
-    const table = tables.find((item) => tablePattern.test(item.name) && !/budget/i.test(item.name));
-    const source = template.consumptionSources.find((item) => item.kind === kind);
-    if (!table || !source) return;
-    const columns = colsOf(table);
-    source.table = table.name;
-    source.amountColumn = find(/^amount$|montant|total/i, columns) || "";
-    source.dateColumn = find(datePattern, columns) || find(/date/i, columns) || "";
-    source.statusColumn = find(/^status$|statut/i, columns) || "";
-    if (source.statusColumn) source.finalStatuses = [finalStatus];
-    source.axisMappings = {};
-    template.axes.forEach((axis) => { if (columns.includes(axis.budgetColumn)) source.axisMappings[axis.key] = axis.budgetColumn; });
-    const allMapped = template.axes.every((axis) => source.axisMappings[axis.key]);
-    source.enabled = Boolean(source.amountColumn && source.dateColumn && (template.axes.length === 0 || allMapped));
-  };
-  wire("COMMANDE", /commande/i, /date_cmd|date_commande/i, "LIVRE");
-  wire("FACTURE", /facture/i, /^date$|date_fact/i, "COMPTABILISE");
-  const cmdSource = template.consumptionSources.find((item) => item.kind === "COMMANDE");
-  const factSource = template.consumptionSources.find((item) => item.kind === "FACTURE");
-  if (cmdSource?.table && factSource?.table) {
-    const factColumns = colsOf(tables.find((table) => table.name === factSource.table));
-    const cmdColumns = colsOf(tables.find((table) => table.name === cmdSource.table));
-    const linkColumn = find(/commande/i, factColumns);
-    const keyColumn = find(/^commande_id$/i, cmdColumns) || find(/commande_id|^id$/i, cmdColumns);
-    if (linkColumn && keyColumn) {
-      cmdSource.settlementTable = factSource.table;
-      cmdSource.settlementLinkColumn = linkColumn;
-      cmdSource.sourceKeyColumn = keyColumn;
-      cmdSource.settlementStatusColumn = factSource.statusColumn || "";
-      cmdSource.settlementFinalStatuses = factSource.statusColumn ? ["COMPTABILISE_CMD", "COMPTABILISE"] : [];
-    }
-  }
   return template;
 }
 

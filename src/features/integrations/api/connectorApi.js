@@ -102,6 +102,15 @@ function normalizePipelineTemplateJoins(templates = {}) {
   return out;
 }
 
+function normalizeBudgetTemplate(template) {
+  if (!template) return template;
+  return {
+    ...template,
+    consumptionSources: [],
+    formula: { mode: "DEFAULT", includeOrders: false, includeFactures: true },
+  };
+}
+
 export function toConnectorApiPayload(connector = {}) {
   const pipelineTemplates = normalizePipelineTemplateJoins(connector.pipelineTemplates || connector.pipelines || {});
   return {
@@ -135,7 +144,7 @@ export function toConnectorApiPayload(connector = {}) {
     customPipelines: connector.customPipelines || [],
     tenants: connector.tenants || [],
     pipelineTemplates,
-    budgetTemplate: connector.budgetTemplate,
+    budgetTemplate: normalizeBudgetTemplate(connector.budgetTemplate),
     widgetConfig: connector.widgetConfig,
     tenantDefaults: connector.tenantDefaults,
     // Discovered schema FK relations → connector-level joins the backend can use

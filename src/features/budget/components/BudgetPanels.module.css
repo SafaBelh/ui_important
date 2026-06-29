@@ -167,3 +167,9 @@
   justify-content: space-between;
   padding-top: 8px;
 }
+
+.erpRowDetails {
+  color: #6b7280;
+  font-size: 11px;
+  margin-top: 3px;
+}

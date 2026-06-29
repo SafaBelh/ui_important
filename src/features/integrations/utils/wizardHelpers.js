@@ -19,7 +19,7 @@ export function buildReport(a) {
       factures: { enabled: true, sourceTables: d.pipelines.facture.tables, fieldMappings: d.pipelines.facture.fieldMappings, groupBy: effectivePipelineGroupBy("facture", d.pipelines.facture) },
       commandes: { enabled: true, sourceTables: d.pipelines.commande.tables, groupBy: effectivePipelineGroupBy("commande", d.pipelines.commande) }
     },
-    budget: { formula: d.budgetFormula },
+    budget: { allocationSources: d.budgetSourceTables },
     tenants: d.tenants.map(t => t.id),
   };
 }
@@ -119,8 +119,7 @@ function buildQAFlow() {
     { id: "q_tables", type: "multi_schema", key: "selectedTables", bot: (a, s) => s ? `Quelles tables importer ? (${s.tables.length} disponibles)` : "Listez les tables séparées par des virgules.", next: "q_pl_facture" },
     { id: "q_pl_facture", type: "pipeline_facture", key: "factureMappings", bot: () => "Configurons le pipeline Factures. Mappez les colonnes requises :", next: "q_pl_commande" },
     { id: "q_pl_commande", type: "pipeline_commande", key: "commandeGroupBy", bot: () => "Pipeline Commandes : quelles colonnes pour le Group By ? (optionnel)", next: "q_budget_tables" },
-    { id: "q_budget_tables", type: "choice_dynamic", key: "budgetSourceTables", bot: () => "Quelle table contient les données budgétaires ?", next: "q_budget_formula" },
-    { id: "q_budget_formula", type: "choice", key: "budgetFormulaType", bot: () => "Formule budgétaire à utiliser ?", options: [{ label: "Standard (Alloué − Consommé)", value: "standard" }, { label: "Avec engagements (Alloué − Engagé − Consommé)", value: "engaged" }, { label: "Personnalisée", value: "custom" }], next: "q_tenants" },
+    { id: "q_budget_tables", type: "choice_dynamic", key: "budgetSourceTables", bot: () => "Quelle table contient les allocations budgétaires ?", next: "q_tenants" },
     { id: "q_tenants", type: "text", key: "_tenantsRaw", bot: () => "IDs tenants (clients) séparés par des virgules :", placeholder: TENANT_IDS_PLACEHOLDER, next: "q_done" },
     { id: "q_done", type: "done", bot: (a) => `✅ Configuration complète pour «${a.name || "votre ERP"}» ! Cliquez pour voir le rapport JSON.` },
   ];
@@ -134,7 +133,7 @@ export const QA_SIDEBAR_STEPS = [
   { id: "q_name", label: "Nom" }, { id: "q_type", label: "Type" }, { id: "q_auth", label: "Authentification" },
   { id: "q_conn", label: "Connexion" }, { id: "q_jdbc", label: "URL JDBC" }, { id: "q_tables", label: "Tables" },
   { id: "q_pl_facture", label: "Pipeline Factures" }, { id: "q_pl_commande", label: "Pipeline Commandes" },
-  { id: "q_budget_tables", label: "Budget" }, { id: "q_budget_formula", label: "Formule budget" },
+  { id: "q_budget_tables", label: "Budget" },
   { id: "q_tenants", label: "Tenants" }, { id: "q_done", label: "Rapport" },
 ];
 

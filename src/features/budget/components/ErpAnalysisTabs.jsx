@@ -1,6 +1,6 @@
 import { memo, useEffect, useState } from "react";
 import { getBudgetAnalysis } from "@/features/budget/api/BudgetApi";
-import { AlertTriangle, Calendar, ChevronRight, Database, Layers, RefreshCw, Scale, TrendingUp } from "lucide-react";
+import { AlertTriangle, Calendar, ChevronRight, Clock, Database, Layers, RefreshCw, Scale, TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import styles from "./ErpAnalysisTabs.module.css";
 
@@ -44,7 +44,15 @@ const PACE_META = {
 };
 const KIND_META = {
   engage: { title: "Engagé", color: "#3B82F6", Icon: Layers, docTitle: "Dernières commandes" },
+  factureEnCours: { title: "Facture en cours", color: "#F59E0B", Icon: Clock, docTitle: "Dernières factures non validées" },
   liquide: { title: "Liquidé", color: "#D94F3D", Icon: Database, docTitle: "Dernières factures" },
+};
+const KIND_TOTAL_KEY = { engage: "openEngage", factureEnCours: "factureEnCours", liquide: "liquide" };
+const KIND_PROJECTED_KEY = { engage: "projectedEngage", factureEnCours: "projectedFactureEnCours", liquide: "projectedLiquide" };
+const KIND_NOTE = {
+  engage: "Engagé ouvert : commandes non finales encore ouvertes.",
+  factureEnCours: "Facture en cours : factures reçues mais non validées (INVOICE non final).",
+  liquide: "Liquidé : factures validées/comptabilisées (INVOICE final).",
 };
 
 const fmt = v => (v == null || Number.isNaN(Number(v))) ? "—" : Number(v).toLocaleString("fr-FR", { maximumFractionDigits: 0 });
@@ -217,7 +225,7 @@ function PointerDrawer({ pointer, kindKey }) {
           <div className={styles.chipRow}>
             {pointer.topSuppliers.map((s, i) => (
               <span key={i} className={`${styles.dataChip} ${styles.supplierChip}`}>
-                {s.supplier} · {Math.round(s.sharePct || 0)}% · E {fmt(s.engage)} · L {fmt(s.liquide)}
+                {s.supplier} · {Math.round(s.sharePct || 0)}% · E {fmt(s.engage)} · FEC {fmt(s.factureEnCours)} · L {fmt(s.liquide)}
               </span>
             ))}
           </div>
@@ -240,14 +248,14 @@ function PointerDrawer({ pointer, kindKey }) {
   );
 }
 
-/* ── Engagé / Liquidé tab (same engine, different kind) ── */
+/* ── Engagé / Facture en cours / Liquidé tab (same engine, different kind) ── */
 function KindTab({ result, kindKey }) {
   const [expanded, setExpanded] = useState(null);
   const meta = KIND_META[kindKey];
   const pointers = result.pointers || [];
   const totals = result.totals || {};
-  const total = kindKey === "engage" ? totals.openEngage : totals.liquide;
-  const projected = kindKey === "engage" ? totals.projectedEngage : totals.projectedLiquide;
+  const total = totals[KIND_TOTAL_KEY[kindKey]];
+  const projected = totals[KIND_PROJECTED_KEY[kindKey]] ?? total;
   const expectedToDate = pointers.reduce((s, p) => s + (Number(p[kindKey]?.expectedToDate) || 0), 0);
   const abnormal = pointers.filter(p => p[kindKey]?.paceStatus === "anormal");
 
@@ -330,9 +338,7 @@ function KindTab({ result, kindKey }) {
           </table>
         </div>
         <div className={styles.tableNote}>
-          {kindKey === "engage"
-            ? "Engagement ouvert : toutes les commandes (EN_COURS + LIVRE) comptent comme engagement, hors commandes liquidées par une facture comptabilisée (anti double comptage)."
-            : "Liquidé : factures payées/comptabilisées (statuts COMPTABILISE et COMPTABILISE_CMD)."}
+          {KIND_NOTE[kindKey]}
         </div>
       </Panel>
     </>
@@ -357,8 +363,6 @@ function SyntheseTab({ result }) {
             { op: "=" },
             { l: "Alloué", v: eq.allocated, c: BUDGET_COLORS.grey900 },
             { op: "−" },
-            { l: "Engagé ouvert", v: eq.openEngage, c: KIND_META.engage.color },
-            { op: "−" },
             { l: "Liquidé", v: eq.liquide, c: KIND_META.liquide.color },
           ].map((t, i) => t.op ? (
             <span key={i} className={styles.equationOp}>{t.op}</span>
@@ -373,9 +377,26 @@ function SyntheseTab({ result }) {
             <Pill meta={FORECAST_META[totals.forecastStatus] || FORECAST_META.ok} />
           </div>
         </div>
+        <div className={styles.equationRow}>
+          {[
+            { l: "Disponible projeté", v: eq.disponibleProjete, c: (eq.disponibleProjete ?? 0) < 0 ? BUDGET_COLORS.red : BUDGET_COLORS.success },
+            { op: "=" },
+            { l: "Restant", v: eq.remaining, c: (eq.remaining ?? 0) < 0 ? BUDGET_COLORS.red : BUDGET_COLORS.success },
+            { op: "−" },
+            { l: "Engagé ouvert", v: eq.openEngage, c: KIND_META.engage.color },
+            { op: "−" },
+            { l: "Facture en cours", v: eq.factureEnCours, c: KIND_META.factureEnCours.color },
+          ].map((t, i) => t.op ? (
+            <span key={i} className={styles.equationOp}>{t.op}</span>
+          ) : (
+            <div key={i} className={`${styles.equationCard} ${toneClass(t.c)}`}>
+              <div className={styles.equationLabel}>{t.l}</div>
+              <div className={`${styles.equationValue} ${toneClass(t.c)}`}>{formatEuroAmount(t.v)}</div>
+            </div>
+          ))}
+        </div>
         <div className={styles.tableNote}>
-          Engagement ouvert = commandes non encore couvertes par une facture comptabilisée · Liquidé = factures payées/comptabilisées.
-          Une commande liquidée par sa facture liée n'est comptée qu'une fois, côté liquidé.
+          Restant = alloué - liquidé · Disponible projeté = restant - engagé - facture en cours.
         </div>
       </Panel>
 
@@ -387,8 +408,10 @@ function SyntheseTab({ result }) {
                 <th className={`${styles.th} ${styles.left}`}>Pointeur</th>
                 <th className={styles.th}>Alloué</th>
                 <th className={styles.th}>Engagé ouvert</th>
+                <th className={styles.th}>Facture en cours</th>
                 <th className={styles.th}>Liquidé</th>
                 <th className={styles.th}>Restant</th>
+                <th className={styles.th}>Disponible projeté</th>
                 <th className={styles.th}>Taux</th>
                 <th className={styles.th}>Statut actuel</th>
                 <th className={styles.th}>Statut prévisionnel</th>
@@ -396,7 +419,7 @@ function SyntheseTab({ result }) {
             </thead>
             <tbody>
               {pointers.length === 0 && (
-                <tr><td colSpan={8} className={`${styles.td} ${styles.center} ${styles.emptyCell}`}>Aucun pointeur budgétaire trouvé.</td></tr>
+                <tr><td colSpan={10} className={`${styles.td} ${styles.center} ${styles.emptyCell}`}>Aucun pointeur budgétaire trouvé.</td></tr>
               )}
               {pointers.map((p, i) => {
                 const s = p.synthese || {};
@@ -408,8 +431,10 @@ function SyntheseTab({ result }) {
                     </td>
                     <td className={`${styles.td} ${styles.tdStrong} ${styles.toneGrey}`}>{formatEuroAmount(p.allocated)}</td>
                     <td className={`${styles.td} ${styles.toneInfo}`}>{formatEuroAmount(s.openEngage)}</td>
+                    <td className={`${styles.td} ${styles.toneWarning}`}>{formatEuroAmount(s.factureEnCours)}</td>
                     <td className={`${styles.td} ${styles.toneRed}`}>{formatEuroAmount(s.liquide)}</td>
                     <td className={`${styles.td} ${styles.tdStrong} ${(s.remaining ?? 0) < 0 ? styles.toneRed : styles.toneSuccess}`}>{formatEuroAmount(s.remaining)}</td>
+                    <td className={`${styles.td} ${styles.tdStrong} ${(s.disponibleProjete ?? 0) < 0 ? styles.toneRed : styles.toneSuccess}`}>{formatEuroAmount(s.disponibleProjete)}</td>
                     <td className={styles.td}>
                       <div className={styles.inlineRate}>
                         <MiniBar pct={s.consumptionRate || 0} exceeded={(s.currentStatus || s.status) === "exceeded"} />
@@ -426,8 +451,10 @@ function SyntheseTab({ result }) {
                   <td className={`${styles.td} ${styles.left} ${styles.tdTotal} ${styles.toneGrey}`}>Total</td>
                   <td className={`${styles.td} ${styles.tdTotal} ${styles.toneGrey}`}>{formatEuroAmount(totals.allocated)}</td>
                   <td className={`${styles.td} ${styles.tdTotal} ${styles.toneInfo}`}>{formatEuroAmount(totals.openEngage)}</td>
+                  <td className={`${styles.td} ${styles.tdTotal} ${styles.toneWarning}`}>{formatEuroAmount(totals.factureEnCours)}</td>
                   <td className={`${styles.td} ${styles.tdTotal} ${styles.toneRed}`}>{formatEuroAmount(totals.liquide)}</td>
                   <td className={`${styles.td} ${styles.tdTotal} ${(totals.remaining ?? 0) < 0 ? styles.toneRed : styles.toneSuccess}`}>{formatEuroAmount(totals.remaining)}</td>
+                  <td className={`${styles.td} ${styles.tdTotal} ${(totals.disponibleProjete ?? 0) < 0 ? styles.toneRed : styles.toneSuccess}`}>{formatEuroAmount(totals.disponibleProjete)}</td>
                   <td className={styles.td}>
                     <div className={styles.inlineRate}>
                       <MiniBar pct={totals.consumptionRate || 0} exceeded={(totals.currentStatus || totals.status) === "exceeded"} />
@@ -455,6 +482,7 @@ function PrevisionsTab({ result }) {
   const data = forecast.map(m => ({
     name: monthLabel(m),
     actualEngage: m.actualEngage ?? 0,
+    actualFactureEnCours: m.actualFactureEnCours ?? 0,
     actualLiquide: m.actualLiquide ?? 0,
     forecastEngage: m.forecastEngage,
     forecastLiquide: m.forecastLiquide,
@@ -473,7 +501,9 @@ function PrevisionsTab({ result }) {
         <Kpi label="Restant projeté à la cible" value={formatEuroAmount(totals.projectedRemaining)} sub={`Cible : ${fmtFrDate(result.targetDate)}`}
           accent={(totals.projectedRemaining ?? 0) < 0 ? BUDGET_COLORS.red : BUDGET_COLORS.success} />
         <Kpi label="Engagé projeté" value={formatEuroAmount(totals.projectedEngage)} sub="Prévision propre aux commandes" accent={KIND_META.engage.color} />
+        <Kpi label="Facture en cours" value={formatEuroAmount(totals.projectedFactureEnCours ?? totals.factureEnCours)} sub="Factures reçues non validées" accent={KIND_META.factureEnCours.color} />
         <Kpi label="Liquidé projeté" value={formatEuroAmount(totals.projectedLiquide)} sub="Prévision propre aux factures" accent={KIND_META.liquide.color} />
+        <Kpi label="Disponible projeté" value={formatEuroAmount(totals.disponibleProjete)} sub="restant - engagé - facture en cours" accent={(totals.disponibleProjete ?? 0) < 0 ? BUDGET_COLORS.red : BUDGET_COLORS.success} />
         <Kpi label="Date d'épuisement estimée" value={result.estimatedGlobalThresholdReachDate ? fmtFrDate(result.estimatedGlobalThresholdReachDate) : "—"}
           sub={result.estimatedGlobalThresholdReachDate ? "Premier pointeur atteignant son enveloppe" : "Aucun dépassement prévu sur l'exercice"}
           accent={result.estimatedGlobalThresholdReachDate ? BUDGET_COLORS.warning : BUDGET_COLORS.success} />
@@ -481,7 +511,7 @@ function PrevisionsTab({ result }) {
 
       <Panel>
         <div className={styles.chartTitle}>
-          Prévision engagé + liquidé — réel, projeté, restant cumulé
+          Prévision engagé + facture en cours + liquidé — réel, projeté, restant cumulé
         </div>
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={data} margin={{ top: 5, right: 10, bottom: 0, left: 0 }}>
@@ -490,16 +520,17 @@ function PrevisionsTab({ result }) {
             <YAxis yAxisId="amount" tick={{ fontSize: 10, fill: BUDGET_COLORS.grey400 }} tickFormatter={fmt} />
             <YAxis yAxisId="remaining" orientation="right" tick={{ fontSize: 10, fill: BUDGET_COLORS.grey400 }} tickFormatter={fmt} />
             <Tooltip contentClassName={styles.chartTooltip} formatter={(v, n) => [formatEuroAmount(v), ({
-              actualEngage: "Engagé réel", actualLiquide: "Liquidé réel",
+              actualEngage: "Engagé réel", actualFactureEnCours: "Facture en cours", actualLiquide: "Liquidé réel",
               forecastEngage: "Engagé prévu", forecastLiquide: "Liquidé prévu",
               cumulativeRemaining: "Restant cumulé",
             })[n] || n]} />
             <Legend className={styles.legend} formatter={n => ({
-              actualEngage: "Engagé réel", actualLiquide: "Liquidé réel",
+              actualEngage: "Engagé réel", actualFactureEnCours: "Facture en cours", actualLiquide: "Liquidé réel",
               forecastEngage: "Engagé prévu", forecastLiquide: "Liquidé prévu",
               cumulativeRemaining: "Restant cumulé",
             })[n] || n} />
             <Bar yAxisId="amount" dataKey="actualEngage" stackId="a" fill={KIND_META.engage.color} fillOpacity={0.75} radius={[0, 0, 0, 0]} />
+            <Bar yAxisId="amount" dataKey="actualFactureEnCours" stackId="a" fill={KIND_META.factureEnCours.color} fillOpacity={0.75} radius={[0, 0, 0, 0]} />
             <Bar yAxisId="amount" dataKey="actualLiquide" stackId="a" fill={KIND_META.liquide.color} fillOpacity={0.75} radius={[4, 4, 0, 0]} />
             <Line yAxisId="amount" dataKey="forecastEngage" stroke={KIND_META.engage.color} strokeDasharray="5 4" strokeWidth={2} dot={false} connectNulls />
             <Line yAxisId="amount" dataKey="forecastLiquide" stroke={KIND_META.liquide.color} strokeDasharray="5 4" strokeWidth={2} dot={false} connectNulls />
@@ -507,7 +538,7 @@ function PrevisionsTab({ result }) {
           </ComposedChart>
         </ResponsiveContainer>
         <div className={styles.chartNote}>
-          Les prévisions engagé et liquidé sont calculées séparément, chacune sur son propre historique mensuel et sa saisonnalité.
+          Le dépassement projeté additionne le liquidé projeté, l'engagé courant et la facture en cours.
         </div>
       </Panel>
 
@@ -523,15 +554,17 @@ function PrevisionsTab({ result }) {
               <tr className={styles.theadRow}>
                 <th className={`${styles.th} ${styles.left}`}>Pointeur</th>
                 <th className={styles.th}>Engagé projeté (fin)</th>
+                <th className={styles.th}>Facture en cours</th>
                 <th className={styles.th}>Liquidé projeté (fin)</th>
                 <th className={styles.th}>Restant projeté (fin)</th>
+                <th className={styles.th}>Disponible projeté (fin)</th>
                 <th className={styles.th}>Seuil atteint le</th>
                 <th className={styles.th}>Risque</th>
               </tr>
             </thead>
             <tbody>
               {sortedRisk.length === 0 && (
-                <tr><td colSpan={6} className={`${styles.td} ${styles.center} ${styles.emptyCell}`}>Aucun pointeur budgétaire trouvé.</td></tr>
+                <tr><td colSpan={8} className={`${styles.td} ${styles.center} ${styles.emptyCell}`}>Aucun pointeur budgétaire trouvé.</td></tr>
               )}
               {sortedRisk.map((p, i) => {
                 const f = p.forecast || {};
@@ -542,8 +575,10 @@ function PrevisionsTab({ result }) {
                       <div className={`${styles.riskMessage} ${f.riskStatus === "ok" ? styles.riskMessageOk : ""}`}>{f.riskMessage}</div>
                     </td>
                     <td className={`${styles.td} ${styles.toneInfo}`}>{formatEuroAmount(f.projectedEngageAtFiscalEnd)}</td>
+                    <td className={`${styles.td} ${styles.toneWarning}`}>{formatEuroAmount(f.projectedFactureEnCoursAtFiscalEnd)}</td>
                     <td className={`${styles.td} ${styles.toneRed}`}>{formatEuroAmount(f.projectedLiquideAtFiscalEnd)}</td>
                     <td className={`${styles.td} ${styles.tdStrong} ${(f.projectedRemainingAtFiscalEnd ?? 0) < 0 ? styles.toneRed : styles.toneSuccess}`}>{formatEuroAmount(f.projectedRemainingAtFiscalEnd)}</td>
+                    <td className={`${styles.td} ${styles.tdStrong} ${(f.projectedDisponibleAtFiscalEnd ?? 0) < 0 ? styles.toneRed : styles.toneSuccess}`}>{formatEuroAmount(f.projectedDisponibleAtFiscalEnd)}</td>
                     <td className={`${styles.td} ${f.estimatedThresholdReachDate ? styles.toneWarning : styles.toneGrey400}`}>{f.estimatedThresholdReachDate ? fmtFrDate(f.estimatedThresholdReachDate) : "—"}</td>
                     <td className={styles.td}><Pill meta={RISK_META[f.riskStatus] || RISK_META.ok} /></td>
                   </tr>
@@ -589,6 +624,7 @@ export default function ErpAnalysisTabs({ tab, tenantId, isEngineAdmin, connecto
     ...(result?.connectors || []).flatMap(c => (c.warnings || []).map(w => `${c.connectorName} : ${w}`)),
   ];
   const TabIcon = tab === "synthese" ? Scale : tab === "previsions" ? TrendingUp : KIND_META[tab]?.Icon || Layers;
+  const tabTitle = KIND_META[tab]?.title || (tab === "synthese" ? "Synthèse globale" : "Prévisions");
 
   return (
     <div className={styles.root}>
@@ -599,7 +635,7 @@ export default function ErpAnalysisTabs({ tab, tenantId, isEngineAdmin, connecto
           </div>
           <div className={styles.headerText}>
             <div className={styles.headerTitle}>
-              Budget intelligence · {tab === "engage" ? "Engagé (commandes)" : tab === "liquide" ? "Liquidé (factures)" : tab === "synthese" ? "Synthèse globale" : "Prévisions"}
+              Budget intelligence · {tabTitle}
             </div>
             <div className={styles.headerSubtitle}>
               Exercice {result?.connectors?.find(c => c.fiscalYear)?.fiscalYear || ""} · analyse par pointeur budgétaire (axes du connecteur)
@@ -648,7 +684,7 @@ export default function ErpAnalysisTabs({ tab, tenantId, isEngineAdmin, connecto
 
       {configured && !needsSelection && !state?.loading && !state?.error && (
         <>
-          {(tab === "engage" || tab === "liquide") && <KindTab result={result} kindKey={tab} />}
+          {(tab === "engage" || tab === "factureEnCours" || tab === "liquide") && <KindTab result={result} kindKey={tab} />}
           {tab === "synthese" && <SyntheseTab result={result} />}
           {tab === "previsions" && <PrevisionsTab result={result} />}
         </>

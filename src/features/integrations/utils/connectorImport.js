@@ -24,7 +24,7 @@ export const CONNECTOR_TEMPLATE = {
     tenantMatching: "How ERP rows map to platform tenants. platformTenantField = the platform tenant key; externalTenantIdColumn = column holding the ERP tenant id; externalTenantFilter = optional SQL-safe filter value.",
     schema: "tables[].name + columns[]; relations[] declare joins between tables (from/to + columns).",
     pipelines: "facture & commande (and any customPipelines). enabled flag, sourceTables, fieldMappings (logical field -> column), joins, groupBy, conditions, userFields (extra columns), tolerance (anomaly sensitivity).",
-    budget: "Budget source table + allocated amount column, fiscal year, axes (budget dimensions), and consumptionSources (COMMANDE/FACTURE) with their status/date/amount columns. A COMMANDE source may add anti-double-counting (settlementTable/settlementLinkColumn/sourceKeyColumn/settlementStatusColumn/settlementFinalStatuses) so commandes already liquidated by a linked facture aren't counted twice.",
+    budget: "Budget source table + allocated amount column, fiscal year, and axes (budget dimensions). Consumption is derived by the backend from Documents record_type/is_final.",
     tenants: "One entry per ERP tenant to onboard. externalTenantId (ERP id), platformTenantId (matched platform tenant), storageMode (shared|isolated), per-pipeline statuses.",
     safety: "Table/column names must be SQL-safe identifiers. Blank passwords only produce a warning. Import never deploys/activates/runs anything.",
   },
@@ -99,26 +99,8 @@ export const CONNECTOR_TEMPLATE = {
     axes: [
       { key: "budget_code", label: "Budget code", budgetColumn: "budget_code", type: "string" },
     ],
-    consumptionSources: [
-      {
-        kind: "COMMANDE", enabled: true, table: "commandes", amountColumn: "amount",
-        dateColumn: "date", statusColumn: "status", finalStatuses: ["LIVRE"],
-        axisMappings: { budget_code: "budget_code" },
-        // Anti-double-counting: a commande already liquidated by a linked, accounted
-        // facture is excluded from "engagé" (its amount is carried as "liquidé").
-        settlementTable: "factures",
-        settlementLinkColumn: "commande_id",
-        sourceKeyColumn: "id",
-        settlementStatusColumn: "status",
-        settlementFinalStatuses: ["COMPTABILISE", "COMPTABILISE_CMD"],
-      },
-      {
-        kind: "FACTURE", enabled: true, table: "factures", amountColumn: "amount",
-        dateColumn: "date", statusColumn: "status", finalStatuses: ["COMPTABILISE"],
-        axisMappings: { budget_code: "budget_code" },
-      },
-    ],
-    formula: { mode: "DEFAULT", includeCommandes: true, includeFactures: true },
+    consumptionSources: [],
+    formula: { mode: "DEFAULT", includeOrders: false, includeFactures: true },
     forecast: { defaultTargetDateMode: "END_OF_YEAR", seasonalityMode: "SERIES" },
   },
   tenants: [
@@ -329,7 +311,7 @@ export function validateConnectorConfig(config, { knownPlatformTenantIds = null 
     }
   });
 
-  // Stage: budget source / axes / consumption sources
+  // Stage: budget source / axes. Consumption is derived from Documents.
   const budget = config.budget;
   if (budget && budget.enabled !== false) {
     const bs = budget.budgetSource || {};
@@ -350,18 +332,9 @@ export function validateConnectorConfig(config, { knownPlatformTenantIds = null 
       else if (budgetCols.size && !budgetCols.has(bc)) warn("budgetAxes", `budget.axes[${i}].budgetColumn`, `Colonne d'axe « ${bc} » absente de la table budget (budget axis mismatch).`);
     });
 
-    asArray(budget.consumptionSources).forEach((s, i) => {
-      if (!s) return;
-      if (s.kind && !["COMMANDE", "FACTURE"].includes(s.kind)) warn("budgetConsumption", `budget.consumptionSources[${i}].kind`, `Type de consommation « ${s.kind} » non supporté.`);
-      if (s.enabled === false) return;
-      if (!s.table) err("budgetConsumption", `budget.consumptionSources[${i}].table`, `Source de consommation ${s.kind || i} : table requise.`);
-      else if (!isSafeSqlIdentifier(s.table)) err("budgetConsumption", `budget.consumptionSources[${i}].table`, `Table de consommation non sûre : « ${s.table} ».`);
-      if (!s.amountColumn) warn("budgetConsumption", `budget.consumptionSources[${i}].amountColumn`, `Source ${s.kind || i} : colonne montant non définie.`);
-      if (!s.dateColumn) warn("budgetConsumption", `budget.consumptionSources[${i}].dateColumn`, `Source ${s.kind || i} : colonne date non définie.`);
-      Object.keys(s.axisMappings || {}).forEach((ak) => {
-        if (axisKeys.size && !axisKeys.has(ak)) warn("budgetAxes", `budget.consumptionSources[${i}].axisMappings.${ak}`, `Axe « ${ak} » inconnu dans le mapping (budget axis mismatch).`);
-      });
-    });
+    if (asArray(budget.consumptionSources).length > 0) {
+      warn("budgetConsumption", "budget.consumptionSources", "Les sources de consommation importées seront ignorées : le budget lit les Documents par record_type/is_final.");
+    }
   }
 
   // Stage: external/unknown tenant + per-tenant shape
@@ -437,11 +410,8 @@ function defaultBudgetTemplateLocal() {
     mode: "BY_AXES",
     budgetSource: { table: "", allocatedAmountColumn: "", dateMode: "NO_DATE", fiscalYearStartMonth: 1, fiscalSourceMode: "MANUAL", fiscalTable: "", fiscalStartColumn: "", fiscalEndColumn: "", fiscalTenantColumn: "", yearColumn: "", startDateColumn: "", endDateColumn: "", dateColumn: "", currencyColumn: "", labelColumn: "" },
     axes: [],
-    consumptionSources: [
-      { kind: "COMMANDE", enabled: false, table: "", amountColumn: "", dateColumn: "", statusColumn: "", supplierColumn: "", idColumn: "", finalStatuses: [], axisMappings: {}, joins: [], settlementTable: "", settlementLinkColumn: "", sourceKeyColumn: "", settlementStatusColumn: "", settlementFinalStatuses: [] },
-      { kind: "FACTURE", enabled: false, table: "", amountColumn: "", dateColumn: "", statusColumn: "", supplierColumn: "", idColumn: "", finalStatuses: [], axisMappings: {}, joins: [], settlementTable: "", settlementLinkColumn: "", sourceKeyColumn: "", settlementStatusColumn: "", settlementFinalStatuses: [] },
-    ],
-    formula: { mode: "DEFAULT", tokens: [], includeCommandes: true, includeFactures: true },
+    consumptionSources: [],
+    formula: { mode: "DEFAULT", includeOrders: false, includeFactures: true },
     forecast: { defaultTargetDateMode: "END_OF_YEAR", seasonalityMode: "SERIES", ignoredYears: [], ignoredYearNotes: {} },
     previewSettings: { limit: 50, sampleAxes: [] },
   };
@@ -456,17 +426,11 @@ function normalizeBudget(budget) {
     mode: budget.mode || tpl.mode,
     budgetSource: { ...tpl.budgetSource, ...(budget.budgetSource || {}) },
     axes: asArray(budget.axes).map((a) => ({ key: a.key, label: a.label || a.key, budgetColumn: a.budgetColumn || a.key, type: a.type || "string" })),
-    formula: { ...tpl.formula, ...(budget.formula || {}) },
+    formula: tpl.formula,
     forecast: { ...tpl.forecast, ...(budget.forecast || {}) },
     previewSettings: { ...tpl.previewSettings, ...(budget.previewSettings || {}) },
   };
-  // Merge consumption sources by kind onto the defaults so the shape stays complete.
-  const byKind = new Map(tpl.consumptionSources.map((s) => [s.kind, s]));
-  asArray(budget.consumptionSources).forEach((s) => {
-    if (!s?.kind) return;
-    byKind.set(s.kind, { ...(byKind.get(s.kind) || {}), ...s, axisMappings: { ...(s.axisMappings || {}) }, finalStatuses: asArray(s.finalStatuses) });
-  });
-  out.consumptionSources = [...byKind.values()];
+  out.consumptionSources = [];
   return out;
 }
 
