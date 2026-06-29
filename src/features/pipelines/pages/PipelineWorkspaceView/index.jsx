@@ -1,16 +1,35 @@
-
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, Loader2, Maximize2, RotateCcw, ScrollText, X } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  Loader2,
+  Maximize2,
+  RotateCcw,
+  ScrollText,
+  X,
+} from "lucide-react";
 import { COLORS } from "@/constants/colors";
-import { selectCommandesForTenant, selectInvoicesForTenant } from "@/features/documents/model/documentSelectors";
+import {
+  normalizePipelineEnabledChecks,
+  normalizePipelineRecordType,
+} from "@/constants/integrationWizard";
+import {
+  selectCommandesForTenant,
+  selectInvoicesForTenant,
+} from "@/features/documents/model/documentSelectors";
 import { selectPipelineById } from "@/features/pipelines/model/pipelineSelectors";
 import { selectEnrichedTenantById } from "@/features/tenants/model/tenantSelectors";
 import { useAppSelector } from "@/store/hooks";
-import { addPipelineDetectionAlerts, updatePipelineStore } from "@/features/pipelines/model/pipelineActions";
+import {
+  addPipelineDetectionAlerts,
+  updatePipelineStore,
+} from "@/features/pipelines/model/pipelineActions";
 import { loadInvoicesForTenant, loadCommandesForTenant } from "@/shared/model/dataLoaders";
 import { wsAPI, wsStore } from "@/features/pipelines/api/PipelineWorkspaceApi";
+import { updatePipelineMapping } from "@/features/pipelines/api/pipelinesApi";
 import { WSFullDashboard } from "@/features/pipelines/pages/PipelineWorkspaceView/DashboardTab";
 import { WSMappingStep } from "./MappingStep";
 import { WSCleaningStep } from "./CleaningStep";
@@ -50,9 +69,7 @@ function StepHeader({ stepIdx, total }) {
         <Icon size={18} color={COLORS.red} strokeWidth={1.8} />
       </div>
       <div>
-        <div className={styles.stepHeaderTitle}>
-          {label}
-        </div>
+        <div className={styles.stepHeaderTitle}>{label}</div>
         <div className={styles.stepHeaderSubtitle}>
           {desc}
           <span className={styles.stepHeaderBadge}>
@@ -79,7 +96,10 @@ function BottomNav({ stepIdx, total, onPrev, onNext, nextLabel, nextDisabled }) 
       </button>
       <div className={styles.navDots}>
         {Array.from({ length: total }).map((_, i) => (
-          <div key={i} className={`${styles.navDot} ${i < stepIdx ? styles.navDotDone : ""} ${i === stepIdx ? styles.navDotActive : ""}`} />
+          <div
+            key={i}
+            className={`${styles.navDot} ${i < stepIdx ? styles.navDotDone : ""} ${i === stepIdx ? styles.navDotActive : ""}`}
+          />
         ))}
       </div>
       {onNext && (
@@ -106,12 +126,9 @@ function LoadingScreen() {
         <div className={styles.loadingIcon}>
           <Loader2 size={26} color="#fff" className="spinner" />
         </div>
-        <h3 className={styles.loadingTitle}>
-          Analyse en cours…
-        </h3>
+        <h3 className={styles.loadingTitle}>Analyse en cours…</h3>
         <p className={styles.loadingText}>
-          Modélisation des séries temporelles et détection d'anomalies
-          via AnomalyIQ AI Engine…
+          Modélisation des séries temporelles et détection d'anomalies via AnomalyIQ AI Engine…
         </p>
         <div className={styles.loadingTrack}>
           <div className={styles.loadingFill} />
@@ -124,12 +141,20 @@ function LoadingScreen() {
 function readConfig(pipeline) {
   const raw = pipeline?.configJson ?? pipeline?.config ?? {};
   if (typeof raw === "string") {
-    try { return JSON.parse(raw); } catch { return {}; }
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return {};
+    }
   }
   return raw && typeof raw === "object" ? raw : {};
 }
 
 function isCommandePipeline(pipeline, config = {}) {
+  const explicitRecordType = config?.recordType || pipeline?.recordType;
+  if (explicitRecordType) {
+    return normalizePipelineRecordType(explicitRecordType, null, "INVOICE") === "COMMANDE";
+  }
   const key = String(pipeline?.templateKey || config?.template || "").toLowerCase();
   const name = String(pipeline?.name || "").toLowerCase();
   return key === "commande" || key === "commandes" || name.includes("commande");
@@ -138,7 +163,8 @@ function isCommandePipeline(pipeline, config = {}) {
 function normalizeGroupField(field) {
   if (!field) return "";
   const short = String(field).includes(".") ? String(field).split(".").at(-1) : String(field);
-  if (["supplier", "supplier_code", "supplierName", "vendor", "vendor_code"].includes(short)) return "supplier";
+  if (["supplier", "supplier_code", "supplierName", "vendor", "vendor_code"].includes(short))
+    return "supplier";
   if (["label", "category", "categoryName"].includes(short)) return "label";
   if (["budgetCode", "ligne_budgetaire", "budget_code"].includes(short)) return "budgetCode";
   if (["commandeDate", "date_cmd", "date"].includes(short)) return "date";
@@ -146,15 +172,21 @@ function normalizeGroupField(field) {
 }
 
 function groupFieldsFromConfig(config, fallback = ["supplier_code", "label"]) {
-  const configuredGroupBy = Array.isArray(config?.groupByCols) && config.groupByCols.length > 0
-    ? config.groupByCols
-    : Array.isArray(config?.groupBy) && config.groupBy.length > 0
-      ? config.groupBy
-      : fallback;
+  const configuredGroupBy =
+    Array.isArray(config?.groupByCols) && config.groupByCols.length > 0
+      ? config.groupByCols
+      : Array.isArray(config?.groupBy) && config.groupBy.length > 0
+        ? config.groupBy
+        : fallback;
   return configuredGroupBy.map(normalizeGroupField).filter(Boolean);
 }
 
-function invoiceRowsForPipeline(pipeline, config = readConfig(pipeline), cachedInvoices = [], cachedCommandes = []) {
+function invoiceRowsForPipeline(
+  pipeline,
+  config = readConfig(pipeline),
+  cachedInvoices = [],
+  cachedCommandes = [],
+) {
   if (isCommandePipeline(pipeline, config)) {
     // Bug D: commande pipelines must analyse COMMANDE rows (not return empty,
     // which left the ML modal showing facture-shaped zeros). Map commandes onto
@@ -174,9 +206,10 @@ function invoiceRowsForPipeline(pipeline, config = readConfig(pipeline), cachedI
       sourceKind: "commande",
     }));
   }
-  const rows = Array.isArray(wsStore.invoices) && wsStore.invoices.length > 0
-    ? wsStore.invoices
-    : cachedInvoices;
+  const rows =
+    Array.isArray(wsStore.invoices) && wsStore.invoices.length > 0
+      ? wsStore.invoices
+      : cachedInvoices;
   return rows.map((inv, i) => ({
     invoice_ref: inv.invoice_ref || inv.ref || inv.id || `INV-${i + 1}`,
     invoice_date: inv.invoice_date || inv.date || inv.invoiceDate || "",
@@ -202,43 +235,59 @@ function buildLocalSeries(invoices, config) {
       return inv[field] || "";
     });
     const key = parts.join("::");
-    if (!groups.has(key)) groups.set(key, { supplier: parts[0] || supplier, label: parts.slice(1).filter(Boolean).join(" · ") || label, values: [] });
-    groups.get(key).values.push({ amount: Number(inv.amount || 0), date: inv.date || inv.invoice_date || "" });
+    if (!groups.has(key))
+      groups.set(key, {
+        supplier: parts[0] || supplier,
+        label: parts.slice(1).filter(Boolean).join(" · ") || label,
+        values: [],
+      });
+    groups
+      .get(key)
+      .values.push({ amount: Number(inv.amount || 0), date: inv.date || inv.invoice_date || "" });
   });
-  return Array.from(groups.values()).map((g, i) => {
-    const rows = g.values;
-    const currentRows = isCommande ? rows.filter((r) => String(r.date).startsWith("2026-")) : rows;
-    const values = currentRows.map((r) => r.amount);
-    const n = values.length;
-    const mu = n ? values.reduce((a, b) => a + b, 0) / n : 0;
-    const variance = n ? values.reduce((a, b) => a + Math.pow(b - mu, 2), 0) / n : 0;
-    const sigma = Math.sqrt(variance);
-    const cv = mu ? sigma / mu : 0;
-    return {
-      id: `local-series-${i + 1}`,
-      name: [g.supplier, g.label].filter(Boolean).join(" · "),
-      supplier: g.supplier,
-      label: g.label,
-      n,
-      mu,
-      sigma,
-      cv,
-      flagged: cv > 0.25 || n < 3,
-      high_cv: cv > 0.25,
-      low_volume: n < 3,
-      tolerance_pct: config?.detection?.tolerancePct ?? 10,
-      tolerance_days: config?.detection?.toleranceDays ?? 10,
-      active: true,
-      kind: isCommande ? "commande" : "facture",
-      orderCount: n,
-      totalAmount: values.reduce((a, b) => a + b, 0),
-    };
-  }).sort((a, b) => b.n - a.n);
+  return Array.from(groups.values())
+    .map((g, i) => {
+      const rows = g.values;
+      const currentRows = isCommande
+        ? rows.filter((r) => String(r.date).startsWith("2026-"))
+        : rows;
+      const values = currentRows.map((r) => r.amount);
+      const n = values.length;
+      const mu = n ? values.reduce((a, b) => a + b, 0) / n : 0;
+      const variance = n ? values.reduce((a, b) => a + Math.pow(b - mu, 2), 0) / n : 0;
+      const sigma = Math.sqrt(variance);
+      const cv = mu ? sigma / mu : 0;
+      return {
+        id: `local-series-${i + 1}`,
+        name: [g.supplier, g.label].filter(Boolean).join(" · "),
+        supplier: g.supplier,
+        label: g.label,
+        n,
+        mu,
+        sigma,
+        cv,
+        flagged: cv > 0.25 || n < 3,
+        high_cv: cv > 0.25,
+        low_volume: n < 3,
+        tolerance_pct: config?.detection?.tolerancePct ?? 10,
+        tolerance_days: config?.detection?.toleranceDays ?? 10,
+        active: true,
+        kind: isCommande ? "commande" : "facture",
+        orderCount: n,
+        totalAmount: values.reduce((a, b) => a + b, 0),
+      };
+    })
+    .sort((a, b) => b.n - a.n);
 }
 
 function buildCommandePatternAlerts(invoices, series, config = {}) {
   const groupFields = groupFieldsFromConfig(config, ["budgetCode"]);
-  const maxCurrentMonth = Math.max(...invoices.filter((inv) => String(inv.date).startsWith("2026-")).map((inv) => Number(String(inv.date).slice(5, 7)) || 0), 5);
+  const maxCurrentMonth = Math.max(
+    ...invoices
+      .filter((inv) => String(inv.date).startsWith("2026-"))
+      .map((inv) => Number(String(inv.date).slice(5, 7)) || 0),
+    5,
+  );
   const groups = new Map();
   invoices.forEach((inv) => {
     const supplier = inv.supplier || inv.supplier_code || "N/A";
@@ -248,28 +297,56 @@ function buildCommandePatternAlerts(invoices, series, config = {}) {
       return inv[field] || "";
     });
     const key = parts.join("::");
-    if (!groups.has(key)) groups.set(key, { key, label: parts.filter(Boolean).join(" · ") || supplier, rows: [] });
+    if (!groups.has(key))
+      groups.set(key, { key, label: parts.filter(Boolean).join(" · ") || supplier, rows: [] });
     groups.get(key).rows.push(inv);
   });
   return Array.from(groups.values()).flatMap((group, i) => {
-    const current = group.rows.filter((r) => String(r.date).startsWith("2026-") && Number(String(r.date).slice(5, 7)) <= maxCurrentMonth);
-    const historicalYears = [2024, 2025].map((year) => group.rows.filter((r) => String(r.date).startsWith(`${year}-`) && Number(String(r.date).slice(5, 7)) <= maxCurrentMonth));
-    const avgHistCount = historicalYears.reduce((sum, rows) => sum + rows.length, 0) / Math.max(1, historicalYears.length);
-    const avgHistAmount = historicalYears.reduce((sum, rows) => sum + rows.reduce((s, r) => s + Number(r.amount || 0), 0), 0) / Math.max(1, historicalYears.length);
+    const current = group.rows.filter(
+      (r) =>
+        String(r.date).startsWith("2026-") && Number(String(r.date).slice(5, 7)) <= maxCurrentMonth,
+    );
+    const historicalYears = [2024, 2025].map((year) =>
+      group.rows.filter(
+        (r) =>
+          String(r.date).startsWith(`${year}-`) &&
+          Number(String(r.date).slice(5, 7)) <= maxCurrentMonth,
+      ),
+    );
+    const avgHistCount =
+      historicalYears.reduce((sum, rows) => sum + rows.length, 0) /
+      Math.max(1, historicalYears.length);
+    const avgHistAmount =
+      historicalYears.reduce(
+        (sum, rows) => sum + rows.reduce((s, r) => s + Number(r.amount || 0), 0),
+        0,
+      ) / Math.max(1, historicalYears.length);
     const currentAmount = current.reduce((sum, r) => sum + Number(r.amount || 0), 0);
     const countRatio = avgHistCount ? current.length / avgHistCount : 0;
     const amountRatio = avgHistAmount ? currentAmount / avgHistAmount : 0;
     const alerts = [];
     if (avgHistCount > 0 && countRatio >= 1.5) {
-      alerts.push({ type: "ORDER_VOLUME_SPIKE", ratio: countRatio, message: `${group.label}: ${current.length} commandes vs ${avgHistCount.toFixed(1)} habituel` });
+      alerts.push({
+        type: "ORDER_VOLUME_SPIKE",
+        ratio: countRatio,
+        message: `${group.label}: ${current.length} commandes vs ${avgHistCount.toFixed(1)} habituel`,
+      });
     }
     if (avgHistAmount > 0 && amountRatio >= 1.25) {
-      alerts.push({ type: "ORDER_AMOUNT_SPIKE", ratio: amountRatio, message: `${group.label}: montant commandes ${Math.round(currentAmount).toLocaleString("fr-FR")} EUR vs ${Math.round(avgHistAmount).toLocaleString("fr-FR")} EUR habituel` });
+      alerts.push({
+        type: "ORDER_AMOUNT_SPIKE",
+        ratio: amountRatio,
+        message: `${group.label}: montant commandes ${Math.round(currentAmount).toLocaleString("fr-FR")} EUR vs ${Math.round(avgHistAmount).toLocaleString("fr-FR")} EUR habituel`,
+      });
     }
     return alerts.map((alert, idx) => ({
       id: `local-cmd-alert-${i + 1}-${idx + 1}`,
       invoice_id: group.key,
-      series_id: series.find((s) => s.name === group.label || `${s.supplier}${s.label ? ` · ${s.label}` : ""}` === group.label)?.id,
+      series_id: series.find(
+        (s) =>
+          s.name === group.label ||
+          `${s.supplier}${s.label ? ` · ${s.label}` : ""}` === group.label,
+      )?.id,
       supplier: group.label,
       amount: currentAmount,
       score: Math.min(0.99, 0.65 + Math.max(alert.ratio - 1, 0) * 0.25),
@@ -277,7 +354,8 @@ function buildCommandePatternAlerts(invoices, series, config = {}) {
       status: "pending",
       type: alert.type,
       message: alert.message,
-      explanation: "Commande: detection basee sur le nombre de commandes et le montant YTD compares aux annees precedentes pour la meme serie.",
+      explanation:
+        "Commande: detection basee sur le nombre de commandes et le montant YTD compares aux annees precedentes pour la meme serie.",
     }));
   });
 }
@@ -346,9 +424,15 @@ export function PipelineWorkspaceView({
 }) {
   const toast = useToast();
   const pipeline = useAppSelector((state) => selectPipelineById(state, pipelineId));
-  const pipelineTenant = useAppSelector((state) => selectEnrichedTenantById(state, pipeline?.tenantId));
-  const cachedInvoices = useAppSelector((state) => selectInvoicesForTenant(state, pipeline?.tenantId));
-  const cachedCommandes = useAppSelector((state) => selectCommandesForTenant(state, pipeline?.tenantId));
+  const pipelineTenant = useAppSelector((state) =>
+    selectEnrichedTenantById(state, pipeline?.tenantId),
+  );
+  const cachedInvoices = useAppSelector((state) =>
+    selectInvoicesForTenant(state, pipeline?.tenantId),
+  );
+  const cachedCommandes = useAppSelector((state) =>
+    selectCommandesForTenant(state, pipeline?.tenantId),
+  );
   const manageMode = workspaceMode === "manage";
   const autoRunStarted = useRef(false);
   const noopSetter = useCallback(() => {}, []);
@@ -364,31 +448,75 @@ export function PipelineWorkspaceView({
   const setFinalResult = setWsFinalResult ?? noopSetter;
   const [reportOpen, setReportOpen] = useState(false);
 
-  const stepIdx =
-    STEP_PAGES.indexOf(page) >= 0 ? STEP_PAGES.indexOf(page) : 0;
+  const stepIdx = STEP_PAGES.indexOf(page) >= 0 ? STEP_PAGES.indexOf(page) : 0;
 
   const pipelineConfig = useMemo(() => readConfig(pipeline), [pipeline]);
-  const isAutomated = pipelineConfig?.automation?.autoRun === true || pipelineConfig?.automation?.mode === "automated" || pipelineConfig?.executionMode === "automated";
+  const pipelineRecordType = useMemo(
+    () =>
+      normalizePipelineRecordType(
+        mappingResult?.recordType || pipelineConfig?.recordType || pipeline?.recordType,
+        pipeline?.kind || pipeline?.templateKey || pipelineConfig?.template,
+        "INVOICE",
+      ),
+    [
+      mappingResult?.recordType,
+      pipeline?.kind,
+      pipeline?.recordType,
+      pipeline?.templateKey,
+      pipelineConfig?.recordType,
+      pipelineConfig?.template,
+    ],
+  );
+  const pipelineEnabledChecks = useMemo(
+    () =>
+      normalizePipelineEnabledChecks(
+        mappingResult?.enabledChecks ?? pipelineConfig?.enabledChecks ?? pipeline?.enabledChecks,
+      ),
+    [mappingResult?.enabledChecks, pipeline?.enabledChecks, pipelineConfig?.enabledChecks],
+  );
+  const isAutomated =
+    pipelineConfig?.automation?.autoRun === true ||
+    pipelineConfig?.automation?.mode === "automated" ||
+    pipelineConfig?.executionMode === "automated";
   // Bug D: load the dataset matching the pipeline kind (commandes for commande
   // pipelines, invoices otherwise) into the store cache, then bump a key so the
   // memoised rows/series/dashboard recompute once the data arrives.
   useEffect(() => {
     if (!pipeline?.tenantId) return;
-    const loader = isCommandePipeline(pipeline, pipelineConfig) ? loadCommandesForTenant : loadInvoicesForTenant;
-    loader(pipeline.tenantId).catch((error) => logError("pipelineWorkspace.reloadDocuments", error));
+    const loader = isCommandePipeline(pipeline, pipelineConfig)
+      ? loadCommandesForTenant
+      : loadInvoicesForTenant;
+    loader(pipeline.tenantId).catch((error) =>
+      logError("pipelineWorkspace.reloadDocuments", error),
+    );
   }, [pipeline, pipelineConfig]);
   const existingInvoices = useMemo(
-    () => pipeline ? invoiceRowsForPipeline(pipeline, pipelineConfig, cachedInvoices, cachedCommandes) : [],
-    [pipeline, pipelineConfig, cachedInvoices, cachedCommandes]
+    () =>
+      pipeline
+        ? invoiceRowsForPipeline(pipeline, pipelineConfig, cachedInvoices, cachedCommandes)
+        : [],
+    [pipeline, pipelineConfig, cachedInvoices, cachedCommandes],
   );
-  const existingSeries = useMemo(() => pipeline ? buildLocalSeries(existingInvoices, pipelineConfig) : [], [pipeline, existingInvoices, pipelineConfig]);
+  const existingSeries = useMemo(
+    () => (pipeline ? buildLocalSeries(existingInvoices, pipelineConfig) : []),
+    [pipeline, existingInvoices, pipelineConfig],
+  );
   const currentKind = isCommandePipeline(pipeline, pipelineConfig) ? "commande" : "facture";
-  const cachedSeriesMatchesPipeline = Array.isArray(seriesResult?.series)
-    && seriesResult.series.length > 0
-    && seriesResult.series.every((s) => (s.kind || "facture") === currentKind);
+  const cachedSeriesMatchesPipeline =
+    Array.isArray(seriesResult?.series) &&
+    seriesResult.series.length > 0 &&
+    seriesResult.series.every((s) => (s.kind || "facture") === currentKind);
   const activeSeries = cachedSeriesMatchesPipeline ? seriesResult.series : existingSeries;
-  const activeGroupFields = cachedSeriesMatchesPipeline ? (seriesResult?.groupFields || []) : groupFieldsFromConfig(pipelineConfig, currentKind === "commande" ? ["budgetCode"] : ["supplier_code", "label"]);
-  const existingDashboard = useMemo(() => buildLocalDashboardData(existingInvoices, activeSeries, pipelineConfig), [existingInvoices, activeSeries, pipelineConfig]);
+  const activeGroupFields = cachedSeriesMatchesPipeline
+    ? seriesResult?.groupFields || []
+    : groupFieldsFromConfig(
+        pipelineConfig,
+        currentKind === "commande" ? ["budgetCode"] : ["supplier_code", "label"],
+      );
+  const existingDashboard = useMemo(
+    () => buildLocalDashboardData(existingInvoices, activeSeries, pipelineConfig),
+    [existingInvoices, activeSeries, pipelineConfig],
+  );
 
   useEffect(() => {
     if (seriesResult?.series?.length && !cachedSeriesMatchesPipeline) {
@@ -400,16 +528,67 @@ export function PipelineWorkspaceView({
     wsStore.activePipelineId = pipelineId;
   }, [pipelineId]);
 
+  const savePipelineDtoOptions = useCallback(
+    async (patch = {}, { throwOnError = false } = {}) => {
+      if (!pipeline?.id) return;
+      const nextRecordType = normalizePipelineRecordType(
+        patch.recordType || pipelineRecordType,
+        pipeline?.kind || pipeline?.templateKey || pipelineConfig?.template,
+        "INVOICE",
+      );
+      const nextEnabledChecks = normalizePipelineEnabledChecks(
+        patch.enabledChecks ?? pipelineEnabledChecks,
+      );
+      const nextConfig = {
+        ...(pipelineConfig || {}),
+        recordType: nextRecordType,
+        enabledChecks: nextEnabledChecks,
+      };
+      setMappingResult((prev) => ({
+        ...(prev || {}),
+        recordType: nextRecordType,
+        enabledChecks: nextEnabledChecks,
+      }));
+      updatePipelineStore(pipeline.id, {
+        recordType: nextRecordType,
+        enabledChecks: nextEnabledChecks,
+        config: nextConfig,
+        configJson: JSON.stringify(nextConfig),
+      });
+      try {
+        await updatePipelineMapping(pipeline.id, {
+          recordType: nextRecordType,
+          enabledChecks: nextEnabledChecks,
+          adminTenantId: pipeline.tenantId,
+        });
+      } catch (error) {
+        toast(error.message || "Impossible d'enregistrer le type de document", "error");
+        if (throwOnError) throw error;
+      }
+    },
+    [pipeline, pipelineConfig, pipelineEnabledChecks, pipelineRecordType, setMappingResult, toast],
+  );
+
   useEffect(() => {
     if (manageMode || !pipeline || !isAutomated || finalResult || autoRunStarted.current) return;
     autoRunStarted.current = true;
     setPage("dashboard-loading");
     const timer = setTimeout(() => {
-      const invoices = invoiceRowsForPipeline(pipeline, pipelineConfig, cachedInvoices, cachedCommandes);
+      const invoices = invoiceRowsForPipeline(
+        pipeline,
+        pipelineConfig,
+        cachedInvoices,
+        cachedCommandes,
+      );
       wsStore.invoices = invoices;
       const fields = Object.keys(invoices[0] || {});
-      const groupFields = groupFieldsFromConfig(pipelineConfig, currentKind === "commande" ? ["budgetCode"] : ["supplier_code", "label"]);
+      const groupFields = groupFieldsFromConfig(
+        pipelineConfig,
+        currentKind === "commande" ? ["budgetCode"] : ["supplier_code", "label"],
+      );
       const mapping = {
+        recordType: pipelineRecordType,
+        enabledChecks: pipelineEnabledChecks,
         cols: {
           id: "invoice_ref",
           date: "invoice_date",
@@ -418,7 +597,12 @@ export function PipelineWorkspaceView({
           label: "label",
           status: "status",
         },
-        extraCols: fields.filter((f) => !["invoice_ref", "invoice_date", "amount", "supplier_code", "label", "status"].includes(f)),
+        extraCols: fields.filter(
+          (f) =>
+            !["invoice_ref", "invoice_date", "amount", "supplier_code", "label", "status"].includes(
+              f,
+            ),
+        ),
         statusConfig: pipelineConfig.statusWorkflow || null,
       };
       const series = buildLocalSeries(invoices, pipelineConfig);
@@ -429,16 +613,41 @@ export function PipelineWorkspaceView({
       setPage("dashboard");
     }, 1200);
     return () => clearTimeout(timer);
-  }, [cachedCommandes, cachedInvoices, currentKind, manageMode, pipeline, isAutomated, finalResult, setMappingResult, setSeriesResult, setFinalResult, setPage, pipelineConfig]);
+  }, [
+    cachedCommandes,
+    cachedInvoices,
+    currentKind,
+    manageMode,
+    pipeline,
+    isAutomated,
+    finalResult,
+    setMappingResult,
+    setSeriesResult,
+    setFinalResult,
+    setPage,
+    pipelineConfig,
+    pipelineEnabledChecks,
+    pipelineRecordType,
+  ]);
 
   useEffect(() => {
     if (!pipeline || page !== "dashboard-loading" || finalResult) return;
     const timer = setTimeout(() => {
-      const invoices = invoiceRowsForPipeline(pipeline, pipelineConfig, cachedInvoices, cachedCommandes);
+      const invoices = invoiceRowsForPipeline(
+        pipeline,
+        pipelineConfig,
+        cachedInvoices,
+        cachedCommandes,
+      );
       wsStore.invoices = invoices;
       const fields = Object.keys(invoices[0] || {});
-      const groupFields = groupFieldsFromConfig(pipelineConfig, currentKind === "commande" ? ["budgetCode"] : ["supplier_code", "label"]);
+      const groupFields = groupFieldsFromConfig(
+        pipelineConfig,
+        currentKind === "commande" ? ["budgetCode"] : ["supplier_code", "label"],
+      );
       const mapping = {
+        recordType: pipelineRecordType,
+        enabledChecks: pipelineEnabledChecks,
         cols: {
           id: "invoice_ref",
           date: "invoice_date",
@@ -447,7 +656,12 @@ export function PipelineWorkspaceView({
           label: "label",
           status: "status",
         },
-        extraCols: fields.filter((f) => !["invoice_ref", "invoice_date", "amount", "supplier_code", "label", "status"].includes(f)),
+        extraCols: fields.filter(
+          (f) =>
+            !["invoice_ref", "invoice_date", "amount", "supplier_code", "label", "status"].includes(
+              f,
+            ),
+        ),
         statusConfig: pipelineConfig.statusWorkflow || null,
       };
       const series = buildLocalSeries(invoices, pipelineConfig);
@@ -458,13 +672,30 @@ export function PipelineWorkspaceView({
       setPage("dashboard");
     }, 1800);
     return () => clearTimeout(timer);
-  }, [cachedCommandes, cachedInvoices, currentKind, pipeline, page, finalResult, pipelineConfig, setMappingResult, setSeriesResult, setFinalResult, setPage]);
+  }, [
+    cachedCommandes,
+    cachedInvoices,
+    currentKind,
+    pipeline,
+    page,
+    finalResult,
+    pipelineConfig,
+    setMappingResult,
+    setSeriesResult,
+    setFinalResult,
+    setPage,
+    pipelineEnabledChecks,
+    pipelineRecordType,
+  ]);
 
-  const handleNavigate = useCallback((idx) => {
-    const target = STEP_PAGES[idx];
-    if (manageMode && target && !MANAGE_PAGES.has(target)) return;
-    if (target) setPage(target);
-  }, [manageMode, setPage]);
+  const handleNavigate = useCallback(
+    (idx) => {
+      const target = STEP_PAGES[idx];
+      if (manageMode && target && !MANAGE_PAGES.has(target)) return;
+      if (target) setPage(target);
+    },
+    [manageMode, setPage],
+  );
 
   /* keyboard navigation */
   useEffect(() => {
@@ -500,9 +731,7 @@ export function PipelineWorkspaceView({
   if (!pipeline)
     return (
       <div className={styles.notFound}>
-        <div className={styles.notFoundTitle}>
-          Pipeline introuvable
-        </div>
+        <div className={styles.notFoundTitle}>Pipeline introuvable</div>
         <button onClick={onBack} className="btn-primary">
           ← Retour
         </button>
@@ -520,11 +749,23 @@ export function PipelineWorkspaceView({
             <AlertCircle size={16} /> Étape de ré-import bloquée
           </div>
           <div className={styles.blockedText}>
-            Ce pipeline existe déjà. Pour éviter d'importer les mêmes données deux fois, seules les actions de gestion sont disponibles ici : mapping, configuration des séries et dashboard.
+            Ce pipeline existe déjà. Pour éviter d'importer les mêmes données deux fois, seules les
+            actions de gestion sont disponibles ici : mapping, configuration des séries et
+            dashboard.
           </div>
           <div className={styles.blockedActions}>
-            <button className={`btn-primary ${styles.blockedButton}`} onClick={() => setPage("seriesConfig")}>Gérer les séries</button>
-            <button className={`btn-ghost ${styles.blockedButton}`} onClick={() => setPage("mapping")}>Modifier le mapping</button>
+            <button
+              className={`btn-primary ${styles.blockedButton}`}
+              onClick={() => setPage("seriesConfig")}
+            >
+              Gérer les séries
+            </button>
+            <button
+              className={`btn-ghost ${styles.blockedButton}`}
+              onClick={() => setPage("mapping")}
+            >
+              Modifier le mapping
+            </button>
           </div>
         </div>
       );
@@ -535,30 +776,44 @@ export function PipelineWorkspaceView({
         <WSMappingStep
           uploadData={uploadData}
           manageMode={manageMode}
-          onConfirm={(d) => {
-            setMappingResult(d);
+          pipeline={pipeline}
+          pipelineConfig={{
+            ...(pipelineConfig || {}),
+            recordType: pipelineRecordType,
+            enabledChecks: pipelineEnabledChecks,
+          }}
+          onConfirm={async (d) => {
+            const nextMappingResult = {
+              ...d,
+              recordType: normalizePipelineRecordType(d.recordType, null, "INVOICE"),
+              enabledChecks: normalizePipelineEnabledChecks(d.enabledChecks),
+            };
+            setMappingResult(nextMappingResult);
+            await savePipelineDtoOptions(nextMappingResult, { throwOnError: true });
             if (manageMode) {
               updatePipelineStore(pipeline.id, {
                 configJson: {
                   ...(pipelineConfig || {}),
+                  recordType: nextMappingResult.recordType,
+                  enabledChecks: nextMappingResult.enabledChecks,
                   mapping: {
-                    cols: d.cols || {},
-                    extraCols: d.extraCols || [],
+                    cols: nextMappingResult.cols || {},
+                    extraCols: nextMappingResult.extraCols || [],
                   },
                 },
               });
             }
-            if (d.statusConfig) {
+            if (nextMappingResult.statusConfig) {
               updatePipelineStore(pipeline.id, {
                 configJson: {
                   ...(pipeline.configJson || {}),
-                  ...d.statusConfig,
+                  ...nextMappingResult.statusConfig,
                 },
               });
             }
-            if (d.extraCols && d.extraCols.length > 0) {
+            if (nextMappingResult.extraCols && nextMappingResult.extraCols.length > 0) {
               updatePipelineStore(pipeline.id, {
-                extraData: JSON.stringify(d.extraCols),
+                extraData: JSON.stringify(nextMappingResult.extraCols),
               });
             }
             if (manageMode) toast("Mapping enregistré", "success");
@@ -569,12 +824,7 @@ export function PipelineWorkspaceView({
       );
 
     if (page === "cleaning")
-      return (
-        <WSCleaningStep
-          onConfirm={() => setPage("clusterEDA")}
-          onNavigate={handleNavigate}
-        />
-      );
+      return <WSCleaningStep onConfirm={() => setPage("clusterEDA")} onNavigate={handleNavigate} />;
 
     if (page === "clusterEDA")
       return (
@@ -603,13 +853,22 @@ export function PipelineWorkspaceView({
       return (
         <WSSeriesConfig
           series={activeSeries}
+          recordType={pipelineRecordType}
+          enabledChecks={pipelineEnabledChecks}
+          onPipelineConfigChange={savePipelineDtoOptions}
           onConfirm={async (updatedSeries) => {
             if (manageMode) {
-              setSeriesResult({ ...(seriesResult || {}), series: updatedSeries || existingSeries, groupFields: activeGroupFields });
+              setSeriesResult({
+                ...(seriesResult || {}),
+                series: updatedSeries || existingSeries,
+                groupFields: activeGroupFields,
+              });
               updatePipelineStore(pipeline.id, {
                 configJson: {
                   ...(pipelineConfig || {}),
-                    seriesOverrides: (updatedSeries || activeSeries).map((item) => ({
+                  recordType: pipelineRecordType,
+                  enabledChecks: pipelineEnabledChecks,
+                  seriesOverrides: (updatedSeries || activeSeries).map((item) => ({
                     id: item.id,
                     tolerance_pct: item.tolerance_pct,
                     tolerance_days: item.tolerance_days,
@@ -629,9 +888,7 @@ export function PipelineWorkspaceView({
               const a = await wsAPI.getAlerts("pending");
 
               const dbAlerts = a.map((wa) => ({
-                id: `ALT-${pipeline.tenantId}-${
-                  pipeline.erpPartnerId || "ANY"
-                }-${wa.id}`,
+                id: `ALT-${pipeline.tenantId}-${pipeline.erpPartnerId || "ANY"}-${wa.id}`,
                 tenantId: pipeline.tenantId,
                 erpPartnerId: pipeline.erpPartnerId,
                 type: "anomaly",
@@ -650,7 +907,12 @@ export function PipelineWorkspaceView({
               setPage("dashboard");
             } catch (e) {
               console.error(e);
-              const localRows = invoiceRowsForPipeline(pipeline, pipelineConfig, cachedInvoices, cachedCommandes);
+              const localRows = invoiceRowsForPipeline(
+                pipeline,
+                pipelineConfig,
+                cachedInvoices,
+                cachedCommandes,
+              );
               const s = activeSeries || buildLocalSeries(localRows, pipelineConfig);
               const dashboard = buildLocalDashboardData(localRows, s, pipelineConfig);
               setSeriesResult({ ...seriesResult, series: s });
@@ -668,7 +930,10 @@ export function PipelineWorkspaceView({
       return (
         <>
           <div className={styles.dashboardToolbar}>
-            <button className={`btn-ghost ${styles.reportButton}`} onClick={() => setReportOpen(true)}>
+            <button
+              className={`btn-ghost ${styles.reportButton}`}
+              onClick={() => setReportOpen(true)}
+            >
               <ScrollText size={14} /> Rapport d'exécution
             </button>
           </div>
@@ -695,20 +960,16 @@ export function PipelineWorkspaceView({
       <div className={styles.topBar}>
         {/* Left: back + title */}
         <div className={styles.topLeft}>
-          <button
-            onClick={onBack}
-            title="Retour"
-            className={`btn-icon ${styles.topBackButton}`}
-          >
+          <button onClick={onBack} title="Retour" className={`btn-icon ${styles.topBackButton}`}>
             <ArrowLeft size={15} color={COLORS.grey600} />
           </button>
           <div className={styles.topDivider} />
           <div>
-            <div className={styles.pipelineTitle}>
-              {pipeline.name}
-            </div>
+            <div className={styles.pipelineTitle}>{pipeline.name}</div>
             <div className={styles.pipelineMeta}>
-              <span className={`${styles.statusDot} ${pipeline.status === "paused" ? styles.statusDotPaused : ""}`} />
+              <span
+                className={`${styles.statusDot} ${pipeline.status === "paused" ? styles.statusDotPaused : ""}`}
+              />
               <span>Pipeline {pipeline.status === "paused" ? "en pause" : "actif"}</span>
               <span className={styles.demoStatus}>
                 <CheckCircle2 size={10} /> Données demo
@@ -725,20 +986,14 @@ export function PipelineWorkspaceView({
         {/* Right: actions */}
         <div className={styles.topActions}>
           {!manageMode && (
-            <button
-              onClick={reset}
-              className={`btn-ghost ${styles.topActionButton}`}
-            >
+            <button onClick={reset} className={`btn-ghost ${styles.topActionButton}`}>
               <RotateCcw size={12} color={COLORS.grey500} />
               Nouveau CSV
             </button>
           )}
 
           {onOpenFullPage && (
-            <button
-              onClick={onOpenFullPage}
-              className={`btn-ghost ${styles.topActionButton}`}
-            >
+            <button onClick={onOpenFullPage} className={`btn-ghost ${styles.topActionButton}`}>
               <Maximize2 size={12} color={COLORS.grey500} />
               Plein écran
             </button>
@@ -766,9 +1021,7 @@ export function PipelineWorkspaceView({
         )}
 
         {/* Main content area */}
-        <div
-          className={`${styles.mainArea} ${isDashboard ? styles.mainAreaDashboard : ""}`}
-        >
+        <div className={`${styles.mainArea} ${isDashboard ? styles.mainAreaDashboard : ""}`}>
           {isLoading ? (
             <LoadingScreen />
           ) : isDashboard ? (
@@ -776,26 +1029,27 @@ export function PipelineWorkspaceView({
             <div className={styles.dashboardContent}>{renderStep()}</div>
           ) : (
             /* Regular steps: white content card */
-            <div
-              className={styles.stepContentWrap}
-            >
+            <div className={styles.stepContentWrap}>
               {manageMode && (
                 <div className={styles.manageNotice}>
-                  <AlertCircle size={15} color={COLORS.warning} className={styles.manageNoticeIcon} />
+                  <AlertCircle
+                    size={15}
+                    color={COLORS.warning}
+                    className={styles.manageNoticeIcon}
+                  />
                   <div>
                     <div className={styles.manageNoticeTitle}>Gestion du pipeline existant</div>
                     <div className={styles.manageNoticeText}>
-                      Les actions de ré-import, nettoyage, clustering et redétection sont bloquées pour éviter de charger les mêmes données deux fois. Vous pouvez modifier le mapping ou les séries, puis enregistrer.
+                      Les actions de ré-import, nettoyage, clustering et redétection sont bloquées
+                      pour éviter de charger les mêmes données deux fois. Vous pouvez modifier le
+                      mapping ou les séries, puis enregistrer.
                     </div>
                   </div>
                 </div>
               )}
 
               {/* Step header chip */}
-              <StepHeader
-                stepIdx={stepIdx}
-                total={PIPELINE_STEPS.length}
-              />
+              <StepHeader stepIdx={stepIdx} total={PIPELINE_STEPS.length} />
 
               {/* Step content — each step renders its own UI */}
               <div className="fade-in">{renderStep()}</div>
@@ -818,20 +1072,12 @@ export function PipelineWorkspaceView({
     return createPortal(
       <div className={`modal-overlay ${styles.modalOverlay}`}>
         <div className="modal-bg" onClick={onBack} />
-        <div
-          className={`modal-box scale-in ${styles.modalBox}`}
-        >
-          {workspaceShell}
-        </div>
+        <div className={`modal-box scale-in ${styles.modalBox}`}>{workspaceShell}</div>
       </div>,
-      document.body
+      document.body,
     );
   }
 
   /* ── Standalone page mode ──────────────────────────────────────────── */
-  return (
-    <div className={styles.standalonePage}>
-      {workspaceShell}
-    </div>
-  );
+  return <div className={styles.standalonePage}>{workspaceShell}</div>;
 }

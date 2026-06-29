@@ -23,11 +23,13 @@ import {
 } from "lucide-react";
 import {
   PIPELINE_DEFS,
+  PIPELINE_RECORD_TYPE_OPTIONS,
   INTEGRATION_CONNECTION_TYPES,
   CSV_SOURCE_PRESETS,
   DEFAULT_API_RESOURCE,
   buildApiSchema,
   buildCsvSchema,
+  normalizePipelineRecordType,
   normalizeTableName,
 } from "@/constants/integrationWizard";
 import { INTEGRATION_COLORS } from "@/features/integrations/utils/theme";
@@ -1136,8 +1138,17 @@ export function DataPreviewStep({ data, setData, schema }) {
   const pipelines = data.pipelines || {};
   const pl = pipelines[activeTab] || {};
   const plTables = activeTables.filter((t) => (pl.tables || []).includes(t.name));
+  const activeRecordType = normalizePipelineRecordType(
+    pl.recordType,
+    activeTab,
+    activeTab === "facture" || activeTab === "commande" ? "INVOICE" : "OTHER",
+  );
   const preferredPreviewTable =
-    activeTab === "facture" ? "factures" : activeTab === "commande" ? "commandes" : null;
+    activeRecordType === "INVOICE"
+      ? "factures"
+      : activeRecordType === "COMMANDE"
+        ? "commandes"
+        : null;
   const previewTable =
     (preferredPreviewTable && plTables.find((t) => t.name === preferredPreviewTable)?.name) ||
     plTables.find((t) => /facture|commande|budget/i.test(t.name))?.name ||
@@ -1290,6 +1301,21 @@ export function SummaryStep({ data, onSave, onDelete, initialData }) {
   const tenants = data.tenants || [];
   const customPipelines = data.customPipelines || [];
   const pipelines = data.pipelines || {};
+  const recordTypeLabel = (value) =>
+    PIPELINE_RECORD_TYPE_OPTIONS.find((option) => option.value === value)?.label || value;
+  const pipelineRecordTypes = [
+    ...["facture", "commande"].map((key) => ({ key, label: PIPELINE_DEFS[key].label })),
+    ...customPipelines.map((cp) => ({ key: cp.id, label: cp.label })),
+  ]
+    .filter(({ key }) => (pipelines[key] || {}).enabled !== false)
+    .map(({ key, label }) => {
+      const recordType = normalizePipelineRecordType(
+        pipelines[key]?.recordType,
+        key,
+        key === "facture" || key === "commande" ? "INVOICE" : "OTHER",
+      );
+      return `${label}: ${recordTypeLabel(recordType)}`;
+    });
   const enabledPl = [
     ...["facture", "commande"]
       .filter((k) => (pipelines[k] || {}).enabled !== false)
@@ -1317,6 +1343,7 @@ export function SummaryStep({ data, onSave, onDelete, initialData }) {
     ["Connexion", `${(data.connectionType || "jdbc").toUpperCase()} · ${connectionDetail}`],
     ["Tables", (data.selectedTables || []).length + " table(s)"],
     ["Pipelines", enabledPl.join(" · ") || "—"],
+    ["Types documents", pipelineRecordTypes.join(" · ") || "—"],
     [
       "Tenants",
       `${tenants.length} tenant(s)${tenants.filter((t) => t.platformTenantId).length > 0 ? " · " + tenants.filter((t) => t.platformTenantId).length + " lié(s)" : ""}${tenants.filter((t) => t.storageMode === "isolated").length > 0 ? " · " + tenants.filter((t) => t.storageMode === "isolated").length + " DB isolée(s)" : ""}`,

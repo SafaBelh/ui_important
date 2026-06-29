@@ -1,4 +1,13 @@
-import { Calculator, Database, GitBranch, Layers, Network, Plug, Sparkles, Tag } from "lucide-react";
+import {
+  Calculator,
+  Database,
+  GitBranch,
+  Layers,
+  Network,
+  Plug,
+  Sparkles,
+  Tag,
+} from "lucide-react";
 
 export const AUTH_FIELDS = {
   NONE: [],
@@ -23,6 +32,45 @@ export const PIPELINE_DEFS = {
     fixedFields: ["date", "amount", "status", "budgetCode"],
   },
 };
+
+export const PIPELINE_RECORD_TYPE_OPTIONS = [
+  { value: "INVOICE", label: "Facture" },
+  { value: "COMMANDE", label: "Commande" },
+  { value: "RECEPTION", label: "Réception" },
+  { value: "CONTRACT", label: "Contrat" },
+  { value: "OTHER", label: "Autre" },
+];
+
+export const PIPELINE_ENABLED_CHECK_OPTIONS = [
+  { value: "AMOUNT", label: "Montant" },
+  { value: "MISSING", label: "Manquant" },
+  { value: "DUPLICATE", label: "Doublon" },
+  { value: "VOLUME", label: "Volume" },
+  { value: "TOO_MANY", label: "Trop nombreux" },
+];
+
+export const DEFAULT_PIPELINE_ENABLED_CHECKS = PIPELINE_ENABLED_CHECK_OPTIONS.map(
+  ({ value }) => value,
+);
+
+export function defaultRecordTypeForPipeline(kind, fallback = "INVOICE") {
+  const normalized = String(kind || "").toLowerCase();
+  if (["facture", "factures", "invoice", "invoices"].includes(normalized)) return "INVOICE";
+  if (["commande", "commandes", "order", "orders", "cmd"].includes(normalized)) return "COMMANDE";
+  return fallback;
+}
+
+export function normalizePipelineRecordType(value, kind, fallback = "INVOICE") {
+  const allowed = new Set(PIPELINE_RECORD_TYPE_OPTIONS.map((option) => option.value));
+  const normalized = String(value || "").toUpperCase();
+  return allowed.has(normalized) ? normalized : defaultRecordTypeForPipeline(kind, fallback);
+}
+
+export function normalizePipelineEnabledChecks(value) {
+  if (!Array.isArray(value)) return [...DEFAULT_PIPELINE_ENABLED_CHECKS];
+  const allowed = new Set(DEFAULT_PIPELINE_ENABLED_CHECKS);
+  return value.map((item) => String(item).toUpperCase()).filter((item) => allowed.has(item));
+}
 
 export const CONNECTOR_CONFIG = {
   step7_templates: {
@@ -61,13 +109,18 @@ export const PAD = 28;
 export function inferColType(name = "") {
   const value = String(name).toLowerCase();
   if (value.includes("date")) return "date";
-  if (value.includes("amount") || value.includes("montant") || value.includes("total")) return "number";
+  if (value.includes("amount") || value.includes("montant") || value.includes("total"))
+    return "number";
   if (value.includes("id") || value.includes("ref")) return "id";
   return "string";
 }
 
 export function normalizeTableName(name = "") {
-  return String(name).trim().replace(/[^a-zA-Z0-9_]/g, "_").replace(/_+/g, "_").toUpperCase();
+  return String(name)
+    .trim()
+    .replace(/[^a-zA-Z0-9_]/g, "_")
+    .replace(/_+/g, "_")
+    .toUpperCase();
 }
 
 export function buildCsvSchema(files = []) {
@@ -93,9 +146,13 @@ export function buildApiSchema(resources = []) {
 }
 
 export function inferSchemaRelations(tables = [], existingRels = []) {
-  const tableMap = new Map(tables.map(table => [String(table.name), new Set((table.cols || []).map(String))]));
+  const tableMap = new Map(
+    tables.map((table) => [String(table.name), new Set((table.cols || []).map(String))]),
+  );
   const tableNames = [...tableMap.keys()];
-  const existingKeys = new Set((existingRels || []).map(rel => `${rel.from}:${rel.to}:${rel.col}`));
+  const existingKeys = new Set(
+    (existingRels || []).map((rel) => `${rel.from}:${rel.to}:${rel.col}`),
+  );
   const inferred = [...(existingRels || [])];
   const knownTargets = {
     supplier_code: "suppliers",
@@ -108,12 +165,15 @@ export function inferSchemaRelations(tables = [], existingRels = []) {
   const findTarget = (from, col) => {
     const lower = String(col).toLowerCase();
     const known = knownTargets[lower];
-    if (known) return tableNames.find(name => name.toLowerCase() === known && name !== from);
+    if (known) return tableNames.find((name) => name.toLowerCase() === known && name !== from);
     if (!lower.endsWith("_id") && !lower.endsWith("_code")) return null;
     const base = lower.replace(/_(id|code)$/, "");
-    return tableNames.find(name => {
+    return tableNames.find((name) => {
       const normalized = name.toLowerCase();
-      return name !== from && (normalized === base || normalized === `${base}s` || normalized.includes(base));
+      return (
+        name !== from &&
+        (normalized === base || normalized === `${base}s` || normalized.includes(base))
+      );
     });
   };
   const add = (from, to, col, toCol = col, source = "ui_inferred") => {
@@ -141,9 +201,17 @@ export function getSchemaForUrl() {
 }
 
 export const CSV_SOURCE_PRESETS = [];
-export const DEFAULT_API_RESOURCE = { name: "resource", path: "/api/resource", cols: ["id", "date", "amount", "status"], rowCount: 0 };
+export const DEFAULT_API_RESOURCE = {
+  name: "resource",
+  path: "/api/resource",
+  cols: ["id", "date", "amount", "status"],
+  rowCount: 0,
+};
 export const TENANT_IDS_PLACEHOLDER = "";
-export const INTEGRATION_CATEGORIES = [{ id: "all", label: "Tout" }, { id: "erp", label: "ERP" }];
+export const INTEGRATION_CATEGORIES = [
+  { id: "all", label: "Tout" },
+  { id: "erp", label: "ERP" },
+];
 export const INTEGRATION_CONNECTION_TYPES = [
   { id: "jdbc", label: "JDBC", icon: "Database", desc: "Base SQL directe" },
   { id: "api", label: "API REST", icon: "Network", desc: "Endpoint HTTP" },
@@ -157,7 +225,14 @@ export const VISUAL_JOIN_PALETTE = [
 ];
 
 export const JSON_IMPORT_TEMPLATE = {
-  identity: { name: "", connectorType: "ERP", authType: "BASIC", logo: "ERP", color: "#D94F3D", description: "" },
+  identity: {
+    name: "",
+    connectorType: "ERP",
+    authType: "BASIC",
+    logo: "ERP",
+    color: "#D94F3D",
+    description: "",
+  },
   connection: { type: "jdbc", jdbcUrl: "", jdbcUsername: "", jdbcPassword: "" },
   tables: { selected: [], budgetSources: [] },
   pipelines: CONNECTOR_CONFIG.step7_templates,

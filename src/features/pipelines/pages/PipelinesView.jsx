@@ -5,9 +5,13 @@ import { Icon } from "@/shared/ui/Icon";
 import { Modal } from "@/shared/ui/Modal";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { COLORS } from "@/constants/colors";
+import { normalizePipelineRecordType } from "@/constants/integrationWizard";
 import { useToast } from "@/contexts/toastContextValue";
 import { useSession } from "@/features/auth/model/useSession";
-import { selectPipelinesByTenantId, selectPipelinesForTenant } from "@/features/pipelines/model/pipelineSelectors";
+import {
+  selectPipelinesByTenantId,
+  selectPipelinesForTenant,
+} from "@/features/pipelines/model/pipelineSelectors";
 import { selectTenants } from "@/features/tenants/model/tenantSelectors";
 import { useAppSelector } from "@/store/hooks";
 import { updatePipelineStore } from "@/features/pipelines/model/pipelineActions";
@@ -42,12 +46,19 @@ export function PipelinesView({ onNavigateToPipeline }) {
       if (String(run?.status || "").toUpperCase() === "FAILED") {
         toast(run?.errorMessage || "Échec du run — voir l'audit", "error");
       } else {
-        toast(`Run terminé : ${imported} importée(s), ${skipped} ignorée(s)`, imported > 0 ? "success" : "warning");
+        toast(
+          `Run terminé : ${imported} importée(s), ${skipped} ignorée(s)`,
+          imported > 0 ? "success" : "warning",
+        );
       }
-      await loadPipelinesForTenant(p.tenantId).catch((error) => logError("pipelines.reloadAfterRun", error));
+      await loadPipelinesForTenant(p.tenantId).catch((error) =>
+        logError("pipelines.reloadAfterRun", error),
+      );
     } catch (err) {
       toast(err.message || "Échec de l'exécution du pipeline", "error");
-      await loadPipelinesForTenant(p.tenantId).catch((error) => logError("pipelines.reloadAfterRunError", error));
+      await loadPipelinesForTenant(p.tenantId).catch((error) =>
+        logError("pipelines.reloadAfterRunError", error),
+      );
     } finally {
       setRunningPipelineId(null);
     }
@@ -73,12 +84,15 @@ export function PipelinesView({ onNavigateToPipeline }) {
   useEffect(() => {
     if (!workspacePipelineId) return;
     try {
-      sessionStorage.setItem(`anomalyiq.workspace.${workspacePipelineId}`, JSON.stringify({
-        mappingResult: wsMappingResult,
-        seriesResult: wsSeriesResult,
-        finalResult: wsFinalResult,
-        updatedAt: new Date().toISOString(),
-      }));
+      sessionStorage.setItem(
+        `anomalyiq.workspace.${workspacePipelineId}`,
+        JSON.stringify({
+          mappingResult: wsMappingResult,
+          seriesResult: wsSeriesResult,
+          finalResult: wsFinalResult,
+          updatedAt: new Date().toISOString(),
+        }),
+      );
     } catch (error) {
       logError("pipelines.workspaceCache", error);
     }
@@ -92,7 +106,7 @@ export function PipelinesView({ onNavigateToPipeline }) {
     if (!isEngineAdmin) return [];
     return tenants;
   }, [isEngineAdmin, tenants]);
-  const allTenantsKey = allTenants.map(t => t.id).join(",");
+  const allTenantsKey = allTenants.map((t) => t.id).join(",");
 
   useEffect(() => {
     if (isEngineAdmin) loadTenants().catch((error) => logError("pipelines.loadTenants", error));
@@ -100,15 +114,21 @@ export function PipelinesView({ onNavigateToPipeline }) {
 
   useEffect(() => {
     if (tenant?.id) {
-      loadPipelinesForTenant(tenant.id).catch((error) => logError("pipelines.loadTenantPipelines", error));
+      loadPipelinesForTenant(tenant.id).catch((error) =>
+        logError("pipelines.loadTenantPipelines", error),
+      );
       return;
     }
     if (isEngineAdmin && adminTenantFilter) {
-      loadPipelinesForTenant(adminTenantFilter).catch((error) => logError("pipelines.loadAdminTenantPipelines", error));
+      loadPipelinesForTenant(adminTenantFilter).catch((error) =>
+        logError("pipelines.loadAdminTenantPipelines", error),
+      );
       return;
     }
     if (isEngineAdmin && allTenantsKey) {
-      Promise.all(allTenantsKey.split(",").map(id => loadPipelinesForTenant(id))).catch((error) => logError("pipelines.loadAllTenantPipelines", error));
+      Promise.all(allTenantsKey.split(",").map((id) => loadPipelinesForTenant(id))).catch((error) =>
+        logError("pipelines.loadAllTenantPipelines", error),
+      );
     }
   }, [tenant?.id, isEngineAdmin, adminTenantFilter, allTenantsKey]);
 
@@ -118,7 +138,7 @@ export function PipelinesView({ onNavigateToPipeline }) {
     : isEngineAdmin && adminTenantFilter
       ? pipelinesByTenantId[adminTenantFilter] || []
       : isEngineAdmin
-        ? allTenants.flatMap(t => pipelinesByTenantId[t.id] || [])
+        ? allTenants.flatMap((t) => pipelinesByTenantId[t.id] || [])
         : [];
   const actifs = pipelines.filter((p) => p.status === "actif").length;
 
@@ -127,22 +147,41 @@ export function PipelinesView({ onNavigateToPipeline }) {
       <PageHeader
         eyebrow="Automation"
         title="Pipelines"
-        subtitle={<>{pipelines.length} pipeline{pipelines.length > 1 ? "s" : ""} · {actifs} actif{actifs > 1 ? "s" : ""} · <strong className={styles.tenantName}>{tenant?.name || (adminTenantFilter ? allTenants.find(t => t.id === adminTenantFilter)?.name || adminTenantFilter : "Tous les tenants")}</strong></>}
-        actions={(
+        subtitle={
           <>
-          {!tenant && isEngineAdmin && allTenants.length > 0 && (
-            <select value={adminTenantFilter} onChange={e => setAdminTenantFilter(e.target.value)} className={styles.tenantSelect}>
-              <option value="">Tous les tenants</option>
-              {allTenants.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
-          )}
-          {pipelines.length > 0 && (
-            <button onClick={() => setShowCreate(true)} className="btn-primary">
-              <span className={styles.createIcon}>+</span> Nouveau pipeline
-            </button>
-          )}
+            {pipelines.length} pipeline{pipelines.length > 1 ? "s" : ""} · {actifs} actif
+            {actifs > 1 ? "s" : ""} ·{" "}
+            <strong className={styles.tenantName}>
+              {tenant?.name ||
+                (adminTenantFilter
+                  ? allTenants.find((t) => t.id === adminTenantFilter)?.name || adminTenantFilter
+                  : "Tous les tenants")}
+            </strong>
           </>
-        )}
+        }
+        actions={
+          <>
+            {!tenant && isEngineAdmin && allTenants.length > 0 && (
+              <select
+                value={adminTenantFilter}
+                onChange={(e) => setAdminTenantFilter(e.target.value)}
+                className={styles.tenantSelect}
+              >
+                <option value="">Tous les tenants</option>
+                {allTenants.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            {pipelines.length > 0 && (
+              <button onClick={() => setShowCreate(true)} className="btn-primary">
+                <span className={styles.createIcon}>+</span> Nouveau pipeline
+              </button>
+            )}
+          </>
+        }
       />
       <div className={styles.pipelineGrid}>
         {pipelines.length === 0 && (
@@ -166,22 +205,37 @@ export function PipelinesView({ onNavigateToPipeline }) {
           const anomalyRate = (p.anomalyRate ?? 0) * 100;
           const tolerancePct = p.tolerancePct ?? p.config?.tolerancePct ?? 15;
           const toleranceDays = p.toleranceDays ?? p.config?.toleranceDays ?? 10;
-          // Kind-aware unit: a commande pipeline counts commandes, not factures.
+          // recordType is authoritative; kind/templateKey remains the legacy fallback.
+          const explicitRecordType = p.config?.recordType || p.recordType;
           const kindStr = String(p.kind || p.templateKey || "").toUpperCase();
-          const isCommande = kindStr.includes("COMMANDE") || kindStr.includes("CMD");
+          const isCommande = explicitRecordType
+            ? normalizePipelineRecordType(explicitRecordType, null, "INVOICE") === "COMMANDE"
+            : kindStr.includes("COMMANDE") || kindStr.includes("CMD");
           const unitLabel = isCommande ? "Commandes" : "Factures";
           const statusColor =
-            p.status === "actif" ? COLORS.success : isFailed ? COLORS.red : isError ? COLORS.warning : COLORS.grey400;
+            p.status === "actif"
+              ? COLORS.success
+              : isFailed
+                ? COLORS.red
+                : isError
+                  ? COLORS.warning
+                  : COLORS.grey400;
           const statusLabel =
-            p.status === "actif" ? "Actif" : isFailed ? "Échec d'activation" : isError ? "Alerte" : "En pause";
+            p.status === "actif"
+              ? "Actif"
+              : isFailed
+                ? "Échec d'activation"
+                : isError
+                  ? "Alerte"
+                  : "En pause";
           const statusIcon =
             p.status === "actif"
               ? "check"
               : isFailed
-              ? "triangle"
-              : isError
-              ? "triangle"
-              : "pauseCircle";
+                ? "triangle"
+                : isError
+                  ? "triangle"
+                  : "pauseCircle";
           return (
             <div
               key={p.id}
@@ -190,19 +244,17 @@ export function PipelinesView({ onNavigateToPipeline }) {
             >
               <div className={styles.cardHeader}>
                 <div className={styles.cardTitleBlock}>
-                  <div className={styles.cardTitle}>
-                    {p.name}
-                  </div>
+                  <div className={styles.cardTitle}>{p.name}</div>
                   <div className={styles.cardMeta}>
                     <span
                       className={`${styles.statusDot} ${
                         p.status === "actif"
                           ? styles.statusDotActive
                           : isFailed
-                          ? styles.statusDotFailed
-                          : isError
-                          ? styles.statusDotWarning
-                          : styles.statusDotPaused
+                            ? styles.statusDotFailed
+                            : isError
+                              ? styles.statusDotWarning
+                              : styles.statusDotPaused
                       }`}
                     />
                     {p.connector} · {p.freq}
@@ -213,21 +265,17 @@ export function PipelinesView({ onNavigateToPipeline }) {
                     p.status === "actif"
                       ? styles.statusBadgeActive
                       : isFailed
-                      ? styles.statusBadgeFailed
-                      : isError
-                      ? styles.statusBadgeWarning
-                      : styles.statusBadgePaused
+                        ? styles.statusBadgeFailed
+                        : isError
+                          ? styles.statusBadgeWarning
+                          : styles.statusBadgePaused
                   }`}
                 >
                   <Icon name={statusIcon} size={11} color={statusColor} />
                   {statusLabel}
                 </span>
               </div>
-              {p.description && (
-                <p className={styles.description}>
-                  {p.description}
-                </p>
-              )}
+              {p.description && <p className={styles.description}>{p.description}</p>}
               {isFailed && p.activationError && (
                 <div className={styles.activationError}>
                   Échec d'activation : {p.activationError}
@@ -244,7 +292,10 @@ export function PipelinesView({ onNavigateToPipeline }) {
                   <button
                     onClick={(event) => {
                       event.stopPropagation();
-                      toast("Pour inclure ce pipeline au budget, mappez-le à un connecteur dans Intégrations → Budget.", "info");
+                      toast(
+                        "Pour inclure ce pipeline au budget, mappez-le à un connecteur dans Intégrations → Budget.",
+                        "info",
+                      );
                     }}
                     className={styles.mapBudgetButton}
                   >
@@ -277,36 +328,20 @@ export function PipelinesView({ onNavigateToPipeline }) {
                     valueClass: styles.kpiValueInfo,
                   },
                 ].map((k) => (
-                  <div
-                    key={k.lbl}
-                    className={`${styles.kpiCard} ${k.cardClass}`}
-                  >
-                    <div className={styles.kpiLabel}>
-                      {k.lbl}
-                    </div>
+                  <div key={k.lbl} className={`${styles.kpiCard} ${k.cardClass}`}>
+                    <div className={styles.kpiLabel}>{k.lbl}</div>
                     {k.rows ? (
                       <div className={styles.kpiRows}>
                         {k.rows.map((row) => (
-                          <div
-                            key={row}
-                            className={`${styles.kpiRowValue} ${k.valueClass}`}
-                          >
+                          <div key={row} className={`${styles.kpiRowValue} ${k.valueClass}`}>
                             {row}
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div
-                        className={`${styles.kpiValue} ${k.valueClass}`}
-                      >
-                        {k.val}
-                      </div>
+                      <div className={`${styles.kpiValue} ${k.valueClass}`}>{k.val}</div>
                     )}
-                    {!k.rows && k.sub && (
-                      <div className={styles.kpiSub}>
-                        {k.sub}
-                      </div>
-                    )}
+                    {!k.rows && k.sub && <div className={styles.kpiSub}>{k.sub}</div>}
                   </div>
                 ))}
               </div>
@@ -383,10 +418,7 @@ export function PipelinesView({ onNavigateToPipeline }) {
                         updatePipelineStore(p.id, {
                           status: isPaused ? "actif" : "paused",
                         });
-                        toast(
-                          isPaused ? "Pipeline démarré" : "Pipeline mis en pause",
-                          "info"
-                        );
+                        toast(isPaused ? "Pipeline démarré" : "Pipeline mis en pause", "info");
                       } catch (err) {
                         toast(err.message || "Changement de statut impossible", "error");
                       }
@@ -405,7 +437,6 @@ export function PipelinesView({ onNavigateToPipeline }) {
             </div>
           );
         })}
-        
       </div>
 
       <Modal
@@ -426,7 +457,11 @@ export function PipelinesView({ onNavigateToPipeline }) {
       <PipelineRunReportDrawer
         open={!!auditPipeline}
         pipeline={auditPipeline}
-        tenantName={auditPipeline ? (allTenants.find(t => t.id === auditPipeline.tenantId)?.name || tenant?.name) : ""}
+        tenantName={
+          auditPipeline
+            ? allTenants.find((t) => t.id === auditPipeline.tenantId)?.name || tenant?.name
+            : ""
+        }
         onClose={() => setAuditPipeline(null)}
       />
 
@@ -449,7 +484,9 @@ export function PipelinesView({ onNavigateToPipeline }) {
             mode="compact"
             onCancel={() => setConfigPipeline(null)}
             onSubmitted={() => {
-              loadPipelinesForTenant(configPipeline.tenantId || tenant?.id || adminTenantFilter).catch((error) => logError("pipelines.reloadAfterConfig", error));
+              loadPipelinesForTenant(
+                configPipeline.tenantId || tenant?.id || adminTenantFilter,
+              ).catch((error) => logError("pipelines.reloadAfterConfig", error));
               setConfigPipeline(null);
               toast("Pipeline mis à jour", "success");
             }}
@@ -475,7 +512,11 @@ export function PipelinesView({ onNavigateToPipeline }) {
           wsFinalResult={wsFinalResult}
           setWsFinalResult={setWsFinalResult}
           resetWsState={() => {
-            try { sessionStorage.removeItem(`anomalyiq.workspace.${workspacePipelineId}`); } catch (error) { logError("pipelines.workspaceCacheClear", error); }
+            try {
+              sessionStorage.removeItem(`anomalyiq.workspace.${workspacePipelineId}`);
+            } catch (error) {
+              logError("pipelines.workspaceCacheClear", error);
+            }
             setWsPage("mapping");
             setWsUploadData(null);
             setWsMappingResult(null);
@@ -507,7 +548,9 @@ export function PipelinesView({ onNavigateToPipeline }) {
               toast("Impossible de créer le pipeline : aucun tenant sélectionné", "error");
               return;
             }
-            loadPipelinesForTenant(tenant?.id || adminTenantFilter || allTenants[0]?.id).catch((error) => logError("pipelines.reloadAfterCreate", error));
+            loadPipelinesForTenant(tenant?.id || adminTenantFilter || allTenants[0]?.id).catch(
+              (error) => logError("pipelines.reloadAfterCreate", error),
+            );
             setShowCreate(false);
             openWorkspaceModal(id);
             toast("Pipeline créé !", "success");

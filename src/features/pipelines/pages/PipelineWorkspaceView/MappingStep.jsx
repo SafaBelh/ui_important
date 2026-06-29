@@ -1,22 +1,65 @@
-
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, TriangleAlert } from "lucide-react";
+import {
+  DEFAULT_PIPELINE_ENABLED_CHECKS,
+  PIPELINE_ENABLED_CHECK_OPTIONS,
+  PIPELINE_RECORD_TYPE_OPTIONS,
+  normalizePipelineEnabledChecks,
+  normalizePipelineRecordType,
+} from "@/constants/integrationWizard";
 import { Spinner } from "@/shared/ui/Spinner";
 import { parseCSV, wsStore } from "@/features/pipelines/api/PipelineWorkspaceApi";
 import { WS_MAPPING_CORE_FIELDS, WS_MAPPING_DEFAULT_COLUMNS } from "@/constants/uiConstants";
 import { autoDetect } from "@/features/pipelines/pages/PipelineWorkspaceView/utils";
 import styles from "./MappingStep.module.css";
 
-export function WSMappingStep({ uploadData, onConfirm, onNavigate: _onNavigate, manageMode = false }) {
+export function WSMappingStep({
+  uploadData,
+  onConfirm,
+  onNavigate: _onNavigate,
+  manageMode = false,
+  pipeline = null,
+  pipelineConfig = {},
+}) {
   // Prefer uploadData from previous upload step; fall back to headers stored in
   // wsStore by the pipeline-creation modal CSV import (new flow, no upload step).
   const headers = uploadData?.columns || wsStore.csvHeaders || WS_MAPPING_DEFAULT_COLUMNS;
   const detected = autoDetect(headers);
   const [cols, setCols] = useState(detected);
   const [extraCols, setExtraCols] = useState([]);
+  const [recordType, setRecordType] = useState(() =>
+    normalizePipelineRecordType(
+      pipelineConfig?.recordType || pipeline?.recordType,
+      pipeline?.kind || pipeline?.templateKey || pipelineConfig?.template,
+      "INVOICE",
+    ),
+  );
+  const [enabledChecks, setEnabledChecks] = useState(() =>
+    normalizePipelineEnabledChecks(pipelineConfig?.enabledChecks ?? pipeline?.enabledChecks),
+  );
   const [importing, setImporting] = useState(false);
   const [err, setErr] = useState(null);
+
+  useEffect(() => {
+    setRecordType(
+      normalizePipelineRecordType(
+        pipelineConfig?.recordType || pipeline?.recordType,
+        pipeline?.kind || pipeline?.templateKey || pipelineConfig?.template,
+        "INVOICE",
+      ),
+    );
+    setEnabledChecks(
+      normalizePipelineEnabledChecks(pipelineConfig?.enabledChecks ?? pipeline?.enabledChecks),
+    );
+  }, [
+    pipeline?.kind,
+    pipeline?.enabledChecks,
+    pipeline?.recordType,
+    pipeline?.templateKey,
+    pipelineConfig?.enabledChecks,
+    pipelineConfig?.recordType,
+    pipelineConfig?.template,
+  ]);
 
   const sampleRows = uploadData?.sampleRows || wsStore.csvSampleRows || [];
   const reservedCols = new Set(
@@ -29,18 +72,25 @@ export function WSMappingStep({ uploadData, onConfirm, onNavigate: _onNavigate, 
       cols.label,
       cols.docref,
       cols.note,
-    ].filter(Boolean)
+    ].filter(Boolean),
   );
   const availableForExtra = headers.filter((h) => !reservedCols.has(h));
   const toggleExtra = (h) =>
     setExtraCols((e) => (e.includes(h) ? e.filter((x) => x !== h) : [...e, h]));
+  const toggleEnabledCheck = (check) =>
+    setEnabledChecks((current) => {
+      const normalized = normalizePipelineEnabledChecks(current);
+      return normalized.includes(check)
+        ? normalized.filter((item) => item !== check)
+        : DEFAULT_PIPELINE_ENABLED_CHECKS.filter(
+            (item) => item === check || normalized.includes(item),
+          );
+    });
   const CORE = WS_MAPPING_CORE_FIELDS;
   const sampleVals = (col) => {
     if (!col || !sampleRows.length) return [];
     return [
-      ...new Set(
-        sampleRows.map((r) => r[col]).filter((v) => v !== undefined && v !== "")
-      ),
+      ...new Set(sampleRows.map((r) => r[col]).filter((v) => v !== undefined && v !== "")),
     ].slice(0, 3);
   };
   const confidence = (k) => {
@@ -99,7 +149,7 @@ export function WSMappingStep({ uploadData, onConfirm, onNavigate: _onNavigate, 
         // Reuse rows already parsed by the pipeline creation flow.
         wsStore.invoices = Array.isArray(wsStore.invoices) ? wsStore.invoices : [];
       }
-      onConfirm({ cols, extraCols, statusConfig: null });
+      await onConfirm({ cols, extraCols, statusConfig: null, recordType, enabledChecks });
     } catch (e) {
       setErr(e.message);
       setImporting(false);
@@ -107,20 +157,54 @@ export function WSMappingStep({ uploadData, onConfirm, onNavigate: _onNavigate, 
   };
   return (
     <div className={styles.shell}>
-      {err && (
-        <div className={styles.errorMessage}>
-          {err}
-        </div>
-      )}
+      {err && <div className={styles.errorMessage}>{err}</div>}
       {/* Column chips */}
-      <div
-        className={`glass-card ${styles.chipsCard}`}
-      >
+      <div className={`glass-card ${styles.optionsCard}`}>
+        <div className={styles.optionGrid}>
+          <label className={styles.optionField}>
+            <span className={styles.sectionTitle}>Type d'enregistrement</span>
+            <span className={styles.optionHint}>Préféré au champ legacy kind.</span>
+            <select
+              value={recordType}
+              onChange={(event) => setRecordType(event.target.value)}
+              className={`input-field ${styles.recordTypeSelect}`}
+            >
+              {PIPELINE_RECORD_TYPE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label} · {option.value}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className={styles.optionField}>
+            <span className={styles.sectionTitle}>Contrôles activés</span>
+            <span className={styles.optionHint}>
+              Sauvegardé dans PipelineConfigDTO.enabledChecks.
+            </span>
+            <div className={styles.checkGrid}>
+              {PIPELINE_ENABLED_CHECK_OPTIONS.map((check) => (
+                <label
+                  key={check.value}
+                  className={styles.checkChip}
+                  data-checked={enabledChecks.includes(check.value)}
+                >
+                  <input
+                    type="checkbox"
+                    checked={enabledChecks.includes(check.value)}
+                    onChange={() => toggleEnabledCheck(check.value)}
+                  />
+                  {check.label}
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className={`glass-card ${styles.chipsCard}`}>
         <div className={styles.smallTitle}>
           Colonnes du fichier{" "}
-          <span className={styles.titleHint}>
-            rouge = mappé, gris = non mappé
-          </span>
+          <span className={styles.titleHint}>rouge = mappé, gris = non mappé</span>
         </div>
         <div className={styles.chipRow}>
           {headers.map((h) => {
@@ -131,11 +215,7 @@ export function WSMappingStep({ uploadData, onConfirm, onNavigate: _onNavigate, 
                 className={`${styles.columnChip} ${mappedAs ? styles.columnChipMapped : ""}`}
               >
                 {h}
-                {mappedAs && (
-                  <span className={styles.mappedArrow}>
-                    →{mappedAs}
-                  </span>
-                )}
+                {mappedAs && <span className={styles.mappedArrow}>→{mappedAs}</span>}
               </span>
             );
           })}
@@ -143,9 +223,7 @@ export function WSMappingStep({ uploadData, onConfirm, onNavigate: _onNavigate, 
       </div>
       {/* Core mapping */}
       <div className={`glass-card ${styles.card}`}>
-        <div className={styles.sectionTitle}>
-          Association des champs
-        </div>
+        <div className={styles.sectionTitle}>Association des champs</div>
         <div className={styles.mappingGrid}>
           {CORE.map(({ k, lbl, req, hint }) => {
             const mapped = cols[k];
@@ -166,15 +244,11 @@ export function WSMappingStep({ uploadData, onConfirm, onNavigate: _onNavigate, 
                     </span>
                   )}
                 </div>
-                <div className={styles.fieldHint}>
-                  {hint}
-                </div>
+                <div className={styles.fieldHint}>{hint}</div>
                 <select
                   value={cols[k] || ""}
-                  onChange={(e) =>
-                    setCols((c) => ({ ...c, [k]: e.target.value }))
-                  }
-                  className={`input-field ${mapped ? conf === "high" ? styles.selectMappedHigh : styles.selectMappedMed : ""}`}
+                  onChange={(e) => setCols((c) => ({ ...c, [k]: e.target.value }))}
+                  className={`input-field ${mapped ? (conf === "high" ? styles.selectMappedHigh : styles.selectMappedMed) : ""}`}
                 >
                   <option value="">— non mappé —</option>
                   {headers.map((h) => (
@@ -186,10 +260,7 @@ export function WSMappingStep({ uploadData, onConfirm, onNavigate: _onNavigate, 
                 {vals.length > 0 && (
                   <div className={styles.sampleValueRow}>
                     {vals.map((v, i) => (
-                      <span
-                        key={i}
-                        className={styles.sampleValue}
-                      >
+                      <span key={i} className={styles.sampleValue}>
                         {String(v).slice(0, 24)}
                       </span>
                     ))}
@@ -208,30 +279,20 @@ export function WSMappingStep({ uploadData, onConfirm, onNavigate: _onNavigate, 
       {/* Sample data table */}
       {sampleRows.length > 0 && (
         <div className={`glass-card ${styles.compactCard}`}>
-          <div className={styles.smallTitle}>
-            Aperçuçu ({sampleRows.length} premières lignes)
-          </div>
+          <div className={styles.smallTitle}>Aperçuçu ({sampleRows.length} premières lignes)</div>
           <div className={styles.tableWrap}>
-            <table
-              className={styles.previewTable}
-            >
+            <table className={styles.previewTable}>
               <thead>
                 <tr className={styles.headerRow}>
                   {headers.map((h) => {
-                    const mappedAs = Object.entries(cols).find(
-                      ([, v]) => v === h
-                    )?.[0];
+                    const mappedAs = Object.entries(cols).find(([, v]) => v === h)?.[0];
                     return (
                       <th
                         key={h}
                         className={`${styles.headCell} ${mappedAs ? styles.headCellMapped : ""}`}
                       >
                         {h}
-                        {mappedAs && (
-                          <div className={styles.mappedLabel}>
-                            {mappedAs}
-                          </div>
-                        )}
+                        {mappedAs && <div className={styles.mappedLabel}>{mappedAs}</div>}
                       </th>
                     );
                   })}
@@ -241,9 +302,7 @@ export function WSMappingStep({ uploadData, onConfirm, onNavigate: _onNavigate, 
                 {sampleRows.slice(0, 4).map((row, i) => (
                   <tr key={i} className={styles.bodyRow}>
                     {headers.map((h) => {
-                      const mappedAs = Object.entries(cols).find(
-                        ([, v]) => v === h
-                      )?.[0];
+                      const mappedAs = Object.entries(cols).find(([, v]) => v === h)?.[0];
                       return (
                         <td
                           key={h}
@@ -263,12 +322,10 @@ export function WSMappingStep({ uploadData, onConfirm, onNavigate: _onNavigate, 
       {/* Extra cols */}
       {availableForExtra.length > 0 && (
         <div className={`glass-card ${styles.extrasCard}`}>
-          <div className={styles.sectionTitle}>
-            Colonnes supplémentaires
-          </div>
+          <div className={styles.sectionTitle}>Colonnes supplémentaires</div>
           <div className={styles.extrasText}>
-            Cochez les colonnes à inclure comme champs de regroupement dans les
-            séries (stockées dans <code>extra_data</code>).
+            Cochez les colonnes à inclure comme champs de regroupement dans les séries (stockées
+            dans <code>extra_data</code>).
           </div>
           <div className={styles.extraButtonRow}>
             {availableForExtra.map((h) => {
@@ -282,18 +339,11 @@ export function WSMappingStep({ uploadData, onConfirm, onNavigate: _onNavigate, 
                   onClick={() => toggleExtra(h)}
                 >
                   <span>
-                    {extraCols.includes(h) && (
-                      <Check
-                        size={10}
-                        className={styles.checkIcon}
-                      />
-                    )}
+                    {extraCols.includes(h) && <Check size={10} className={styles.checkIcon} />}
                     {h}
                   </span>
                   {vals.length > 0 && (
-                    <span className={styles.extraSample}>
-                      {vals.slice(0, 2).join(", ")}
-                    </span>
+                    <span className={styles.extraSample}>{vals.slice(0, 2).join(", ")}</span>
                   )}
                 </button>
               );
@@ -312,7 +362,11 @@ export function WSMappingStep({ uploadData, onConfirm, onNavigate: _onNavigate, 
             Importation…
           </>
         ) : can ? (
-          manageMode ? "Enregistrer le mapping" : `Importer & continuer →`
+          manageMode ? (
+            "Enregistrer le mapping"
+          ) : (
+            `Importer & continuer →`
+          )
         ) : (
           "Sélectionner les 3 champs obligatoires (*)"
         )}

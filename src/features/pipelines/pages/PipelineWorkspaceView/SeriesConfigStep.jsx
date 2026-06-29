@@ -1,10 +1,29 @@
-
 import { useEffect, useMemo, useState } from "react";
-import { Bar, BarChart, CartesianGrid, Cell, LabelList, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LabelList,
+  Line,
+  LineChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { CustomTip } from "@/shared/ui/CustomTip";
 import { Icon } from "@/shared/ui/Icon";
 import { Spinner } from "@/shared/ui/Spinner";
 import { COLORS, CHART_COLORS } from "@/constants/colors";
+import {
+  DEFAULT_PIPELINE_ENABLED_CHECKS,
+  PIPELINE_ENABLED_CHECK_OPTIONS,
+  PIPELINE_RECORD_TYPE_OPTIONS,
+  normalizePipelineEnabledChecks,
+  normalizePipelineRecordType,
+} from "@/constants/integrationWizard";
 import { wsAPI } from "@/features/pipelines/api/PipelineWorkspaceApi";
 import { formatEuro, formatCompactEuro } from "@/utils/formatters";
 import { logError } from "@/shared/utils/logError";
@@ -40,9 +59,16 @@ export function WSSeriesConfig({
   onSeriesChange = null,
   confirmLabel = "Sauvegarder la configuration",
   saveLocalOnly = false,
+  recordType = "INVOICE",
+  enabledChecks = DEFAULT_PIPELINE_ENABLED_CHECKS,
+  onPipelineConfigChange = null,
 }) {
   const [series, setSeries] = useState(
-    (Array.isArray(initSeries) ? initSeries : []).map((s) => ({ ...s, _dirty: false, active: s.active !== false }))
+    (Array.isArray(initSeries) ? initSeries : []).map((s) => ({
+      ...s,
+      _dirty: false,
+      active: s.active !== false,
+    })),
   );
   const [selected, setSelected] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -51,23 +77,58 @@ export function WSSeriesConfig({
   const [seasonality, setSeasonality] = useState(null);
   const [seriesInvoices, setSeriesInvoices] = useState([]);
   const [seasonTab, setSeasonTab] = useState("monthly");
+  const [recordTypeDraft, setRecordTypeDraft] = useState(() =>
+    normalizePipelineRecordType(recordType, null, "INVOICE"),
+  );
+  const [enabledChecksDraft, setEnabledChecksDraft] = useState(() =>
+    normalizePipelineEnabledChecks(enabledChecks),
+  );
   const s = series[selected];
   const selectedSeriesId = s?.id;
   const selectedSeriesLabel = s?.label;
   const selectedSeriesSupplier = s?.supplier;
   const selectedTolerancePct = s?.tolerance_pct;
   const selectedToleranceDays = s?.tolerance_days;
-  const initSeriesKey = JSON.stringify((Array.isArray(initSeries) ? initSeries : []).map((item) => [item.id, item.name, item.kind, item.n, item.mu, item.label]));
+  const initSeriesKey = JSON.stringify(
+    (Array.isArray(initSeries) ? initSeries : []).map((item) => [
+      item.id,
+      item.name,
+      item.kind,
+      item.n,
+      item.mu,
+      item.label,
+    ]),
+  );
   useEffect(() => {
-    const next = (Array.isArray(initSeries) ? initSeries : []).map((item) => ({ ...item, _dirty: false, active: item.active !== false }));
+    const next = (Array.isArray(initSeries) ? initSeries : []).map((item) => ({
+      ...item,
+      _dirty: false,
+      active: item.active !== false,
+    }));
     setSeries(next);
     setSelected((idx) => Math.min(idx, Math.max(0, next.length - 1)));
   }, [initSeries, initSeriesKey]);
+  useEffect(() => {
+    setRecordTypeDraft(normalizePipelineRecordType(recordType, null, "INVOICE"));
+    setEnabledChecksDraft(normalizePipelineEnabledChecks(enabledChecks));
+  }, [enabledChecks, recordType]);
+  const updateRecordType = (nextRecordType) => {
+    const normalized = normalizePipelineRecordType(nextRecordType, null, "INVOICE");
+    setRecordTypeDraft(normalized);
+    onPipelineConfigChange?.({ recordType: normalized });
+  };
+  const toggleEnabledCheck = (check) => {
+    const next = enabledChecksDraft.includes(check)
+      ? enabledChecksDraft.filter((item) => item !== check)
+      : DEFAULT_PIPELINE_ENABLED_CHECKS.filter(
+          (item) => item === check || enabledChecksDraft.includes(item),
+        );
+    setEnabledChecksDraft(next);
+    onPipelineConfigChange?.({ enabledChecks: next });
+  };
   const update = (idx, patch) => {
     setSeries((arr) => {
-      const next = arr.map((x, i) =>
-        i === idx ? { ...x, ...patch, _dirty: true } : x
-      );
+      const next = arr.map((x, i) => (i === idx ? { ...x, ...patch, _dirty: true } : x));
       if (onSeriesChange) onSeriesChange(next);
       return next;
     });
@@ -92,8 +153,10 @@ export function WSSeriesConfig({
           inv.filter(
             (r) =>
               (r.supplier || r.supplier_code) === selectedSeriesSupplier &&
-              (selectedSeriesLabel ? r.label === selectedSeriesLabel : !r.label || r.label === null)
-          )
+              (selectedSeriesLabel
+                ? r.label === selectedSeriesLabel
+                : !r.label || r.label === null),
+          ),
         );
       } catch (error) {
         logError("seriesConfig.loadSeasonality", error);
@@ -118,25 +181,26 @@ export function WSSeriesConfig({
   const timeSeriesData = useMemo(
     () =>
       seriesInvoices
-        .sort(
-          (a, b) =>
-            new Date(a.date || a.invoice_date) -
-            new Date(b.date || b.invoice_date)
-        )
+        .sort((a, b) => new Date(a.date || a.invoice_date) - new Date(b.date || b.invoice_date))
         .map((r) => ({ date: r.date || r.invoice_date, amt: r.amount })),
-    [seriesInvoices]
+    [seriesInvoices],
   );
   const rhythmData = useMemo(() => {
     const sorted = timeSeriesData
-      .map(x => x.date)
+      .map((x) => x.date)
       .filter(Boolean)
       .sort((a, b) => new Date(a) - new Date(b));
     const gaps = [];
     for (let i = 1; i < sorted.length; i++) {
-      const diff = Math.max(1, Math.round((new Date(sorted[i]) - new Date(sorted[i - 1])) / 86400000));
+      const diff = Math.max(
+        1,
+        Math.round((new Date(sorted[i]) - new Date(sorted[i - 1])) / 86400000),
+      );
       if (Number.isFinite(diff)) gaps.push(diff);
     }
-    const median = gaps.length ? gaps.slice().sort((a, b) => a - b)[Math.floor(gaps.length / 2)] : (s?.median_gap_days || s?.rhythm_days || 30);
+    const median = gaps.length
+      ? gaps.slice().sort((a, b) => a - b)[Math.floor(gaps.length / 2)]
+      : s?.median_gap_days || s?.rhythm_days || 30;
     const count = Math.max(24, Math.min(72, Math.max(gaps.length, s?.n || 24)));
     return Array.from({ length: count }, (_, i) => ({
       idx: i + 1,
@@ -165,7 +229,7 @@ export function WSSeriesConfig({
             ][i],
             mu: Math.round(seasonality[i + 1] || s?.mu) || 0,
           })),
-    [seasonality, s]
+    [seasonality, s],
   );
   const color = CHART_COLORS[selected % CHART_COLORS.length];
   const saveAll = async () => {
@@ -182,8 +246,8 @@ export function WSSeriesConfig({
                 tolerance_pct: x.tolerance_pct,
                 tolerance_days: x.tolerance_days,
                 forecast_start_today: x.forecast_start_today,
-              })
-            )
+              }),
+            ),
         );
       }
       const savedSeries = series.map((u) => ({ ...u, _dirty: false }));
@@ -198,24 +262,55 @@ export function WSSeriesConfig({
   if (!s) return null;
   return (
     <div className={`${styles.shell} ${styles[`chartColor${selected % 9}`]}`}>
-      <h2 className={styles.title}>
-        Configuration des séries
-      </h2>
-      <p className={styles.subtitle}>
-        Tolérances · Analyse automatique des saisons et prévisions
-      </p>
-      {err && (
-        <div className={styles.errorMessage}>
-          {err}
-        </div>
-      )}
-      <div className={styles.layout}>
-        <div
-          className={`glass-card ${styles.sidebar}`}
-        >
-          <div className={styles.sidebarTitle}>
-            Séries ({series.length})
+      <h2 className={styles.title}>Configuration des séries</h2>
+      <p className={styles.subtitle}>Tolérances · Analyse automatique des saisons et prévisions</p>
+      {err && <div className={styles.errorMessage}>{err}</div>}
+      <div className={`glass-card ${styles.optionsCard}`}>
+        <div className={styles.optionGrid}>
+          <label className={styles.optionField}>
+            <span className={styles.panelTitleCompact}>Type d'enregistrement</span>
+            <span className={styles.optionHint}>
+              Préféré au champ legacy kind pour les données analysées.
+            </span>
+            <select
+              value={recordTypeDraft}
+              onChange={(event) => updateRecordType(event.target.value)}
+              className={`input-field ${styles.recordTypeSelect}`}
+            >
+              {PIPELINE_RECORD_TYPE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label} · {option.value}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className={styles.optionField}>
+            <span className={styles.panelTitleCompact}>Contrôles activés</span>
+            <span className={styles.optionHint}>
+              Sauvegardé dans PipelineConfigDTO.enabledChecks.
+            </span>
+            <div className={styles.checkGrid}>
+              {PIPELINE_ENABLED_CHECK_OPTIONS.map((check) => (
+                <label
+                  key={check.value}
+                  className={styles.checkChip}
+                  data-checked={enabledChecksDraft.includes(check.value)}
+                >
+                  <input
+                    type="checkbox"
+                    checked={enabledChecksDraft.includes(check.value)}
+                    onChange={() => toggleEnabledCheck(check.value)}
+                  />
+                  {check.label}
+                </label>
+              ))}
+            </div>
           </div>
+        </div>
+      </div>
+      <div className={styles.layout}>
+        <div className={`glass-card ${styles.sidebar}`}>
+          <div className={styles.sidebarTitle}>Séries ({series.length})</div>
           <div className={styles.seriesList}>
             {series.map((s2, i) => (
               <div
@@ -224,18 +319,16 @@ export function WSSeriesConfig({
                 className={`${styles.seriesItem} ${styles[`chartColor${i % 9}`]} ${selected === i ? styles.seriesItemSelected : ""} ${s2.active === false ? styles.seriesItemInactive : ""}`}
               >
                 <div className={styles.seriesRow}>
-                  <div className={`${styles.seriesItemTitle} ${s2.active === false ? styles.seriesItemTitleInactive : ""}`}>
+                  <div
+                    className={`${styles.seriesItemTitle} ${s2.active === false ? styles.seriesItemTitleInactive : ""}`}
+                  >
                     {[s2.supplier, s2.label].filter(Boolean).join(" · ")}
                   </div>
                 </div>
                 <div className={styles.seriesMeta}>
                   {s2.n} fact. · CV {(s2.cv * 100).toFixed(0)}%
                 </div>
-                {s2._dirty && (
-                  <div className={styles.dirtyText}>
-                    ● non sauvegardé
-                  </div>
-                )}
+                {s2._dirty && <div className={styles.dirtyText}>● non sauvegardé</div>}
                 {s2.active === false && (
                   <div className={styles.inactiveText}>
                     <Icon name="powerOff" size={9} color={COLORS.grey400} />
@@ -272,49 +365,34 @@ export function WSSeriesConfig({
               </label>
             </div>
             <div className={styles.summary}>
-              {s.n} fact. · μ {formatEuro(Math.round(s.mu))} · CV{" "}
-              {(s.cv * 100).toFixed(1)}%
+              {s.n} fact. · μ {formatEuro(Math.round(s.mu))} · CV {(s.cv * 100).toFixed(1)}%
             </div>
             <div className={styles.panel}>
-              <div className={styles.panelTitle}>
-                Tolérances
-              </div>
+              <div className={styles.panelTitle}>Tolérances</div>
               <div className={styles.rangeRow}>
-                <span className={styles.rangeLabel}>
-                  Tolérance montant (%)
-                </span>
+                <span className={styles.rangeLabel}>Tolérance montant (%)</span>
                 <input
                   type="range"
                   min={0}
                   max={50}
                   step={5}
                   value={s.tolerance_pct}
-                  onChange={(e) =>
-                    update(selected, { tolerance_pct: Number(e.target.value) })
-                  }
+                  onChange={(e) => update(selected, { tolerance_pct: Number(e.target.value) })}
                   className={`slider ${styles.rangeInput}`}
                 />
-                <span className={styles.rangeValue}>
-                  ±{s.tolerance_pct}%
-                </span>
+                <span className={styles.rangeValue}>±{s.tolerance_pct}%</span>
               </div>
               <div className={styles.rangeRow}>
-                <span className={styles.rangeLabel}>
-                  Tolérance date (jours)
-                </span>
+                <span className={styles.rangeLabel}>Tolérance date (jours)</span>
                 <input
                   type="range"
                   min={1}
                   max={60}
                   value={s.tolerance_days || 10}
-                  onChange={(e) =>
-                    update(selected, { tolerance_days: Number(e.target.value) })
-                  }
+                  onChange={(e) => update(selected, { tolerance_days: Number(e.target.value) })}
                   className={`slider ${styles.rangeInput}`}
                 />
-                <span className={styles.rangeValue}>
-                  ±{s.tolerance_days || 10}j
-                </span>
+                <span className={styles.rangeValue}>±{s.tolerance_days || 10}j</span>
               </div>
               <div className={styles.thresholdGrid}>
                 <div className={styles.thresholdBox}>
@@ -332,26 +410,18 @@ export function WSSeriesConfig({
               </div>
             </div>
             <div className={styles.panel}>
-              <div className={styles.panelTitleCompact}>
-                Saisonnalité & prévision automatiques
-              </div>
+              <div className={styles.panelTitleCompact}>Saisonnalité & prévision automatiques</div>
               <div className={styles.panelText}>
-                Le moteur détecte automatiquement la saisonnalité, le rythme de facturation et la fenêtre de prévision. Seules les tolérances restent configurables ici.
+                Le moteur détecte automatiquement la saisonnalité, le rythme de facturation et la
+                fenêtre de prévision. Seules les tolérances restent configurables ici.
               </div>
             </div>
           </div>
           {timeSeriesData.length > 1 && (
-            <div
-              className={`glass-card ${styles.chartCard}`}
-            >
-              <div className={styles.chartTitle}>
-                Montantsnts dans le temps
-              </div>
+            <div className={`glass-card ${styles.chartCard}`}>
+              <div className={styles.chartTitle}>Montantsnts dans le temps</div>
               <ResponsiveContainer width="100%" height={150}>
-                <LineChart
-                  data={timeSeriesData}
-                  margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
-                >
+                <LineChart data={timeSeriesData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grey100} />
                   <XAxis
                     dataKey="date"
@@ -385,12 +455,8 @@ export function WSSeriesConfig({
             </div>
           )}
           {monthlyStatsData && (
-            <div
-              className={`glass-card ${styles.chartCard}`}
-            >
-              <div className={styles.chartTitle}>
-                Analyse de saisonnalité
-              </div>
+            <div className={`glass-card ${styles.chartCard}`}>
+              <div className={styles.chartTitle}>Analyse de saisonnalité</div>
               <div className={styles.seasonTabs}>
                 {[
                   ["monthly", "Par mois"],
@@ -407,9 +473,7 @@ export function WSSeriesConfig({
               </div>
               {seasonTab === "monthly" && (
                 <>
-                  <div className={styles.caption}>
-                    Montant moyen par mois (historique)
-                  </div>
+                  <div className={styles.caption}>Montant moyen par mois (historique)</div>
                   <ResponsiveContainer width="100%" height={160}>
                     <BarChart
                       data={monthlyStatsData}
@@ -453,10 +517,10 @@ export function WSSeriesConfig({
                         key={m.month}
                         className={`${styles.monthCell} ${m.mu > 0 ? styles.monthCellActive : ""}`}
                       >
-                        <div className={styles.monthName}>
-                          {m.month}
-                        </div>
-                        <div className={`${styles.monthValue} ${m.mu > 0 ? styles.monthValueActive : ""}`}>
+                        <div className={styles.monthName}>{m.month}</div>
+                        <div
+                          className={`${styles.monthValue} ${m.mu > 0 ? styles.monthValueActive : ""}`}
+                        >
                           {m.mu > 0 ? formatCompactEuro(m.mu) : "—"}
                         </div>
                       </div>
@@ -472,23 +536,15 @@ export function WSSeriesConfig({
                       (monthlyStatsData[mo].mu +
                         monthlyStatsData[mo + 1].mu +
                         monthlyStatsData[mo + 2].mu) /
-                        3
+                        3,
                     ),
                   }));
                   return (
                     <>
-                      <div className={styles.caption}>
-                        Montant moyen par trimestre
-                      </div>
+                      <div className={styles.caption}>Montant moyen par trimestre</div>
                       <ResponsiveContainer width="100%" height={160}>
-                        <BarChart
-                          data={qd}
-                          margin={{ top: 5, right: 8, bottom: 5, left: 5 }}
-                        >
-                          <CartesianGrid
-                            strokeDasharray="3 3"
-                            stroke={COLORS.grey100}
-                          />
+                        <BarChart data={qd} margin={{ top: 5, right: 8, bottom: 5, left: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grey100} />
                           <XAxis
                             dataKey="quarter"
                             tick={{ fill: COLORS.grey500, fontSize: 10 }}
@@ -501,11 +557,7 @@ export function WSSeriesConfig({
                             axisLine={false}
                           />
                           <Tooltip content={<CustomTip />} />
-                          <Bar
-                            dataKey="mu"
-                            name="Moy trim €"
-                            radius={[6, 6, 0, 0]}
-                          >
+                          <Bar dataKey="mu" name="Moy trim €" radius={[6, 6, 0, 0]}>
                             {qd.map((_, i) => (
                               <Cell key={i} fill={CHART_COLORS[(i + 2) % CHART_COLORS.length]} />
                             ))}
@@ -525,12 +577,8 @@ export function WSSeriesConfig({
             </div>
           )}
           {rhythmData.length > 0 && (
-            <div
-              className={`glass-card ${styles.chartCardRound}`}
-            >
-              <div className={styles.chartTitleStrong}>
-                Écarts entre factures (jours)
-              </div>
+            <div className={`glass-card ${styles.chartCardRound}`}>
+              <div className={styles.chartTitleStrong}>Écarts entre factures (jours)</div>
               <div className={styles.statPills}>
                 <div className={styles.statPill}>
                   <span className={styles.statLabel}>Écart médian </span>
@@ -538,16 +586,38 @@ export function WSSeriesConfig({
                 </div>
                 <div className={styles.statPill}>
                   <span className={styles.statLabel}>Rythme détecté </span>
-                  <span className={styles.statValueSuccess}>{s.rhythm || s.frequencyLabel || rhythmLabel(rhythmData[0]?.median || 30)}</span>
+                  <span className={styles.statValueSuccess}>
+                    {s.rhythm || s.frequencyLabel || rhythmLabel(rhythmData[0]?.median || 30)}
+                  </span>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={150}>
                 <BarChart data={rhythmData} margin={{ top: 5, right: 8, bottom: 0, left: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grey100} vertical={false} />
-                  <XAxis dataKey="idx" tick={{ fill: COLORS.grey500, fontSize: 9 }} interval={2} tickLine={false} />
-                  <YAxis tick={{ fill: COLORS.grey500, fontSize: 10 }} tickLine={false} axisLine={false} domain={[0, Math.max(36, Math.ceil((rhythmData[0]?.median || 30) * 1.25))]} />
+                  <XAxis
+                    dataKey="idx"
+                    tick={{ fill: COLORS.grey500, fontSize: 9 }}
+                    interval={2}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fill: COLORS.grey500, fontSize: 10 }}
+                    tickLine={false}
+                    axisLine={false}
+                    domain={[0, Math.max(36, Math.ceil((rhythmData[0]?.median || 30) * 1.25))]}
+                  />
                   <Tooltip formatter={(v) => [`${v} jours`, "Écart"]} />
-                  <ReferenceLine y={rhythmData[0]?.median || 30} stroke="#D8A444" strokeDasharray="5 5" label={{ value: `Médiane ${rhythmData[0]?.median || 30}j`, position: "insideTop", fontSize: 10, fill: "#D8A444" }} />
+                  <ReferenceLine
+                    y={rhythmData[0]?.median || 30}
+                    stroke="#D8A444"
+                    strokeDasharray="5 5"
+                    label={{
+                      value: `Médiane ${rhythmData[0]?.median || 30}j`,
+                      position: "insideTop",
+                      fontSize: 10,
+                      fill: "#D8A444",
+                    }}
+                  />
                   <Bar dataKey="gap" fill="#D1D5DB" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -555,48 +625,40 @@ export function WSSeriesConfig({
           )}
 
           {forecast?.forecast?.length > 0 && (
-            <div
-              className={`glass-card ${styles.chartCardRound}`}
-            >
-              <div className={styles.chartTitleStrong}>
-                Prévision 12 mois
-              </div>
+            <div className={`glass-card ${styles.chartCardRound}`}>
+              <div className={styles.chartTitleStrong}>Prévision 12 mois</div>
               <div className={styles.forecastSubtitle}>
                 Tolérances appliquées · ±{s.tolerance_pct}% · ±{s.tolerance_days}j
               </div>
               <div className={styles.forecastGrid}>
                 {forecast.forecast.map((f, i) => {
-                  const predicted = Number.isFinite(Number(f.predicted)) ? Number(f.predicted) : Number(s.mu || 0);
-                  const lower = Number.isFinite(Number(f.lower)) ? Number(f.lower) : predicted * (1 - (s.tolerance_pct || 10) / 100);
-                  const upper = Number.isFinite(Number(f.upper)) ? Number(f.upper) : predicted * (1 + (s.tolerance_pct || 10) / 100);
-                  const expectedDate = f.date || addDays(new Date(), (i + 1) * (rhythmData[0]?.median || 30));
+                  const predicted = Number.isFinite(Number(f.predicted))
+                    ? Number(f.predicted)
+                    : Number(s.mu || 0);
+                  const lower = Number.isFinite(Number(f.lower))
+                    ? Number(f.lower)
+                    : predicted * (1 - (s.tolerance_pct || 10) / 100);
+                  const upper = Number.isFinite(Number(f.upper))
+                    ? Number(f.upper)
+                    : predicted * (1 + (s.tolerance_pct || 10) / 100);
+                  const expectedDate =
+                    f.date || addDays(new Date(), (i + 1) * (rhythmData[0]?.median || 30));
                   const toleranceDays = Number(s.tolerance_days || 10);
                   return (
-                    <div
-                      key={`${f.date || "forecast"}-${i}`}
-                      className={styles.forecastCell}
-                    >
-                    <div className={styles.forecastIndex}>
-                      #{i + 1}
-                    </div>
-                    <div className={styles.forecastDate}>
-                      {expectedDate}
-                    </div>
-                    <div className={styles.forecastWindow}>
-                      {addDays(expectedDate, -toleranceDays)} → {addDays(expectedDate, toleranceDays)}
-                    </div>
-                    <div className={styles.forecastAmount}>
-                      {formatEuro(Math.round(predicted))}
-                    </div>
-                    <div className={styles.forecastRange}>
-                      <span className={styles.successText}>
-                        {formatEuro(Math.round(lower))}
-                      </span>{" "}
-                      –{" "}
-                      <span className={styles.dangerText}>
-                        {formatEuro(Math.round(upper))}
-                      </span>
-                    </div>
+                    <div key={`${f.date || "forecast"}-${i}`} className={styles.forecastCell}>
+                      <div className={styles.forecastIndex}>#{i + 1}</div>
+                      <div className={styles.forecastDate}>{expectedDate}</div>
+                      <div className={styles.forecastWindow}>
+                        {addDays(expectedDate, -toleranceDays)} →{" "}
+                        {addDays(expectedDate, toleranceDays)}
+                      </div>
+                      <div className={styles.forecastAmount}>
+                        {formatEuro(Math.round(predicted))}
+                      </div>
+                      <div className={styles.forecastRange}>
+                        <span className={styles.successText}>{formatEuro(Math.round(lower))}</span>{" "}
+                        – <span className={styles.dangerText}>{formatEuro(Math.round(upper))}</span>
+                      </div>
                     </div>
                   );
                 })}
@@ -607,18 +669,11 @@ export function WSSeriesConfig({
       </div>
       <div className={styles.actions}>
         {onBack && (
-          <button
-            className={`btn-ghost ${styles.backButton}`}
-            onClick={onBack}
-          >
+          <button className={`btn-ghost ${styles.backButton}`} onClick={onBack}>
             ← Retour
           </button>
         )}
-        <button
-          onClick={saveAll}
-          className={`btn-primary ${styles.saveButton}`}
-          disabled={saving}
-        >
+        <button onClick={saveAll} className={`btn-primary ${styles.saveButton}`} disabled={saving}>
           {saving ? (
             <>
               <Spinner size={16} color="#fff" />

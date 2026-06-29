@@ -1,6 +1,13 @@
-
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRight, Check, ChevronLeft, Database, FileText, FolderOpen, Globe } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  ChevronLeft,
+  Database,
+  FileText,
+  FolderOpen,
+  Globe,
+} from "lucide-react";
 import { COLORS } from "@/constants/colors";
 import { useSession } from "@/features/auth/model/useSession";
 import { selectPartnersForTenant } from "@/features/partners/model/partnerSelectors";
@@ -9,9 +16,19 @@ import { useAppSelector } from "@/store/hooks";
 import { updatePipelineStore } from "@/features/pipelines/model/pipelineActions";
 import { loadPartnersForTenant } from "@/shared/model/dataLoaders";
 import { CSV_IMPORT_SEQUENCE } from "@/constants/uiConstants";
-import { inferSchemaRelations } from "@/constants/integrationWizard";
+import {
+  inferSchemaRelations,
+  normalizePipelineEnabledChecks,
+  normalizePipelineRecordType,
+} from "@/constants/integrationWizard";
 import { parseCSV, wsAPI, wsStore } from "@/features/pipelines/api/PipelineWorkspaceApi";
-import { createPipeline, getPipelineSourceSchema, previewPipelineSourceConnection, updatePipeline, updatePipelineMapping } from "@/features/pipelines/api/pipelinesApi";
+import {
+  createPipeline,
+  getPipelineSourceSchema,
+  previewPipelineSourceConnection,
+  updatePipeline,
+  updatePipelineMapping,
+} from "@/features/pipelines/api/pipelinesApi";
 import { LBL } from "./PipelineConfigFormUi";
 import { parseStatusTags } from "./PipelineConfigFormStatusTags";
 import { CONN_SEQUENCES, getDefaultFields } from "./PipelineConfigTerminal";
@@ -35,27 +52,59 @@ export function PipelineConfigForm({
   const { tenant, partner, isSSO } = useSession();
   const tenants = useAppSelector(selectTenants);
   const creationTenantId = pipeline?.tenantId || tenantId || tenant?.id || tenants[0]?.id || null;
-  const availablePartners = useAppSelector((state) => selectPartnersForTenant(state, creationTenantId));
+  const availablePartners = useAppSelector((state) =>
+    selectPartnersForTenant(state, creationTenantId),
+  );
   const savedConfig = (() => {
     const raw = pipeline?.configJson ?? pipeline?.config ?? {};
     if (typeof raw === "string") {
-      try { return JSON.parse(raw); } catch { return {}; }
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return {};
+      }
     }
     return raw && typeof raw === "object" ? raw : {};
   })();
   const [wizardStep, setWizardStep] = useState(pipeline ? 4 : 1);
   const [name, setName] = useState(pipeline?.name ?? "");
   useEffect(() => {
-    if (creationTenantId) loadPartnersForTenant(creationTenantId).catch((error) => logError("loadPartnersForTenant", error));
+    if (creationTenantId)
+      loadPartnersForTenant(creationTenantId).catch((error) =>
+        logError("loadPartnersForTenant", error),
+      );
   }, [creationTenantId]);
   const [desc, setDesc] = useState(pipeline?.description ?? "");
   const active = pipeline ? pipeline.status === "actif" : true;
-  const [connType, setConnType] = useState((savedConfig.connection?.type || pipeline?.connector?.toLowerCase() || "api").replace("rest", "api"));
+  const [connType, setConnType] = useState(
+    (savedConfig.connection?.type || pipeline?.connector?.toLowerCase() || "api").replace(
+      "rest",
+      "api",
+    ),
+  );
   const freq = savedConfig.schedule?.freq ?? pipeline?.freq ?? "daily";
-  const [executionMode, setExecutionMode] = useState(savedConfig.automation?.mode ?? savedConfig.executionMode ?? "automated");
-  const [tolPct, setTolPct] = useState(savedConfig.detection?.tolerancePct ?? pipeline?.tolerancePct ?? 10);
-  const [tolDays, setTolDays] = useState(savedConfig.detection?.toleranceDays ?? pipeline?.toleranceDays ?? 10);
-  const [kFactor, setKFactor] = useState(savedConfig.detection?.kFactor ?? pipeline?.kFactor ?? 3.0);
+  const [executionMode, setExecutionMode] = useState(
+    savedConfig.automation?.mode ?? savedConfig.executionMode ?? "automated",
+  );
+  const [tolPct, setTolPct] = useState(
+    savedConfig.detection?.tolerancePct ?? pipeline?.tolerancePct ?? 10,
+  );
+  const [tolDays, setTolDays] = useState(
+    savedConfig.detection?.toleranceDays ?? pipeline?.toleranceDays ?? 10,
+  );
+  const [kFactor, setKFactor] = useState(
+    savedConfig.detection?.kFactor ?? pipeline?.kFactor ?? 3.0,
+  );
+  const [recordType] = useState(
+    normalizePipelineRecordType(
+      savedConfig.recordType || pipeline?.recordType,
+      pipeline?.kind || pipeline?.templateKey || savedConfig.template,
+      "INVOICE",
+    ),
+  );
+  const [enabledChecks] = useState(
+    normalizePipelineEnabledChecks(savedConfig.enabledChecks ?? pipeline?.enabledChecks),
+  );
   const [apiUrl, setApiUrl] = useState(savedConfig.connection?.apiUrl ?? "");
   const [apiAuth, setApiAuth] = useState(savedConfig.connection?.apiAuth ?? "Bearer token");
   const [apiToken, setApiToken] = useState(savedConfig.connection?.apiToken ?? "");
@@ -70,13 +119,17 @@ export function PipelineConfigForm({
   const [sftpPort, setSftpPort] = useState(savedConfig.connection?.sftpPort ?? "22");
   const [sftpUser, setSftpUser] = useState(savedConfig.connection?.sftpUser ?? "");
   const [sftpPath, setSftpPath] = useState(savedConfig.connection?.sftpPath ?? "");
-  const [sftpAuthMethod, setSftpAuthMethod] = useState(savedConfig.connection?.sftpAuthMethod ?? "password");
+  const [sftpAuthMethod, setSftpAuthMethod] = useState(
+    savedConfig.connection?.sftpAuthMethod ?? "password",
+  );
   const [sftpPass, setSftpPass] = useState(savedConfig.connection?.sftpPass ?? "");
   const [csvDelim, setCsvDelim] = useState(savedConfig.connection?.csvDelim ?? ",");
   const [csvEnc, setCsvEnc] = useState(savedConfig.connection?.csvEnc ?? "UTF-8");
   const [csvHeader, setCsvHeader] = useState(savedConfig.connection?.csvHeader ?? "first");
 
-  const [jdbcTables, setJdbcTables] = useState(savedConfig.jdbc?.tables ?? (pipeline ? [{ name: "factures", alias: "f" }] : []));
+  const [jdbcTables, setJdbcTables] = useState(
+    savedConfig.jdbc?.tables ?? (pipeline ? [{ name: "factures", alias: "f" }] : []),
+  );
   const [jdbcJoins, setJdbcJoins] = useState(savedConfig.jdbc?.joins ?? []);
   const [jdbcWhere, setJdbcWhere] = useState(savedConfig.jdbc?.where ?? "");
   const [discoveredSchema, setDiscoveredSchema] = useState(savedConfig.jdbc?.schema ?? null);
@@ -90,15 +143,43 @@ export function PipelineConfigForm({
   }, [wizardStep, connType]);
 
   // Status workflow fields
-  const [statusCol, setStatusCol] = useState(savedConfig.statusWorkflow?.statusColumn ?? pipeline?.statusColumn ?? "");
-  const [allowedStatuses, setAllowedStatuses] = useState(savedConfig.statusWorkflow?.allowedStatuses ?? pipeline?.allowedStatuses ?? '["VALIDATED","PAID"]');
-  const [provisionalStatuses, setProvisionalStatuses] = useState(savedConfig.statusWorkflow?.provisionalStatuses ?? pipeline?.provisionalStatuses ?? '["Reçu","En attente"]');
-  const [finalStatuses, setFinalStatuses] = useState(savedConfig.statusWorkflow?.finalStatuses ?? pipeline?.finalStatuses ?? '["Comptabilisé","Validé"]');
-  const [importStartDate, setImportStartDate] = useState(savedConfig.statusWorkflow?.importStartDate ?? pipeline?.importStartDate ?? "");
+  const [statusCol, setStatusCol] = useState(
+    savedConfig.statusWorkflow?.statusColumn ?? pipeline?.statusColumn ?? "",
+  );
+  const [allowedStatuses, setAllowedStatuses] = useState(
+    savedConfig.statusWorkflow?.allowedStatuses ??
+      pipeline?.allowedStatuses ??
+      '["VALIDATED","PAID"]',
+  );
+  const [provisionalStatuses, setProvisionalStatuses] = useState(
+    savedConfig.statusWorkflow?.provisionalStatuses ??
+      pipeline?.provisionalStatuses ??
+      '["Reçu","En attente"]',
+  );
+  const [finalStatuses, setFinalStatuses] = useState(
+    savedConfig.statusWorkflow?.finalStatuses ??
+      pipeline?.finalStatuses ??
+      '["Comptabilisé","Validé"]',
+  );
+  const [importStartDate, setImportStartDate] = useState(
+    savedConfig.statusWorkflow?.importStartDate ?? pipeline?.importStartDate ?? "",
+  );
 
-  const [scheduleMode, setScheduleMode] = useState(savedConfig.schedule?.scheduleMode ?? savedConfig.schedule?.mode ?? pipeline?.scheduleMode ?? "MANUAL");
-  const [cronExpression, setCronExpression] = useState(savedConfig.schedule?.cronExpression ?? savedConfig.schedule?.cron ?? pipeline?.cronExpression ?? "0 0 2 * * ?");
-  const [intervalMinutes, setIntervalMinutes] = useState(savedConfig.schedule?.intervalMinutes ?? pipeline?.intervalMinutes ?? "15");
+  const [scheduleMode, setScheduleMode] = useState(
+    savedConfig.schedule?.scheduleMode ??
+      savedConfig.schedule?.mode ??
+      pipeline?.scheduleMode ??
+      "MANUAL",
+  );
+  const [cronExpression, setCronExpression] = useState(
+    savedConfig.schedule?.cronExpression ??
+      savedConfig.schedule?.cron ??
+      pipeline?.cronExpression ??
+      "0 0 2 * * ?",
+  );
+  const [intervalMinutes, setIntervalMinutes] = useState(
+    savedConfig.schedule?.intervalMinutes ?? pipeline?.intervalMinutes ?? "15",
+  );
 
   const [csvFile, setCsvFile] = useState(null);
   const [csvImportPhase, setCsvImportPhase] = useState("idle");
@@ -106,34 +187,39 @@ export function PipelineConfigForm({
   const [csvDetectedFields, setCsvDetectedFields] = useState([]);
   const csvDropRef = useRef();
 
-  const runCsvTerminal = useCallback((fields, rowCount) => {
-    setCsvImportPhase("importing");
-    setCsvImportLines([]);
-    const lastIdx = CSV_IMPORT_SEQUENCE.length - 1;
-    CSV_IMPORT_SEQUENCE.forEach(({ delay, text, color }, idx) => {
-      setTimeout(() => {
-        setCsvImportLines((prev) => [
-          ...prev,
-          {
-            text:
-              text === "__FIELDS__"
-                ? "    " + fields.slice(0, 8).join("  ·  ") + (fields.length > 8 ? `  +${fields.length - 8} autres` : "")
-                : text === "__ROWS__"
-                ? `  → ${rowCount.toLocaleString("fr-FR")} lignes importées`
-                : text,
-            color,
-          },
-        ]);
-        // Complete on the LAST sequence step (was keyed to an exact string that
-        // wasn't present → import stayed "en cours" forever).
-        if (idx === lastIdx) {
-          setCsvImportPhase("done");
-          setCsvDetectedFields(fields);
-          setTimeout(() => setWizardStep(2), 600);
-        }
-      }, delay);
-    });
-  }, [setWizardStep]);
+  const runCsvTerminal = useCallback(
+    (fields, rowCount) => {
+      setCsvImportPhase("importing");
+      setCsvImportLines([]);
+      const lastIdx = CSV_IMPORT_SEQUENCE.length - 1;
+      CSV_IMPORT_SEQUENCE.forEach(({ delay, text, color }, idx) => {
+        setTimeout(() => {
+          setCsvImportLines((prev) => [
+            ...prev,
+            {
+              text:
+                text === "__FIELDS__"
+                  ? "    " +
+                    fields.slice(0, 8).join("  ·  ") +
+                    (fields.length > 8 ? `  +${fields.length - 8} autres` : "")
+                  : text === "__ROWS__"
+                    ? `  → ${rowCount.toLocaleString("fr-FR")} lignes importées`
+                    : text,
+              color,
+            },
+          ]);
+          // Complete on the LAST sequence step (was keyed to an exact string that
+          // wasn't present → import stayed "en cours" forever).
+          if (idx === lastIdx) {
+            setCsvImportPhase("done");
+            setCsvDetectedFields(fields);
+            setTimeout(() => setWizardStep(2), 600);
+          }
+        }, delay);
+      });
+    },
+    [setWizardStep],
+  );
 
   const handleCsvFile = useCallback(
     async (file) => {
@@ -173,11 +259,17 @@ export function PipelineConfigForm({
           runCsvTerminal(preview.headers, preview.row_count);
         } catch (inner) {
           setCsvImportPhase("error");
-          setCsvImportLines([{ text: "  ✗ Import impossible : " + (inner?.message || e?.message || "fichier illisible"), color: "#f87171" }]);
+          setCsvImportLines([
+            {
+              text:
+                "  ✗ Import impossible : " + (inner?.message || e?.message || "fichier illisible"),
+              color: "#f87171",
+            },
+          ]);
         }
       }
     },
-    [runCsvTerminal, pipeline?.id]
+    [runCsvTerminal, pipeline?.id],
   );
 
   const canSubmit = name.trim().length >= 2 && (pipeline || creationTenantId);
@@ -189,12 +281,13 @@ export function PipelineConfigForm({
     { id: "csv", label: "CSV", sub: "Import", LucideComp: FileText },
   ];
 
-  const driverClassName = {
-    PostgreSQL: "org.postgresql.Driver",
-    MySQL: "com.mysql.cj.jdbc.Driver",
-    MSSQL: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
-    Oracle: "oracle.jdbc.OracleDriver",
-  }[jdbcDriver] || "org.postgresql.Driver";
+  const driverClassName =
+    {
+      PostgreSQL: "org.postgresql.Driver",
+      MySQL: "com.mysql.cj.jdbc.Driver",
+      MSSQL: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+      Oracle: "oracle.jdbc.OracleDriver",
+    }[jdbcDriver] || "org.postgresql.Driver";
 
   // Single source of truth: the full JDBC URL (the split host/db mode was removed
   // — it confused users and browser autofill leaked secrets into the db-name field).
@@ -216,8 +309,14 @@ export function PipelineConfigForm({
   });
 
   const aliasForTable = (name = "", index = 0) => {
-    const base = String(name).split("_").map(part => part[0]).join("").toLowerCase().replace(/[^a-z]/g, "") || `t${index + 1}`;
-    const used = new Set(jdbcTables.map(t => t.alias));
+    const base =
+      String(name)
+        .split("_")
+        .map((part) => part[0])
+        .join("")
+        .toLowerCase()
+        .replace(/[^a-z]/g, "") || `t${index + 1}`;
+    const used = new Set(jdbcTables.map((t) => t.alias));
     if (!used.has(base)) return base;
     let next = `${base}${index + 1}`;
     let n = index + 1;
@@ -226,25 +325,25 @@ export function PipelineConfigForm({
   };
 
   const addSchemaTable = (tableName) => {
-    if (!tableName || jdbcTables.some(t => t.name === tableName)) return;
-    setJdbcTables(ts => [...ts, { name: tableName, alias: aliasForTable(tableName, ts.length) }]);
+    if (!tableName || jdbcTables.some((t) => t.name === tableName)) return;
+    setJdbcTables((ts) => [...ts, { name: tableName, alias: aliasForTable(tableName, ts.length) }]);
   };
 
   const addSchemaRelation = (rel) => {
     const fromName = rel.from;
     const toName = rel.to;
-    let fromAlias = jdbcTables.find(t => t.name === fromName)?.alias;
-    let toAlias = jdbcTables.find(t => t.name === toName)?.alias;
-    setJdbcTables(ts => {
+    let fromAlias = jdbcTables.find((t) => t.name === fromName)?.alias;
+    let toAlias = jdbcTables.find((t) => t.name === toName)?.alias;
+    setJdbcTables((ts) => {
       const next = [...ts];
       if (!fromAlias) {
-        const used = new Set(next.map(t => t.alias));
+        const used = new Set(next.map((t) => t.alias));
         fromAlias = aliasForTable(fromName, next.length);
         while (used.has(fromAlias)) fromAlias = `${fromAlias}${next.length + 1}`;
         next.push({ name: fromName, alias: fromAlias });
       }
       if (!toAlias) {
-        const used = new Set(next.map(t => t.alias));
+        const used = new Set(next.map((t) => t.alias));
         toAlias = aliasForTable(toName, next.length);
         while (used.has(toAlias)) toAlias = `${toAlias}${next.length + 1}`;
         next.push({ name: toName, alias: toAlias });
@@ -252,7 +351,11 @@ export function PipelineConfigForm({
       return next;
     });
     const condition = `${fromAlias}.${rel.col} = ${toAlias}.${rel.toCol || rel.col}`;
-    setJdbcJoins(js => js.some(j => j.condition === condition) ? js : [...js, { fromAlias, toAlias, condition, type: "LEFT" }]);
+    setJdbcJoins((js) =>
+      js.some((j) => j.condition === condition)
+        ? js
+        : [...js, { fromAlias, toAlias, condition, type: "LEFT" }],
+    );
   };
 
   const discoverSourceSchema = async () => {
@@ -272,7 +375,8 @@ export function PipelineConfigForm({
       const test = await previewPipelineSourceConnection(connectorPayload());
       if (test?.status === "error") throw new Error(test.message || "Connexion impossible");
       const res = await getPipelineSourceSchema(connectorPayload());
-      if (res?.status === "error") throw new Error(res.message || "Découverte du schéma impossible");
+      if (res?.status === "error")
+        throw new Error(res.message || "Découverte du schéma impossible");
       const tables = res?.tables || [];
       const schema = { tables, rels: inferSchemaRelations(tables, res?.rels || []) };
       setDiscoveredSchema(schema);
@@ -292,7 +396,7 @@ export function PipelineConfigForm({
       return;
     }
     if (wizardStep === 2 && connType === "jdbc") {
-      const schema = discoveredSchema || await discoverSourceSchema();
+      const schema = discoveredSchema || (await discoverSourceSchema());
       if (!schema) return;
       setWizardStep(3);
       return;
@@ -353,6 +457,8 @@ export function PipelineConfigForm({
         autoRun: executionMode === "automated",
       },
       executionMode,
+      recordType,
+      enabledChecks,
       statusWorkflow: {
         statusColumn: statusCol,
         allowedStatuses,
@@ -380,6 +486,8 @@ export function PipelineConfigForm({
       provisionalStatuses,
       finalStatuses,
       importStartDate,
+      recordType,
+      enabledChecks,
       configJson,
     };
     // Backend-shaped config (PipelineConfigDTO): this is what actually
@@ -399,6 +507,8 @@ export function PipelineConfigForm({
       provisionalStatuses: parseStatusTags(provisionalStatuses),
       finalStatuses: parseStatusTags(finalStatuses),
       importStartDate: importStartDate || null,
+      recordType,
+      enabledChecks,
     };
     if (pipeline) {
       // Persist name/status (drives the scheduler) then the config; the
@@ -421,7 +531,12 @@ export function PipelineConfigForm({
         adminTenantId: creationTenantId,
         name: patch.name,
         isCustom: connType === "csv",
-        sourceType: connType === "csv" ? "CSV" : String(connType || "JDBC").toUpperCase().replace("REST", "API"),
+        sourceType:
+          connType === "csv"
+            ? "CSV"
+            : String(connType || "JDBC")
+                .toUpperCase()
+                .replace("REST", "API"),
         config: { ...backendConfig, isCustom: connType === "csv" },
       });
       onSubmitted(created?.id);
@@ -451,10 +566,12 @@ export function PipelineConfigForm({
           {
             text:
               text === "__FIELDS__"
-                ? "    " + fields.slice(0, 8).join("  ·  ") + (fields.length > 8 ? `  +${fields.length - 8} autres` : "")
+                ? "    " +
+                  fields.slice(0, 8).join("  ·  ") +
+                  (fields.length > 8 ? `  +${fields.length - 8} autres` : "")
                 : text === "__ROWS__"
-                ? `  → ${rows.toLocaleString("fr-FR")} enregistrements chargés`
-                : text,
+                  ? `  → ${rows.toLocaleString("fr-FR")} enregistrements chargés`
+                  : text,
             color,
           },
         ]);
@@ -471,7 +588,9 @@ export function PipelineConfigForm({
     }
     runConnTerminal();
   };
-  const handleConfirmCreate = () => { persist(); };
+  const handleConfirmCreate = () => {
+    persist();
+  };
 
   /* ══════════════════════════════════════════════════════
      RENDER
@@ -496,24 +615,54 @@ export function PipelineConfigForm({
         /* ── Wizard ── */
         <div className={styles.wizardShell}>
           <div className={styles.wizardBody}>
-
             {/* ── Sidebar Stepper ── */}
             <div className={styles.stepper}>
               {[
-                { stepNum: 1, title: "1. Identité & Rythme", desc: "Nom, partenaire et planification" },
-                { stepNum: 2, title: "2. Connexion Source", desc: "Credentials et type de connecteur" },
+                {
+                  stepNum: 1,
+                  title: "1. Identité & Rythme",
+                  desc: "Nom, partenaire et planification",
+                },
+                {
+                  stepNum: 2,
+                  title: "2. Connexion Source",
+                  desc: "Credentials et type de connecteur",
+                },
                 { stepNum: 3, title: "3. Exploration", desc: "Tables, colonnes et relations" },
                 { stepNum: 4, title: "4. Paramètres MAD", desc: "Seuils, tolérances et clusters" },
               ].map((s) => {
                 const isPast = s.stepNum < wizardStep;
                 const isCurrent = s.stepNum === wizardStep;
                 return (
-                  <div key={s.stepNum} className={`${styles.stepItem} ${isCurrent ? styles.stepItemCurrent : ""}`}>
+                  <div
+                    key={s.stepNum}
+                    className={`${styles.stepItem} ${isCurrent ? styles.stepItemCurrent : ""}`}
+                  >
                     <div className={styles.stepHeader}>
-                      <div className={`${styles.stepBadge} ${isPast ? styles.stepBadgePast : isCurrent ? styles.stepBadgeCurrent : styles.stepBadgeUpcoming}`}>
-                        {isPast ? <Check size={10} strokeWidth={3} color={isPast ? (s.stepNum < wizardStep && s.stepNum === 1 ? COLORS.grey500 : COLORS.success) : COLORS.grey500} /> : s.stepNum}
+                      <div
+                        className={`${styles.stepBadge} ${isPast ? styles.stepBadgePast : isCurrent ? styles.stepBadgeCurrent : styles.stepBadgeUpcoming}`}
+                      >
+                        {isPast ? (
+                          <Check
+                            size={10}
+                            strokeWidth={3}
+                            color={
+                              isPast
+                                ? s.stepNum < wizardStep && s.stepNum === 1
+                                  ? COLORS.grey500
+                                  : COLORS.success
+                                : COLORS.grey500
+                            }
+                          />
+                        ) : (
+                          s.stepNum
+                        )}
                       </div>
-                      <span className={`${styles.stepTitle} ${isCurrent ? styles.stepTitleCurrent : ""}`}>{s.title}</span>
+                      <span
+                        className={`${styles.stepTitle} ${isCurrent ? styles.stepTitleCurrent : ""}`}
+                      >
+                        {s.title}
+                      </span>
                     </div>
                     <span className={styles.stepDesc}>{s.desc}</span>
                   </div>
@@ -523,7 +672,6 @@ export function PipelineConfigForm({
 
             {/* ── Main content ── */}
             <div ref={contentRef} className={styles.contentPanel}>
-
               {/* ══ STEP 1 ══ */}
               {wizardStep === 1 && (
                 <PipelineGeneralSettingsStep
@@ -554,10 +702,23 @@ export function PipelineConfigForm({
                       {CONNS.map((c) => {
                         const sel = connType === c.id;
                         return (
-                          <button key={c.id} type="button" onClick={() => setConnType(c.id)} className={`${styles.connectorButton} ${sel ? styles.connectorButtonSelected : ""}`}>
-                            <c.LucideComp size={16} color={sel ? COLORS.red : COLORS.grey400} strokeWidth={2} />
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => setConnType(c.id)}
+                            className={`${styles.connectorButton} ${sel ? styles.connectorButtonSelected : ""}`}
+                          >
+                            <c.LucideComp
+                              size={16}
+                              color={sel ? COLORS.red : COLORS.grey400}
+                              strokeWidth={2}
+                            />
                             <span>{c.label}</span>
-                            <span className={`${styles.connectorSub} ${sel ? styles.connectorSubSelected : ""}`}>{c.sub}</span>
+                            <span
+                              className={`${styles.connectorSub} ${sel ? styles.connectorSubSelected : ""}`}
+                            >
+                              {c.sub}
+                            </span>
                           </button>
                         );
                       })}
@@ -627,8 +788,6 @@ export function PipelineConfigForm({
                     finalStatuses={finalStatuses}
                     setFinalStatuses={setFinalStatuses}
                   />
-
-
                 </div>
               )}
 
@@ -670,28 +829,58 @@ export function PipelineConfigForm({
           <div className={styles.footer}>
             <div className={styles.footerGroup}>
               {wizardStep === 1 ? (
-                <button type="button" onClick={onCancel} className={["btn-ghost", styles.footerGhostButton].join(" ")}>Annuler</button>
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className={["btn-ghost", styles.footerGhostButton].join(" ")}
+                >
+                  Annuler
+                </button>
               ) : (
-                <button type="button" onClick={() => setWizardStep((s) => s - 1)} className={["btn-ghost", styles.footerBackButton].join(" ")}>
+                <button
+                  type="button"
+                  onClick={() => setWizardStep((s) => s - 1)}
+                  className={["btn-ghost", styles.footerBackButton].join(" ")}
+                >
                   <ChevronLeft size={14} /> Précédent
                 </button>
               )}
               {onOpenSeries && (
-                <button type="button" onClick={onOpenSeries} className={["btn-ghost", styles.seriesButton].join(" ")}>
+                <button
+                  type="button"
+                  onClick={onOpenSeries}
+                  className={["btn-ghost", styles.seriesButton].join(" ")}
+                >
                   <FileText size={13} color={COLORS.grey500} /> Config séries
                 </button>
               )}
             </div>
             <div className={styles.footerGroupRight}>
-              {!canSubmit && name.trim().length < 2 && <span className={styles.requiredHint}>Nom requis (min. 2 caractères)</span>}
+              {!canSubmit && name.trim().length < 2 && (
+                <span className={styles.requiredHint}>Nom requis (min. 2 caractères)</span>
+              )}
               {wizardStep < 4 ? (
-                <button type="button" onClick={goNext} disabled={(wizardStep === 1 && name.trim().length < 2) || schemaLoading} className={["btn-primary", styles.primaryFooterButton].join(" ")}>
+                <button
+                  type="button"
+                  onClick={goNext}
+                  disabled={(wizardStep === 1 && name.trim().length < 2) || schemaLoading}
+                  className={["btn-primary", styles.primaryFooterButton].join(" ")}
+                >
                   Suivant <ArrowRight size={14} color="#fff" className={styles.nextIcon} />
                 </button>
               ) : (
-                <button type="button" onClick={handleCreate} disabled={!canSubmit} className={["btn-primary", styles.primaryFooterButton].join(" ")}>
+                <button
+                  type="button"
+                  onClick={handleCreate}
+                  disabled={!canSubmit}
+                  className={["btn-primary", styles.primaryFooterButton].join(" ")}
+                >
                   <Check size={14} color="#fff" />
-                  {pipeline ? "Sauvegarder" : executionMode === "automated" ? "Créer et lancer" : "Créer le pipeline"}
+                  {pipeline
+                    ? "Sauvegarder"
+                    : executionMode === "automated"
+                      ? "Créer et lancer"
+                      : "Créer le pipeline"}
                 </button>
               )}
             </div>

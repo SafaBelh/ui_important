@@ -15,7 +15,16 @@ import {
   Settings2,
   X,
 } from "lucide-react";
-import { CUSTOM_PIPELINE_COLORS, PIPELINE_DEFS } from "@/constants/integrationWizard";
+import {
+  CUSTOM_PIPELINE_COLORS,
+  DEFAULT_PIPELINE_ENABLED_CHECKS,
+  PIPELINE_DEFS,
+  PIPELINE_ENABLED_CHECK_OPTIONS,
+  PIPELINE_RECORD_TYPE_OPTIONS,
+  defaultRecordTypeForPipeline,
+  normalizePipelineEnabledChecks,
+  normalizePipelineRecordType,
+} from "@/constants/integrationWizard";
 import { INTEGRATION_COLORS } from "@/features/integrations/utils/theme";
 import { normalizePipelineField } from "@/features/integrations/utils/wizardHelpers";
 import {
@@ -93,6 +102,8 @@ export function PipelinesStep({ data, setData, schema }) {
   const defaultPipeline = useMemo(
     () => ({
       enabled: true,
+      recordType: defaultRecordTypeForPipeline(activeTab, isBuiltin ? "INVOICE" : "OTHER"),
+      enabledChecks: [...DEFAULT_PIPELINE_ENABLED_CHECKS],
       tables: [],
       joins: [],
       conditions: [],
@@ -101,10 +112,27 @@ export function PipelinesStep({ data, setData, schema }) {
       userFields: [],
       groupByCols: [],
     }),
-    [],
+    [activeTab, isBuiltin],
   );
-  const pl = pipelines[activeTab] || defaultPipeline;
+  const pl = useMemo(
+    () => ({ ...defaultPipeline, ...(pipelines[activeTab] || {}) }),
+    [activeTab, defaultPipeline, pipelines],
+  );
   const setPl = useCallback((val) => setPipeline(activeTab, val), [activeTab, setPipeline]);
+  const recordType = normalizePipelineRecordType(
+    pl.recordType,
+    activeTab,
+    isBuiltin ? "INVOICE" : "OTHER",
+  );
+  const enabledChecks = normalizePipelineEnabledChecks(pl.enabledChecks);
+  const toggleEnabledCheck = (check) => {
+    const next = enabledChecks.includes(check)
+      ? enabledChecks.filter((item) => item !== check)
+      : DEFAULT_PIPELINE_ENABLED_CHECKS.filter(
+          (item) => item === check || enabledChecks.includes(item),
+        );
+    setPl({ ...pl, enabledChecks: next });
+  };
   const toggleTable = (tname) =>
     setPl({
       ...pl,
@@ -319,6 +347,46 @@ export function PipelinesStep({ data, setData, schema }) {
 
       {pl.enabled !== false && (
         <>
+          <div className={styles.pipelineOptions}>
+            <label className={styles.optionField}>
+              <span className={styles.optionLabel}>Type d'enregistrement</span>
+              <span className={styles.optionHint}>Préféré au type legacy du pipeline.</span>
+              <select
+                className={cx("select", styles.recordTypeSelect)}
+                value={recordType}
+                onChange={(event) => setPl({ ...pl, recordType: event.target.value })}
+              >
+                {PIPELINE_RECORD_TYPE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label} · {option.value}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className={styles.optionField}>
+              <span className={styles.optionLabel}>Contrôles activés</span>
+              <span className={styles.optionHint}>
+                Transmis au DTO PipelineConfigDTO.enabledChecks.
+              </span>
+              <div className={styles.checkGrid}>
+                {PIPELINE_ENABLED_CHECK_OPTIONS.map((check) => (
+                  <label
+                    key={check.value}
+                    className={styles.checkChip}
+                    data-checked={enabledChecks.includes(check.value)}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={enabledChecks.includes(check.value)}
+                      onChange={() => toggleEnabledCheck(check.value)}
+                    />
+                    {check.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <SectionAccordion
             icon={<Database size={13} color={INTEGRATION_COLORS.red} />}
             title="Tables sources"
