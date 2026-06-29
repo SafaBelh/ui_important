@@ -34,7 +34,3 @@ export function getBudgetSuivi(params) {
 export function getBudgetAnalysis(params) {
   return requestData("GET", "/budget/analysis", params);
 }
-
-export function createManualCommande(pipelineId, payload) {
-  return requestData("POST", `/budget/commandes/manual/${pipelineId}`, payload);
-}

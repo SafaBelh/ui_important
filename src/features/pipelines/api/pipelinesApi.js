@@ -47,12 +47,12 @@ export function getPipelineSourceSchema(payload) {
   return requestData("POST", "/pipelines/source/schema", payload);
 }
 
-export function checkPipelineInvoice(pipelineId, payload) {
-  return requestData("POST", `/pipelines/${pipelineId}/invoices/check`, payload);
+export function checkPipelineDocument(pipelineId, payload) {
+  return requestData("POST", `/pipelines/${pipelineId}/documents/check`, payload);
 }
 
-export function confirmPipelineInvoice(pipelineId, payload) {
-  return requestData("POST", `/pipelines/${pipelineId}/invoices/confirm`, payload);
+export function confirmPipelineDocument(pipelineId, payload) {
+  return requestData("POST", `/pipelines/${pipelineId}/documents/confirm`, payload);
 }
 
 export function getPipelineRuns(pipelineId, params) {

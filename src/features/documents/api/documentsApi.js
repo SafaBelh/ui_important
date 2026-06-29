@@ -10,10 +10,6 @@ async function getData(url, params) {
   }
 }
 
-export function getInvoices(params) {
-  return getData("/invoices", params);
-}
-
-export function getCommandes(params) {
-  return getData("/budget/commandes", params);
+export function getDocuments(params) {
+  return getData("/documents", params);
 }

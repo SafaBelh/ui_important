@@ -1,6 +1,6 @@
 import { getAlerts } from "@/features/alerts/api/alertsApi";
 import { alertsCacheUpdated } from "@/features/alerts/model/alertsSlice";
-import { getCommandes, getInvoices } from "@/features/documents/api/documentsApi";
+import { getDocuments } from "@/features/documents/api/documentsApi";
 import { commandesCacheUpdated, invoicesCacheUpdated } from "@/features/documents/model/documentsSlice";
 import { partnersCacheUpdated } from "@/features/partners/model/partnersSlice";
 import { getPipelines } from "@/features/pipelines/api/pipelinesApi";
@@ -76,33 +76,119 @@ function normalizeAlert(alert = {}) {
   };
 }
 
-/** Normalizes invoice identity and workflow fields across tenant-specific ERP exports. */
-function normalizeInvoice(invoice = {}) {
-  const extraFields = invoice.extraFields || {};
+function pageItems(response) {
+  return response?.content || response?.commandes || response || [];
+}
+
+function firstNonBlank(...values) {
+  return values.find((value) => value != null && String(value).trim() !== "");
+}
+
+function parseGroupKey(groupKey) {
+  if (!groupKey) return {};
+  return String(groupKey).split("|").reduce((acc, part) => {
+    const index = part.indexOf("=");
+    if (index <= 0) return acc;
+    acc[part.slice(0, index).trim()] = part.slice(index + 1).trim();
+    return acc;
+  }, {});
+}
+
+function pickExtra(extraFields = {}, needles) {
   const extraKeys = Object.keys(extraFields);
-  // Imported ERP files use tenant-specific column names, so invoice identity fields are matched by aliases.
-  const pickExtra = (needles) => {
-    for (const needle of needles) {
-      const key = extraKeys.find((item) => item.toLowerCase().includes(needle));
-      if (key && extraFields[key] != null && String(extraFields[key]).trim() !== "") return extraFields[key];
-    }
-    return undefined;
-  };
+  for (const needle of needles) {
+    const key = extraKeys.find((item) => item.toLowerCase().includes(needle));
+    if (key && extraFields[key] != null && String(extraFields[key]).trim() !== "") return extraFields[key];
+  }
+  return undefined;
+}
+
+function pickGroupValue(groupValues, aliases) {
+  const entries = Object.entries(groupValues || {});
+  const match = entries.find(([key]) => aliases.some((alias) => key.toLowerCase() === alias.toLowerCase()));
+  return match?.[1];
+}
+
+function cleanSourceKey(value) {
+  if (value == null) return undefined;
+  const text = String(value);
+  return text.includes("\u001f") ? undefined : text;
+}
+
+function normalizeDocumentStatus(status, recordType) {
+  const raw = String(status || "").toUpperCase();
+  if (recordType === "COMMANDE") return raw === "ANOMALY" ? "OVER_BUDGET" : raw ? "ON_TRACK" : "";
+  return raw === "ANOMALY" ? "anomaly" : raw.toLowerCase();
+}
+
+function normalizeDocument(document = {}, fallbackRecordType = "INVOICE") {
+  const extraFields = document.extraFields || {};
+  const groupValues = parseGroupKey(document.groupKey);
+  const recordType = String(document.recordType || fallbackRecordType).toUpperCase();
+  const sourceKey = cleanSourceKey(document.sourceKey);
+  const reference = firstNonBlank(
+    document.reference,
+    pickExtra(extraFields, ["ref_facture", "reffacture", "facture_ref", "num_facture", "numfacture", "numero_facture", "ref_piece", "piece", "invoice_ref", "commande", "reference"]),
+    sourceKey,
+    document.invoice_ref,
+    document.externalId,
+    document.id,
+  );
+  const supplier = firstNonBlank(
+    document.supplier,
+    document.supplierName,
+    pickGroupValue(groupValues, ["supplier", "supplier_code", "supplierName", "vendor", "vendor_code", "fournisseur"]),
+    pickExtra(extraFields, ["supplier", "fournisseur", "vendor"]),
+  );
+  const label = firstNonBlank(
+    document.label,
+    pickGroupValue(groupValues, ["label", "category", "categoryName", "libelle"]),
+    pickExtra(extraFields, ["label", "libelle", "category"]),
+    recordType === "INVOICE" ? document.groupLabel : undefined,
+  );
+  const budgetCode = firstNonBlank(
+    document.budgetCode,
+    document.budgetAxisKey,
+    pickGroupValue(groupValues, ["budgetCode", "budget_code", "ligne_budgetaire", "budget", "centre", "article"]),
+    pickExtra(extraFields, ["budget", "budget_code", "ligne_budgetaire", "centre", "article"]),
+    recordType === "COMMANDE" ? document.groupLabel : undefined,
+  );
+  const date = document.date || document.invoiceDate || document.commandeDate || "";
+  const amount = document.amount ?? document.orderedAmount ?? 0;
 
   return {
-    ...invoice,
-    date: invoice.date || invoice.invoiceDate || "",
-    amount: invoice.amount ?? 0,
-    status: String(invoice.status || "").toLowerCase(),
-    reference: invoice.reference
-      || pickExtra(["ref_facture", "reffacture", "facture_ref", "num_facture", "numfacture", "numero_facture", "ref_piece", "piece", "invoice_ref", "reference"])
-      || invoice.invoice_ref || invoice.externalId || invoice.id,
-    establishment: invoice.establishment
-      || pickExtra(["etablissement", "etab", "jrneta", "societe", "entite", "site", "establishment"]) || "",
-    extStatus: invoice.extStatus
-      || pickExtra(["epfextsta", "ext_status", "extstatus", "statut_externe", "statut", "etat_workflow", "etat"])
-      || invoice.accountingStatus || "",
+    ...document,
+    extraFields,
+    recordType,
+    date,
+    amount,
+    status: normalizeDocumentStatus(document.status, recordType),
+    reference,
+    invoice_ref: recordType === "INVOICE" ? firstNonBlank(document.invoice_ref, reference) : document.invoice_ref,
+    commandeRef: recordType === "COMMANDE" ? firstNonBlank(document.commandeRef, reference) : document.commandeRef,
+    supplier,
+    supplierName: firstNonBlank(document.supplierName, supplier),
+    label,
+    establishment: document.establishment
+      || pickExtra(extraFields, ["etablissement", "etab", "jrneta", "societe", "entite", "site", "establishment"]) || "",
+    extStatus: document.extStatus
+      || document.sourceStatus
+      || pickExtra(extraFields, ["epfextsta", "ext_status", "extstatus", "statut_externe", "statut", "etat_workflow", "etat"])
+      || document.accountingStatus || "",
+    budgetCode,
+    orderedAmount: recordType === "COMMANDE" ? amount : document.orderedAmount,
+    commandeDate: recordType === "COMMANDE" ? date : document.commandeDate,
   };
+}
+
+/** Normalizes invoice identity and workflow fields across tenant-specific ERP exports. */
+function normalizeInvoice(invoice = {}) {
+  return normalizeDocument(invoice, "INVOICE");
+}
+
+/** Normalizes purchase-order documents to the commande row shape expected by the UI. */
+function normalizeCommande(commande = {}) {
+  return normalizeDocument(commande, "COMMANDE");
 }
 
 /** Loads pipelines for one tenant, normalizes backend variants, and refreshes the Redux cache. */
@@ -126,8 +212,8 @@ export async function loadAlertsForTenant(tenantId) {
 /** Loads invoices for one tenant, preserving ERP-derived identifiers used by the UI. */
 export async function loadInvoicesForTenant(tenantId, size = 1000) {
   if (!tenantId) return [];
-  const response = await getInvoices(adminParams(tenantId, size));
-  const invoices = (response?.content || response || []).map(normalizeInvoice);
+  const response = await getDocuments({ ...adminParams(tenantId, size), recordType: "INVOICE" });
+  const invoices = pageItems(response).map(normalizeInvoice);
   dispatchApp(invoicesCacheUpdated({ tenantId, invoices }));
   return invoices;
 }
@@ -135,11 +221,21 @@ export async function loadInvoicesForTenant(tenantId, size = 1000) {
 /** Loads purchase orders for one tenant and tolerates both paged and raw-array API responses. */
 export async function loadCommandesForTenant(tenantId, size = 1000) {
   if (!tenantId) return [];
-  const response = await getCommandes(adminParams(tenantId, size));
-  const commandes = response?.content || response?.commandes || response || [];
+  const response = await getDocuments({ ...adminParams(tenantId, size), recordType: "COMMANDE" });
+  const commandes = pageItems(response).map(normalizeCommande);
   const list = Array.isArray(commandes) ? commandes : [];
   dispatchApp(commandesCacheUpdated({ tenantId, commandes: list }));
   return list;
+}
+
+/** Loads all document records for one tenant while refreshing the legacy split caches. */
+export async function loadDocumentsForTenant(tenantId, size = 1000) {
+  if (!tenantId) return [];
+  const response = await getDocuments(adminParams(tenantId, size));
+  const documents = pageItems(response).map((document) => normalizeDocument(document, document.recordType || "INVOICE"));
+  dispatchApp(invoicesCacheUpdated({ tenantId, invoices: documents.filter((document) => document.recordType === "INVOICE") }));
+  dispatchApp(commandesCacheUpdated({ tenantId, commandes: documents.filter((document) => document.recordType === "COMMANDE") }));
+  return documents;
 }
 
 /** Loads ERP partner connections from the admin or tenant endpoint based on the current role. */

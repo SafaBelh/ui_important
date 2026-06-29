@@ -13,7 +13,7 @@ import { useAppSelector } from "@/store/hooks";
 import { loadAlertsForTenant, loadPipelinesForTenant } from "@/shared/model/dataLoaders";
 import { formatEuro, formatCompactEuro } from "@/utils/formatters";
 import { getTenantStatsCharts, getTenantStatsSummary } from "@/features/dashboard/api/DashboardApi";
-import { getInvoices } from "@/features/documents/api/documentsApi";
+import { getDocuments } from "@/features/documents/api/documentsApi";
 import { ChartSectionDivider, TenantSectionNav } from "@/features/dashboard/components/TenantDashboardChrome";
 import { buildTenantDashboardData } from "@/features/dashboard/model/tenantDashboardModel";
 import { logError } from "@/shared/utils/logError";
@@ -68,8 +68,13 @@ export function TenantDashboardView({ onNavigate }) {
     getTenantStatsCharts({ adminTenantId: tenantId }).then(setCharts).catch(() => setCharts(null));
     // Recent anomaly invoices feed = a paginated list (not an aggregation): the
     // backend returns the rows ready to render.
-    getInvoices({ status: "ANOMALY", size: 10, adminTenantId: tenantId })
-      .then(res => setRecentAnomalies(res?.content || res || []))
+    getDocuments({ status: "ANOMALY", recordType: "INVOICE", size: 10, adminTenantId: tenantId })
+      .then(res => setRecentAnomalies((res?.content || res || []).map((document) => ({
+        ...document,
+        reference: document.reference || document.sourceKey || document.id,
+        supplier: document.supplier || document.groupLabel || document.groupKey,
+        anomalyScore: document.anomalyScore ?? document.score,
+      }))))
       .catch(() => setRecentAnomalies([]));
   }, [tenantId]);
 

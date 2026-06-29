@@ -98,27 +98,27 @@ export const wsAPI = {
 
   /* ── Suppliers / Distributions (computed from invoices) ────────────────── */
   getSupplierCounts: async () => {
-    const res = await requestData("GET", "/invoices/supplier-counts");
+    const res = await requestData("GET", "/documents/group-counts", tparams());
     return { supplier_counts: res || {} };
   },
 
   getDistribution: async () => {
-    const res = await requestData("GET", "/invoices/distribution");
+    const res = await requestData("GET", "/documents/distribution", tparams());
     return { amounts: res?.amounts || [] };
   },
 
   getMonthlyTotals: async () => {
-    const res = await requestData("GET", "/invoices/monthly-totals");
+    const res = await requestData("GET", "/documents/monthly-totals", tparams());
     return res || { months: [], totals: [] };
   },
 
   getTimeseries: async () => {
-    const res = await requestData("GET", "/invoices/timeseries");
+    const res = await requestData("GET", "/documents/timeseries", tparams());
     return res || { data: [] };
   },
 
   getAllInvoices: async () => {
-    const res = await requestData("GET", "/invoices", { size: 1000 });
+    const res = await requestData("GET", "/documents", tparams({ recordType: "INVOICE", size: 1000 }));
     return res || { invoices: [] };
   },
 
@@ -330,13 +330,14 @@ export const wsAPI = {
 
   /* ── Single invoice ────────────────────────────────────────────────────── */
   addInvoice: async (supplier, amount, date, label, status) => {
-    await requestData("POST", `/pipelines/${pid()}/invoices/check`, {
-      supplierCode: supplier,
+    await requestData("POST", `/pipelines/${pid()}/documents/check`, tparams({
+      recordType: "INVOICE",
+      groupKey: [supplier ? `supplier_code=${supplier}` : null, label ? `label=${label}` : null].filter(Boolean).join("|"),
+      groupLabel: [supplier, label].filter(Boolean).join(" · "),
       amount,
-      invoiceDate: date,
-      label: label || null,
-      status: status || "VALID",
-    });
+      date,
+      sourceStatus: status || "VALID",
+    }));
     return { ok: true };
   },
 };

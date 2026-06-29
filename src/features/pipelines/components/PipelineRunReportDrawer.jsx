@@ -5,7 +5,7 @@ import {
   Play, RefreshCw, ScrollText, X
 } from "lucide-react";
 import { COLORS } from "@/constants/colors";
-import { getInvoices } from "@/features/documents/api/documentsApi";
+import { getDocuments } from "@/features/documents/api/documentsApi";
 import { getPipelineRunLogs, getPipelineRuns } from "@/features/pipelines/api/pipelinesApi";
 import { getUser } from "@/shared/api/authStorage";
 import { logError } from "@/shared/utils/logError";
@@ -143,7 +143,7 @@ export function PipelineRunReportDrawer({ open, onClose, pipeline, tenantName })
   useEffect(() => {
     if (!open || !pipeline?.id) { setNoiseInvoices([]); return; }
     let live = true;
-    getInvoices({ pipelineId: pipeline.id, status: "NOISE", size: 500, ...adminParams() })
+    getDocuments({ pipelineId: pipeline.id, status: "NOISE", size: 500, ...adminParams() })
       .then(res => { if (live) setNoiseInvoices(res?.content || res || []); })
       .catch((error) => { logError("pipelineRunReport.loadNoiseInvoices", error); if (live) setNoiseInvoices([]); });
     return () => { live = false; };
@@ -158,7 +158,7 @@ export function PipelineRunReportDrawer({ open, onClose, pipeline, tenantName })
     createdAt: inv.importedAt || inv.createdAt,
     rawSummary: "Ligne retirée au nettoyage (cluster bruité / hors série)",
     reason: inv.ignoreReason || "Retirée par le clustering (cluster trop petit)",
-    supplier: inv.supplier,
+    supplier: inv.supplier || inv.groupLabel || inv.groupKey,
     amount: inv.amount,
     invoiceDate: inv.date,
   })), [noiseInvoices]);

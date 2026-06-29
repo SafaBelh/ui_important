@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getCommandes, getInvoices } from "../api/documentsApi";
+import { getDocuments } from "../api/documentsApi";
 
 const initialState = {
   invoicesByTenantId: {},
@@ -12,7 +12,7 @@ export const fetchInvoicesForTenant = createAsyncThunk(
   "documents/fetchInvoicesForTenant",
   async ({ tenantId, isEngineAdmin, size = 1000 }) => {
     const params = isEngineAdmin ? { adminTenantId: tenantId, size } : { size };
-    const response = await getInvoices(params);
+    const response = await getDocuments({ ...params, recordType: "INVOICE" });
     return { tenantId, invoices: response?.content || response || [] };
   }
 );
@@ -21,7 +21,7 @@ export const fetchCommandesForTenant = createAsyncThunk(
   "documents/fetchCommandesForTenant",
   async ({ tenantId, isEngineAdmin, size = 1000 }) => {
     const params = isEngineAdmin ? { adminTenantId: tenantId, size } : { size };
-    const response = await getCommandes(params);
+    const response = await getDocuments({ ...params, recordType: "COMMANDE" });
     return { tenantId, commandes: response?.content || response?.commandes || response || [] };
   }
 );
